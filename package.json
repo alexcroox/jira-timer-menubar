@@ -11,6 +11,11 @@
     "build": "NODE_ENV=production webpack --config webpack.config.production.babel.js && electron-packager . --platform=darwin --arch=all --prune --out release --overwrite --icon ./app.icns"
   },
   "author": "Alex Crooks",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexcroox/jira-timer"
+  },
+  "license": "MIT",
   "engine-strict": true,
   "engines": {
     "node": ">= 6.x",
@@ -37,6 +42,8 @@
     "fix-path": "^2.1.0",
     "history": "^4.7.2",
     "keytar": "^4.1.0",
+    "lodash.find": "^4.6.0",
+    "lodash.findindex": "^4.6.0",
     "menubar": "^5.1.0",
     "node-loader": "^0.6.0",
     "pretty-ms": "^3.1.0",

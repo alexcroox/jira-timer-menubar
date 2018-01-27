@@ -5,6 +5,7 @@ import { combineReducers } from 'redux-seamless-immutable'
 import Immutable from 'seamless-immutable'
 import thunk from 'redux-thunk'
 import user from '../modules/user'
+import timer from '../modules/timer'
 
 const initialState = Immutable({})
 const enhancers = []
@@ -16,6 +17,7 @@ const middleware = [
 
 const reducer = combineReducers({
   user,
+  timer,
   router: routerReducer,
 })
 

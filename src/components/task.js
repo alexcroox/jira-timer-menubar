@@ -13,8 +13,8 @@ class Task extends Component {
 
   render() {
     return (
-      <TaskWrapper>
-        <Play icon={faPlay} />
+      <TaskWrapper hasTimer={this.props.hasTimer}>
+        <Play icon={faPlay} onClick={this.props.onAddTimer} />
         <TaskTitle>{this.props.title}</TaskTitle>
         <TaskKey>{this.props.taskKey}</TaskKey>
       </TaskWrapper>
@@ -59,6 +59,14 @@ const TaskWrapper = styled.div`
   &:hover {
     cursor: pointer;
   }
+
+  ${props => (props.hasTimer) && css`
+    background-color: rgba(35,129,250,0.1) !important;
+
+    & > ${Play} {
+      opacity: 0;
+    }
+  `}
 
   &:hover ${Play} {
     color: #6B6B6B;

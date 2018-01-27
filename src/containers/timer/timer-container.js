@@ -1,27 +1,62 @@
+import { remote } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { deleteTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
+import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
 import { TaskTitle } from '../../components/task'
 import Button from '../../components/button'
 
 class TimerContainer extends Component {
   constructor (props) {
     super(props)
+
+    this.onOpenOptions = this.onOpenOptions.bind(this)
+  }
+
+  onOpenOptions (timerId) {
+    const {Menu, MenuItem} = remote
+
+    let deleteTimer = this.deleteTimer.bind(this)
+
+    const menu = new Menu()
+
+    menu.append(new MenuItem({
+      label: 'Post 1h 10m to JIRA',
+      click () { console.log('Post', timerId) }
+    }))
+    menu.append(new MenuItem({
+      label: 'Delete timer',
+      click () { deleteTimer(timerId) }
+    }))
+
+    menu.popup()
+  }
+
+  deleteTimer (timerId) {
+    console.log('Delete', timerId)
+    this.props.deleteTimer(timerId)
   }
 
   render () {
-    if (!this.props.timerActive)
+    if (this.props.timers.length)
       return (
         <div>
-          <TimerWrapper>
-            <Control icon={faPause} />
-            <Time>00:23:57</Time>
-            <TaskTitle>SI123 This is a test yo omg yes I like it fe fwefew weffewfew</TaskTitle>
-            <PostButton positive>Post</PostButton>
-          </TimerWrapper>
+          {this.props.timers.map(timer => (
+            <TimerWrapper key={timer.id}>
+              <Control icon={faPause} />
+              <Time>00:23:49</Time>
+              <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
+              <TimerOptions
+                icon={faEllipsisH}
+                onClick={() => this.onOpenOptions(timer.id)}
+                onContextMenu={() => this.onOpenOptions(timer.id)}
+              />
+            </TimerWrapper>
+          ))}
         </div>
       )
     else return (null)
@@ -35,9 +70,10 @@ const TimerWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-top: 1px solid #4EADFA;
 
-  &:nth-child(even) {
-    border-top: 1px solid #4EADFA;
+  &:first-child {
+    border-top: none;
   }
 `
 
@@ -56,17 +92,27 @@ const Control = styled(FontAwesomeIcon)`
 
   &:hover {
     cursor: pointer;
+    opacity: 0.8;
   }
 `
 
-const PostButton = styled(Button)`
+const TimerOptions = styled(FontAwesomeIcon)`
+  font-size: 23px;
   margin-left: 15px;
+  margin-right: 5px;
+
+  &:hover {
+    cursor: pointer;
+    opacity: 0.8;
+  }
 `
 
-const mapDispatchToProps = {}
+const mapDispatchToProps = {
+  deleteTimer
+}
 
 const mapStateToProps = state => ({
-
+  timers: state.timer.list
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimerContainer)

@@ -1,8 +1,13 @@
 import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
 import styled from 'styled-components'
+import find from 'lodash.find'
 import api from '../../lib/api'
+import { addTimer } from '../../modules/timer'
 import Input from '../../components/input'
 import Task, { TaskContainer } from '../../components/task'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import faTimes from '@fortawesome/fontawesome-free-solid/faTimes'
 
 class SearchContainer extends Component {
   constructor (props) {
@@ -16,31 +21,43 @@ class SearchContainer extends Component {
       results: []
     }
 
-    this.handleChange = this.handleChange.bind(this)
-    this.handleKeyDown = this.handleKeyDown.bind(this)
+    this.onChange = this.onChange.bind(this)
+    this.onKeyDown = this.onKeyDown.bind(this)
     this.triggerChange = this.triggerChange.bind(this)
+    this.onAddTimer = this.onAddTimer.bind(this)
+    this.onClearSearch = this.onClearSearch.bind(this)
   }
 
   componentWillMount () {
-    this.timer = null
+    this.searchTimer = null
   }
 
-  handleChange (e) {
-    clearTimeout(this.timer)
+  onAddTimer (id, key, summary) {
+    this.props.addTimer(id, key, summary)
+  }
+
+  onClearSearch () {
+    this.setState({
+      query: '',
+      results: []
+    })
+  }
+
+  onChange (e) {
+    clearTimeout(this.searchTimer)
 
     let query = e.target.value
-
     this.setState({ query })
 
     if (query != "")
       this.setState({ searching: true })
 
-    this.timer = setTimeout(this.triggerChange, 1000)
+    this.searchTimer = setTimeout(this.triggerChange, 600)
   }
 
-  handleKeyDown (e) {
+  onKeyDown (e) {
     if (e.keyCode === 13) {
-      clearTimeout(this.timer)
+      clearTimeout(this.searchTimer)
       this.triggerChange()
     }
   }
@@ -95,8 +112,8 @@ class SearchContainer extends Component {
           <Input
             type="text"
             placeholder="Search for tasks"
-            onChange={this.handleChange}
-            onKeyDown={this.handleKeyDown}
+            onChange={this.onChange}
+            onKeyDown={this.onKeyDown}
             value={this.state.query}
             autoFocus
           />
@@ -111,6 +128,12 @@ class SearchContainer extends Component {
               {(this.state.query && !this.state.searching && !this.state.results.length) && (
                 <SearchLoading>No results</SearchLoading>
               )}
+
+              {(this.state.query && !this.state.searching && this.state.results.length) && (
+                <SearchLoading onClick={this.onClearSearch}>
+                  <FontAwesomeIcon icon={faTimes} />
+                </SearchLoading>
+              )}
             </Fragment>
           )}
         </SearchWrapper>
@@ -121,7 +144,9 @@ class SearchContainer extends Component {
               <Task
                 key={task.id}
                 taskKey={task.key}
+                hasTimer={(find(this.props.timers, ['id', task.id])) ? true : false}
                 title={task.fields.summary}
+                onAddTimer={() => this.onAddTimer(task.id, task.key, task.fields.summary)}
               />
             ))}
           </TaskContainer>
@@ -144,6 +169,18 @@ const SearchLoading = styled.div`
   top: 50%;
   transform: translateY(-50%);
   color: #AAA;
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
-export default SearchContainer
+const mapDispatchToProps = {
+  addTimer
+}
+
+const mapStateToProps = state => ({
+  timers: state.timer.list
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchContainer)
