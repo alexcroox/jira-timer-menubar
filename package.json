@@ -34,7 +34,7 @@
     "babel-preset-react-hmre": "^1.1.1",
     "babel-preset-stage-0": "^6.16.0",
     "babel-register": "^6.18.0",
-    "electron": "^1.8.1",
+    "electron": "^1.8.2-beta.4",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.3",
     "electron-packager": "^9.1.0",

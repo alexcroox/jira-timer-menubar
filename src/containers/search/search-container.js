@@ -136,11 +136,11 @@ class SearchContainer extends Component {
                 <SearchLoading>No results</SearchLoading>
               )}
 
-              {(this.state.query && !this.state.searching && this.state.results.length) ? (
+              {(this.state.query && !this.state.searching && this.state.results.length !== 0) && (
                 <SearchLoading onClick={this.onClearSearch}>
                   <FontAwesomeIcon icon={faTimes} />
                 </SearchLoading>
-              ) : (null)}
+              )}
             </Fragment>
           )}
         </SearchWrapper>
