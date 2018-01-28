@@ -82,8 +82,15 @@ class SearchContainer extends Component {
       error: false
     })
 
+    // JIRA api throws an error if you attempt a key search with a string
+    // that doesn't have a dash in it
+    let keySearch = query.indexOf("-") > -1
+    let jql = `text ~ "${query}"`
+    if (keySearch) jql += `OR key = "${query}"`
+    jql += 'order by lastViewed DESC'
+
     api.post('/search', {
-      jql: `text ~ "${query}" order by lastViewed DESC`,
+      jql,
       maxResults: 20,
       fields: ['key', 'summary', 'project']
     })
@@ -121,7 +128,7 @@ class SearchContainer extends Component {
             <SearchLoading>Searching...</SearchLoading>
           )}
 
-          {(this.state.error) ? (
+          {this.state.error ? (
             <SearchLoading>Error fetching results</SearchLoading>
           ) : (
             <Fragment>
@@ -129,11 +136,11 @@ class SearchContainer extends Component {
                 <SearchLoading>No results</SearchLoading>
               )}
 
-              {(this.state.query && !this.state.searching && this.state.results.length) && (
+              {(this.state.query && !this.state.searching && this.state.results.length) ? (
                 <SearchLoading onClick={this.onClearSearch}>
                   <FontAwesomeIcon icon={faTimes} />
                 </SearchLoading>
-              )}
+              ) : (null)}
             </Fragment>
           )}
         </SearchWrapper>
@@ -150,8 +157,7 @@ class SearchContainer extends Component {
               />
             ))}
           </TaskContainer>
-        ) : (null)
-        }
+        ) : (null)}
       </Fragment>
     );
   }
