@@ -1,11 +1,14 @@
 import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
 import api from '../../lib/api'
+import find from 'lodash.find'
+import { addTimer } from '../../modules/timer'
+import { isNotEmpty, isNotEmptyString } from '../../validation/helpers'
 import FooterContainer from '../footer/footer-container'
 import FormContainer from '../../components/form-container'
 import Header from '../../components/header'
 import ErrorMessage from '../../components/error'
 import NewTaskForm from './new-task-form'
-import { isNotEmpty, isNotEmptyString } from '../../validation/helpers'
 
 const validationRules = {
   title: [
@@ -13,6 +16,9 @@ const validationRules = {
   ],
   project: [
     [isNotEmptyString, 'What project does this task belong to?']
+  ],
+  taskType: [
+    [isNotEmptyString, 'What type of task is this?']
   ],
 }
 
@@ -24,15 +30,21 @@ class NewTaskContainer extends Component {
       creating: false,
       createError: false,
       fetchingProjects: true,
+      projectOptions: [],
       projects: [],
+      projectId: null,
+      issueTypes: [],
       form: {
         title: '',
-        project: ''
+        project: '',
+        taskType: ''
       }
     }
 
     this.onFormSubmit = this.onFormSubmit.bind(this)
     this.onGetProjects = this.onGetProjects.bind(this)
+    this.onGetIssueTypes = this.onGetIssueTypes.bind(this)
+    this.onProjectChange = this.onProjectChange.bind(this)
   }
 
   onGetProjects (input, callback) {
@@ -52,7 +64,10 @@ class NewTaskContainer extends Component {
       .then(projects => {
         console.log('Projects', projects)
 
-        this.setState({ fetchingProjects: false })
+        this.setState({
+          fetchingProjects: false,
+          projects
+        })
 
         let options = []
         projects.map(project => {
@@ -62,7 +77,7 @@ class NewTaskContainer extends Component {
           })
         })
 
-        this.setState({ projects: options })
+        this.setState({ projectOptions: options })
 
         callback(null, {
           options,
@@ -79,21 +94,81 @@ class NewTaskContainer extends Component {
       })
   }
 
+  onGetIssueTypes (input, callback) {
+    console.log('get issue types', this)
+
+    callback(null, {
+      options: this.state.issueTypes
+    })
+  }
+
+  onProjectChange (projectId) {
+    console.log('Project Id', projectId)
+
+    this.setState({ projectId })
+
+    let project = find(this.state.projects, ['id', projectId])
+
+    if (project) {
+
+      console.log('projectissuyetypes', project)
+
+      let options = []
+      project.issueTypes.map(issueType => {
+        options.push({
+          value: issueType.id,
+          label: issueType.name
+        })
+      })
+
+      this.setState({ issueTypes: options })
+    }
+  }
+
   onFormSubmit (formResponse) {
     if (this.state.creating)
       return false
 
-    this.setState(() => ({
-      creating: true,
-      form: formResponse.form
-    }))
 
-    if (formResponse.valid)
+    this.setState({ form: formResponse.form })
+
+    if (formResponse.valid) {
       this.create(formResponse.form)
+      this.setState({ creating: true })
+    }
   }
 
   create (form) {
+    console.log('Creating', form)
 
+    api.post('/issue', {
+      fields: {
+        project: { id: form.project },
+        summary: form.title,
+        issuetype: { id: form.taskType }
+      }
+    })
+      .then(newIssue => {
+
+        console.log('Created new issue', newIssue)
+
+        this.setState({
+          creating: false
+        })
+
+        // Now create a new timer for convienience
+        this.props.addTimer(newIssue.id, newIssue.key, form.title)
+
+        this.props.history.push('/dashboard')
+      })
+      .catch(error => {
+        console.log('Error creating task', error)
+
+        this.setState({
+          creating: false,
+          createError: true
+        })
+      })
   }
 
   render () {
@@ -110,10 +185,14 @@ class NewTaskContainer extends Component {
             onSubmit={this.onFormSubmit}
             initialState={this.state.form}
             rules={validationRules}
-            validateOnChange={false}
+            validateOnChange={true}
+            validateSingle={true}
             submitting={this.state.creating}
             fetchingProjects={this.state.fetchingProjects}
             getProjects={this.onGetProjects}
+            onProjectChange={this.onProjectChange}
+            getIssueTypes={this.onGetIssueTypes}
+            projectId={this.state.projectId}
           />
         </FormContainer>
 
@@ -123,4 +202,9 @@ class NewTaskContainer extends Component {
   }
 }
 
-export default NewTaskContainer
+const mapDispatchToProps = {
+  addTimer
+}
+
+export default connect(null, mapDispatchToProps)(NewTaskContainer)
+

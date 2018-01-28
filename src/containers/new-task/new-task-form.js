@@ -16,7 +16,11 @@ const Form = ({
   onSubmit: onSubmitCb,
   submitting = false,
   getProjects,
-  fetchingProjects
+  fetchingProjects,
+  onProjectChange,
+  getIssueTypes,
+  projectId,
+  issueTypes
 }) => (
   <Fragment>
     <Fieldset>
@@ -24,7 +28,10 @@ const Form = ({
       <Async
         name="project"
         value={form.project}
-        onChange={compose(onChange('project'), getReactSelectValue)}
+        onChange={selectedOption => {
+          onChange('project', getReactSelectValue(selectedOption))
+          onProjectChange(getReactSelectValue(selectedOption))
+        }}
         loadOptions={getProjects}
         isLoading={fetchingProjects}
         loadingPlaceholder="Loading projects..."
@@ -36,12 +43,35 @@ const Form = ({
     </Fieldset>
 
     <Fieldset>
+      <Label>Task Type</Label>
+      <Async
+        key={projectId}
+        name="taskType"
+        value={form.taskType}
+        onChange={selectedOption => {
+          console.log('tt change')
+          onChange('taskType', getReactSelectValue(selectedOption))
+        }}
+        loadOptions={getIssueTypes}
+        searchable={false}
+        cache={false}
+        disabled={!projectId}
+        placeholder="Select the task type"
+        searchPromptText="No available task types"
+      />
+      {!isValid(errors.taskType) && (
+        <FormHelperText error>{head(errors.taskType)}</FormHelperText>
+      )}
+    </Fieldset>
+
+    <Fieldset>
       <Label>Task Title</Label>
       <Input
         type="text"
         error={!isValid(errors.title)}
         onChange={compose(onChange('title'), getValue)}
         value={form.title}
+        onKeyPress={(e) => { if (e.key === 'Enter') onSubmit(onSubmitCb) }}
         name="title"
         id="title"
       />

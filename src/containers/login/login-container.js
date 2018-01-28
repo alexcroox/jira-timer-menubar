@@ -40,7 +40,7 @@ class LoginContainer extends Component {
     if (this.props.loginPending)
       return false
 
-    this.setState(() => ({ form: formResponse.form }))
+    this.setState({ form: formResponse.form })
 
     if (formResponse.valid)
       this.props.login(formResponse.form)

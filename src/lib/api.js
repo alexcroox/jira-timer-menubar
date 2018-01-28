@@ -49,7 +49,7 @@ class Api {
   send (method, urlPath, data = '') {
     return new Promise((resolve, reject) => {
 
-      console.log('Api call', urlPath, this.authToken)
+      console.log('Api call', urlPath, method)
 
       this.request({
         url: urlPath,
