@@ -25,7 +25,7 @@ const installExtensions = async () => {
 // menubar
 const mb = menubar({
   alwaysOnTop: process.env.NODE_ENV === 'development',
-  icon: path.join(app.getAppPath(), 'tray.png'),
+  icon: path.join(app.getAppPath(), '/static/tray.png'),
   minWidth: 500,
   maxWidth: 500,
   minHeight: 500,
@@ -43,11 +43,11 @@ mb.on('ready', async () => {
 });
 
 mb.on('show', () => {
-  mb.tray.setImage(path.join(app.getAppPath(), 'tray-active.png'))
+  mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-active.png'))
 });
 
 mb.on('hide', () => {
-  mb.tray.setImage(path.join(app.getAppPath(), 'tray.png'))
+  mb.tray.setImage(path.join(app.getAppPath(), '/static/tray.png'))
 });
 
 // Quit when all windows are closed.

@@ -18,7 +18,7 @@ class TimerContainer extends Component {
   }
 
   onOpenOptions (timerId) {
-    const {Menu, MenuItem} = remote
+    const { Menu, MenuItem } = remote
 
     let deleteTimer = this.deleteTimer.bind(this)
 

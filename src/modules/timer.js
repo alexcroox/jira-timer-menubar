@@ -1,6 +1,7 @@
 import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
+import StopWatch from '../lib/stopwatch'
 
 // Actions
 const ADD_TIMER = 'jt/timer/ADD_TIMER'
@@ -49,7 +50,7 @@ export const addTimer = (id, key, summary) => dispatch => {
     id,
     key,
     summary,
-    started: Date.now()
+    stopwatch: new StopWatch(true)
   }
 
   dispatch({ type: ADD_TIMER, timer })
