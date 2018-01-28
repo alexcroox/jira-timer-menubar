@@ -16,7 +16,7 @@ class DashboardContainer extends Component {
       <Fragment>
         <Header
           titleText="Jira Timer"
-          authenticated={this.props.authToken}
+          withCreateTaskButton
         />
         <TimerContainer />
         <SearchContainer />

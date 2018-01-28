@@ -25,34 +25,7 @@ const config = merge(baseConfig, {
     rules: [
       {
         test: /\.css$/,
-        use: [
-          {
-            loader: 'style-loader',
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              modules: true,
-              sourceMap: true,
-              importLoaders: 1,
-              localIdentName: '[name]__[local]__[hash:base64:5]',
-            },
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: loader => [
-                stylelint,
-                postcssImport({
-                  root: loader.resourcePath,
-                }),
-                cssnext({browsers: ['last 2 versions', 'IE > 10']}),
-                postcssReporter({clearMessages: true}),
-              ],
-            },
-          },
-        ],
+        use: [ 'style-loader', 'css-loader' ]
       },
     ],
   },

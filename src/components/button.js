@@ -7,7 +7,7 @@ const Button = (props) => (
   </ButtonStyled>
 )
 
-const ButtonStyled = styled.a`
+const ButtonStyled = styled.span`
   display: inline-block;
   padding: 3px 8px;
   margin-bottom: 0;

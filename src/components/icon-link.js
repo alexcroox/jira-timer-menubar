@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
 
 const IconLink = styled(Link)`
@@ -12,6 +12,10 @@ const IconLink = styled(Link)`
     color: #333;
     cursor: pointer;
   }
+
+  ${props => (props.large) && css`
+    font-size: 24px;
+  `}
 `
 
 export default IconLink

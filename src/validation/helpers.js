@@ -11,6 +11,7 @@ export const getAutoCompleteValue = (a) => {
   else
     return a
 }
+export const getReactSelectValue = selectedOption => selectedOption && selectedOption.value
 
 export const isEmpty = a => a == '' || a === null
 export const isNotEmpty = a => a !== null && a.trim().length > 0

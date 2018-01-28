@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faCog from '@fortawesome/fontawesome-free-solid/faCog'
+import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft'
 import Button from './button'
 import IconLink from './icon-link'
 
@@ -13,27 +14,30 @@ class Header extends Component {
   }
 
   render() {
+    let rightAligned = !this.props.withCreateTaskButton && !this.props.withBackButton
+
     return (
       <Fragment>
-        {this.props.authenticated ? (
-          <HeaderStyled>
-            <Button default>New task</Button>
+        <HeaderStyled rightAligned={rightAligned}>
 
-            <Title>{this.props.titleText}</Title>
+          {this.props.withCreateTaskButton && (
+            <Link to="/create-task">
+              <Button default>New task</Button>
+            </Link>
+          )}
 
-            <IconLink to="/settings">
-              <FontAwesomeIcon icon={faCog} />
+          {this.props.withBackButton && (
+            <IconLink large to="/dashboard">
+              <FontAwesomeIcon icon={faAngleLeft} />
             </IconLink>
-          </HeaderStyled>
-        ) : (
-          <HeaderStyled rightAligned>
-            <Title>{this.props.titleText}</Title>
+          )}
 
-            <IconLink to="/settings">
-              <FontAwesomeIcon icon={faCog} />
-            </IconLink>
-          </HeaderStyled>
-        )}
+          <Title>{this.props.titleText}</Title>
+
+          <IconLink to="/settings">
+            <FontAwesomeIcon icon={faCog} />
+          </IconLink>
+        </HeaderStyled>
       </Fragment>
     )
   }
