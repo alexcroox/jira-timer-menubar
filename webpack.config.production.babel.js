@@ -15,7 +15,12 @@ const config = merge(baseConfig, {
   },
 
   module: {
-    rules: [],
+    rules: [
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      },
+    ],
   },
 
   plugins: [

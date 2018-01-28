@@ -28,6 +28,7 @@ const App = () =>  {
     <AppWindow>
       <Switch>
         <Route path="/dashboard" component={DashboardContainer} />
+        <Route path="/settings" component={DashboardContainer} />
         <Route path="/create-task" component={NewTaskContainer} />
         <Route path="/" component={LoginContainer} />
       </Switch>

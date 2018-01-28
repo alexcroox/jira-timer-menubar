@@ -62,7 +62,6 @@ class NewTaskContainer extends Component {
 
     api.get('/project?expand=issueTypes')
       .then(projects => {
-        console.log('Projects', projects)
 
         this.setState({
           fetchingProjects: false,
@@ -86,7 +85,9 @@ class NewTaskContainer extends Component {
       })
       .catch(error => {
         console.log('Error fetching projects', error)
-        this.setState({ fetchingProjects: true })
+
+        this.setState({ fetchingProjects: false })
+
         callback(null, {
           options,
           complete: true
@@ -95,15 +96,12 @@ class NewTaskContainer extends Component {
   }
 
   onGetIssueTypes (input, callback) {
-    console.log('get issue types', this)
-
     callback(null, {
       options: this.state.issueTypes
     })
   }
 
   onProjectChange (projectId) {
-    console.log('Project Id', projectId)
 
     this.setState({ projectId })
 
@@ -128,7 +126,6 @@ class NewTaskContainer extends Component {
   onFormSubmit (formResponse) {
     if (this.state.creating)
       return false
-
 
     this.setState({ form: formResponse.form })
 
