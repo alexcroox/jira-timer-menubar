@@ -2,11 +2,9 @@ import { remote, ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import find from 'lodash.find'
-import findIndex from 'lodash.findindex'
-import filter from 'lodash.filter'
-import { timerList, formatSecondsToStopWatch } from '../../lib/stopwatch'
-import { deleteTimer } from '../../modules/timer'
+import opn from 'opn'
+import { formatSecondsToStopWatch } from '../../lib/time'
+import { deleteTimer, pauseTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
@@ -25,58 +23,55 @@ class TimerContainer extends Component {
     }
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
-    this.updateTimers = this.updateTimers.bind(this)
-    this.onPauseTimer = this.onPauseTimer.bind(this)
-    this.onResumeTimer = this.onResumeTimer.bind(this)
+    this.displayTimers = this.displayTimers.bind(this)
   }
 
   componentDidMount () {
     if (this.props.timers.length) {
-      this.updateTimers()
+      this.displayTimers()
     }
 
     this.renderTime = true
   }
+
+  //opn(`https://sidigital.atlassian.net/projects/${issue.fields.project.key}/issues/${issue.key}`)
 
   componentWillUnmount () {
     console.warn('Unmounting')
     this.renderTime = false
   }
 
-  updateTimers () {
+  displayTimers () {
 
     if (!this.renderTime)
       return
 
-    // Redux won't let us store the timer functions so
-    // we need to keep a reference to them and then clone that
-    // to the component state so the view can be updated.
-    // This is yuck but I know of no better way, please help...
-    this.props.timers.map(timer => {
+    let timers = []
 
-      if (timer.paused)
+    this.props.timers.map(reduxTimer => {
+
+      if (reduxTimer.paused)
         return
 
-      let matchedTimer = find(timerList, ['id', timer.id])
+      let timer = {...reduxTimer}
 
-      if (matchedTimer && !matchedTimer.paused) {
-        let timeInMs = matchedTimer.stopwatch.read()
-        let timeInSeconds = Math.round(timeInMs/1000)
-        matchedTimer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
-        matchedTimer.menubarDisplay = formatSecondsToStopWatch(timeInSeconds, 'hh:mm')
-        matchedTimer.paused = false
-      }
+      let timeInMs = Date.now() - timer.startTime + timer.previouslyElapsed
+      let timeInSeconds = Math.round(timeInMs/1000)
+      timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
+      timer.menubarDisplay = formatSecondsToStopWatch(timeInSeconds, 'hh:mm')
+
+      timers.push(timer)
     })
 
     let titleUpdate = 'Idle'
 
-    if (timerList.length) {
+    if (timers.length) {
       // Update our menu bar title with the time of the first timer only
-      let firstTimer = timerList[0]
+      let firstTimer = timers[0]
       titleUpdate = `${firstTimer.key} ${firstTimer.menubarDisplay}`
 
       this.setState({
-        timers: timerList
+        timers
       })
     }
 
@@ -88,7 +83,12 @@ class TimerContainer extends Component {
     }
 
     if (this.renderTime)
-      setTimeout(() => this.updateTimers(), 500)
+      setTimeout(() => this.displayTimers(), 500)
+  }
+
+  deleteTimer (timerId) {
+    console.log('Delete', timerId)
+    this.props.deleteTimer(timerId)
   }
 
   onOpenOptions (timerId) {
@@ -110,42 +110,6 @@ class TimerContainer extends Component {
     menu.popup()
   }
 
-  onPauseTimer (timerId) {
-    let matchedTimer = find(timerList, ['id', timerId])
-
-    if (matchedTimer) {
-      matchedTimer.stopwatch.split()
-      matchedTimer.paused = true
-    }
-
-    let timers = [...this.state.timers]
-    let matchedStateTimer = find(timers, ['id', timerId])
-
-    if (matchedStateTimer) {
-      matchedStateTimer.paused = true
-
-      this.setState(prevState => {
-        return {
-          ...prevState,
-          timers
-        }
-      })
-    }
-  }
-
-  onResumeTimer (timerId) {
-    let matchedTimer = find(timerList, ['id', timerId])
-
-    if (matchedTimer) {
-      matchedTimer.stopwatch.unsplit()
-    }
-  }
-
-  deleteTimer (timerId) {
-    console.log('Delete', timerId)
-    this.props.deleteTimer(timerId)
-  }
-
   render () {
     if (this.props.timers.length)
       return (
@@ -153,9 +117,9 @@ class TimerContainer extends Component {
           {this.state.timers.map(timer => (
             <TimerWrapper key={timer.id}>
               {timer.paused ? (
-                <Control icon={faPlay} onClick={() => this.onResumeTimer(timer.id)} />
+                <Control icon={faPlay} onClick={() => this.props.pauseTimer(timer.id, false)} />
               ) : (
-                <Control icon={faPause} onClick={() => this.onPauseTimer(timer.id)} />
+                <Control icon={faPause} onClick={() => this.props.pauseTimer(timer.id, true)} />
               )}
 
               <Time>{timer.stopWatchDisplay}</Time>
@@ -218,7 +182,8 @@ const TimerOptions = styled(FontAwesomeIcon)`
 `
 
 const mapDispatchToProps = {
-  deleteTimer
+  deleteTimer,
+  pauseTimer
 }
 
 const mapStateToProps = state => ({

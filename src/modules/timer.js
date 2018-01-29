@@ -1,11 +1,11 @@
 import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
-import StopWatch, { timerList } from '../lib/stopwatch'
 
 // Actions
 const ADD_TIMER = 'jt/timer/ADD_TIMER'
 const DELETE_TIMER = 'jt/timer/DELETE_TIMER'
+const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 
 const initialState = Immutable({
   list: []
@@ -33,44 +33,56 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case PAUSE_TIMER: {
+      let list = state.list.asMutable()
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      console.log('Index found', timerIndex, list, action.timerId)
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+        timer.paused = action.pause
+
+        if (action.pause) {
+          timer.endTime = Date.now()
+          timer.previouslyElapsed = Date.now() - timer.startTime
+        } else {
+          timer.startTime = Date.now()
+        }
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
 
 // Action Creators
+export const deleteTimer = timerId => ({
+  type: DELETE_TIMER,
+  timerId
+})
 
+export const pauseTimer = (timerId, pause) => ({
+  type: PAUSE_TIMER,
+  timerId,
+  pause
+})
 
 // Side effects
 export const addTimer = (id, key, summary) => dispatch => {
-  let stopwatch = new StopWatch(true)
-
   let timer = {
     id,
     key,
     summary,
     paused: false,
-    stopwatchName: stopwatch._name
+    startTime: Date.now(),
+    endTime: null,
+    previouslyElapsed: 0
   }
-
-  timerList.push({ ...timer, stopwatch })
-
-  console.log('New timerList', timerList)
 
   dispatch({ type: ADD_TIMER, timer })
-}
-
-
-export const deleteTimer = timerId => async dispatch => {
-
-  let matchedTimerIndex = findIndex(timerList, ['id', timerId])
-
-  if (matchedTimerIndex > -1) {
-    timerList[matchedTimerIndex].stopwatch.stop()
-    timerList.splice(matchedTimerIndex, 1)
-  }
-
-  dispatch({
-    type: DELETE_TIMER,
-    timerId
-  })
 }
