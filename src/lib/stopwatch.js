@@ -6,6 +6,7 @@ import isBoolean from 'lodash.isboolean'
 import isEmpty from 'lodash.isempty'
 import uuid from 'uuid/v4'
 import format from 'string-template'
+import timeFormat from 'hh-mm-ss'
 
 const STATES = {
   INIT: 'init',
@@ -14,27 +15,17 @@ const STATES = {
   SPLIT: 'split'
 }
 
-class DisplayTimer {
-  constructor() {
-    this.timer = null
-  }
+// Keep our list of timers here since redux strips away
+// the functions attached to stopwatch class :(
+export let timerList = []
 
-  start () {
-    console.log('Starting display timer')
-
-    this.timer = setInterval(() => {
-        let state = store.getState()
-
-        if (state.timer.list.length) {
-            state.timer.list.map(timer => {
-
-            })
-        }
-    }, 500)
-  }
+export const formatSecondsToStopWatch = (seconds, displayFormat = 'hh:mm:ss') => {
+  console.log('input', seconds)
+  console.log('displayFormat', displayFormat)
+  let test = timeFormat.fromS(seconds, displayFormat)
+  console.log('output', test)
+  return test
 }
-
-export let displayTimer = new DisplayTimer()
 
 class Stopwatch {
   constructor(name, autostart) {

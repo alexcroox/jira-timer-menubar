@@ -82,7 +82,7 @@ class Api {
           console.log('Setting token', response)
 
           store.dispatch(setAuthToken(this.authToken))
-          keychain.setPassword('jira-timer', authUrl, this.authToken)
+          keychain.setPassword('jira-timer-menubar', authUrl, this.authToken)
 
           resolve(response)
         })
@@ -130,7 +130,7 @@ class Api {
 
   getCredentialsFromKeyChain () {
     return new Promise((resolve, reject) => {
-      keychain.findCredentials('jira-timer')
+      keychain.findCredentials('jira-timer-menubar')
         .then(credentials => resolve(credentials[0]))
         .catch(error => reject(error))
     })

@@ -1,7 +1,7 @@
 import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
-import StopWatch from '../lib/stopwatch'
+import StopWatch, { timerList } from '../lib/stopwatch'
 
 // Actions
 const ADD_TIMER = 'jt/timer/ADD_TIMER'
@@ -38,20 +38,39 @@ export default function reducer (state = initialState, action = {}) {
 }
 
 // Action Creators
-export const deleteTimer = timerId => ({
-  type: DELETE_TIMER,
-  timerId
-})
 
 
 // Side effects
 export const addTimer = (id, key, summary) => dispatch => {
+  let stopwatch = new StopWatch(true)
+
   let timer = {
     id,
     key,
     summary,
-    stopwatch: new StopWatch(true)
+    paused: false,
+    stopwatchName: stopwatch._name
   }
 
+  timerList.push({ ...timer, stopwatch })
+
+  console.log('New timerList', timerList)
+
   dispatch({ type: ADD_TIMER, timer })
+}
+
+
+export const deleteTimer = timerId => async dispatch => {
+
+  let matchedTimerIndex = findIndex(timerList, ['id', timerId])
+
+  if (matchedTimerIndex > -1) {
+    timerList[matchedTimerIndex].stopwatch.stop()
+    timerList.splice(matchedTimerIndex, 1)
+  }
+
+  dispatch({
+    type: DELETE_TIMER,
+    timerId
+  })
 }

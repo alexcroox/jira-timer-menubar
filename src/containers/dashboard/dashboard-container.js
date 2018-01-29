@@ -18,7 +18,11 @@ class DashboardContainer extends Component {
           titleText="Jira Timer"
           withCreateTaskButton
         />
-        <TimerContainer />
+
+        {this.props.timers.length !== 0 && (
+          <TimerContainer />
+        )}
+
         <SearchContainer />
         <RecentContainer />
         <FooterContainer />
@@ -29,6 +33,7 @@ class DashboardContainer extends Component {
 
 const mapStateToProps = state => ({
   authToken: state.user.authToken,
+  timers: state.timer.list
 })
 
 export default connect(mapStateToProps)(DashboardContainer)

@@ -4,7 +4,6 @@ import styled, { injectGlobal } from 'styled-components'
 import DashboardContainer from '../dashboard/dashboard-container'
 import NewTaskContainer from '../new-task/new-task-container'
 import LoginContainer from '../login/login-container'
-import { displayTimer } from '../../lib/stopwatch'
 import 'react-select/dist/react-select.css'
 
 // The window needed to be a certain height for the non-js page
@@ -22,8 +21,6 @@ injectGlobal`
 `
 
 const App = () =>  {
-  displayTimer.start()
-
   return (
     <AppWindow>
       <Switch>
