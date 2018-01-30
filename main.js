@@ -1,5 +1,5 @@
-import { app, ipcMain } from 'electron';
-import menubar from 'menubar';
+import { app, ipcMain } from 'electron'
+import menubar from 'menubar'
 import path from 'path'
 
 require('fix-path')(); // resolve user $PATH env variable

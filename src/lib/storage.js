@@ -8,8 +8,11 @@ export const persistMiddleware = ({ getState }) => next => action => {
   // Get the state after the action was performed
   next(action)
   let latestState = getState()
+  storeState(latestState)
+}
 
-  let mutableState = Immutable.asMutable(latestState, {deep: true})
+export const storeState = (currentState) => {
+  let mutableState = Immutable.asMutable(currentState, {deep: true})
 
   // We need to null the authToken as we store this in secure keychain
   mutableState.user.authToken = null
