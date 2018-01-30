@@ -3,14 +3,17 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import opn from 'opn'
+import find from 'lodash.find'
 import { formatSecondsToStopWatch } from '../../lib/time'
-import { deleteTimer, pauseTimer } from '../../modules/timer'
+import { deleteTimer, pauseTimer, postTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
+import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
 import { TaskTitle } from '../../components/task'
 import Button from '../../components/button'
+import Control from '../../components/control'
 
 class TimerContainer extends Component {
   constructor (props) {
@@ -46,9 +49,9 @@ class TimerContainer extends Component {
     if (!this.renderTime)
       return
 
-    let timers = []
+    let firstRunningTimer = null
 
-    this.props.timers.map(reduxTimer => {
+    let timers = this.props.timers.map(reduxTimer => {
 
       let timer = {...reduxTimer}
 
@@ -56,21 +59,25 @@ class TimerContainer extends Component {
 
       if (!timer.paused) {
         timeInMs = (Date.now() - timer.startTime) + timer.previouslyElapsed
+
+        if (!firstRunningTimer)
+          firstRunningTimer = timer
       }
 
       let timeInSeconds = Math.round(timeInMs/1000)
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
       timer.menubarDisplay = formatSecondsToStopWatch(timeInSeconds, 'hh:mm')
 
-      timers.push(timer)
+      return timer
     })
 
     let titleUpdate = 'Idle'
 
     if (timers.length) {
-      // Update our menu bar title with the time of the first timer only
-      let firstTimer = timers[0]
-      titleUpdate = `${firstTimer.key} ${firstTimer.menubarDisplay}`
+
+      // Update our menu bar title with the time of the first unpaused timer
+      if (firstRunningTimer)
+        titleUpdate = `${firstRunningTimer.key} ${firstRunningTimer.menubarDisplay}`
 
       this.setState({
         timers
@@ -88,25 +95,21 @@ class TimerContainer extends Component {
       setTimeout(() => this.displayTimers(), 500)
   }
 
-  deleteTimer (timerId) {
-    console.log('Delete', timerId)
-    this.props.deleteTimer(timerId)
-  }
-
-  onOpenOptions (timerId) {
+  onOpenOptions (timer) {
     const { Menu, MenuItem } = remote
 
-    let deleteTimer = this.deleteTimer.bind(this)
+    let postTimer = this.props.postTimer
+    let deleteTimer = this.props.deleteTimer
 
     const menu = new Menu()
 
     menu.append(new MenuItem({
-      label: 'Post 1h 10m to JIRA',
-      click () { console.log('Post', timerId) }
+      label: `Post ${timer.menubarDisplay} to JIRA`,
+      click () { postTimer(timer) }
     }))
     menu.append(new MenuItem({
       label: 'Delete timer',
-      click () { deleteTimer(timerId) }
+      click () { deleteTimer(timer.id) }
     }))
 
     menu.popup()
@@ -118,18 +121,30 @@ class TimerContainer extends Component {
         <div>
           {this.state.timers.map(timer => (
             <TimerWrapper key={timer.id}>
-              {timer.paused ? (
-                <Control icon={faPlay} onClick={() => this.props.pauseTimer(timer.id, false)} />
+              {timer.posting ? (
+                <Control light>
+                  <FontAwesomeIcon icon={faSpinner} spin />
+                </Control>
               ) : (
-                <Control icon={faPause} onClick={() => this.props.pauseTimer(timer.id, true)} />
+                <Fragment>
+                  {timer.paused ? (
+                    <Control light onClick={() => this.props.pauseTimer(timer.id, false)}>
+                      <FontAwesomeIcon icon={faPlay} />
+                    </Control>
+                  ) : (
+                    <Control light onClick={() => this.props.pauseTimer(timer.id, true)}>
+                      <FontAwesomeIcon icon={faPause} />
+                    </Control>
+                  )}
+                </Fragment>
               )}
 
               <Time>{timer.stopWatchDisplay}</Time>
               <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
               <TimerOptions
                 icon={faEllipsisH}
-                onClick={() => this.onOpenOptions(timer.id)}
-                onContextMenu={() => this.onOpenOptions(timer.id)}
+                onClick={() => this.onOpenOptions(timer)}
+                onContextMenu={() => this.onOpenOptions(timer)}
               />
             </TimerWrapper>
           ))}
@@ -140,7 +155,7 @@ class TimerContainer extends Component {
 }
 
 const TimerWrapper = styled.div`
-  padding: 10px 10px 10px 14px;
+  padding: 0 10px 0 4px;
   background: #2381FA;
   color: #FFF;
   display: flex;
@@ -160,16 +175,7 @@ const Time = styled.span`
   padding: 3px 10px 4px;
   border-radius: 5px;
   margin-right: 15px;
-`
-
-const Control = styled(FontAwesomeIcon)`
-  color: #FFF;
-  margin-right: 15px;
-
-  &:hover {
-    cursor: pointer;
-    opacity: 0.8;
-  }
+  margin-left: 5px;
 `
 
 const TimerOptions = styled(FontAwesomeIcon)`
@@ -185,7 +191,8 @@ const TimerOptions = styled(FontAwesomeIcon)`
 
 const mapDispatchToProps = {
   deleteTimer,
-  pauseTimer
+  pauseTimer,
+  postTimer
 }
 
 const mapStateToProps = state => ({

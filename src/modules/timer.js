@@ -1,11 +1,13 @@
 import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
+import api from '../lib/api'
 
 // Actions
 const ADD_TIMER = 'jt/timer/ADD_TIMER'
 const DELETE_TIMER = 'jt/timer/DELETE_TIMER'
 const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
+const POST_TIMER = 'jt/timer/POST_TIMER'
 
 const initialState = Immutable({
   list: []
@@ -54,6 +56,20 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case POST_TIMER: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+        timer.posting = true
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
@@ -64,7 +80,13 @@ export const deleteTimer = timerId => ({
   timerId
 })
 
-export const pauseTimer = (timerId, pause) => ({
+export const pauseTimer = (timerId, posting) => ({
+  type: POST_TIMER,
+  timerId,
+  posting
+})
+
+export const postingTimer = (timerId, pause) => ({
   type: PAUSE_TIMER,
   timerId,
   pause
@@ -83,4 +105,33 @@ export const addTimer = (id, key, summary) => dispatch => {
   }
 
   dispatch({ type: ADD_TIMER, timer })
+}
+
+export const postTimer = timer => async dispatch => {
+
+  dispatch(pauseTimer(timer.id, true))
+  dispatch(postingTimer(timer.id, true))
+
+  api.post(`/issue/${timer.key}/worklog`, {
+    timeSpent: `${timer.timeSpentMinutes}m`,
+    started: format(worklog.started, 'YYYY-MM-DDTHH:mm:ss.SSSZZ')
+  })
+    .then(results => {
+      console.log('Search results', results)
+
+      this.setState({
+        searching: false,
+        results: results.issues
+      })
+    })
+    .catch(error => {
+
+      dispatch(postingTimer(timer.id, false))
+
+      console.log('Error posting timer', error)
+
+      new Notification('Error posting timer', {
+        body: `Timer ${timer.key} failed to send, please try again`
+      })
+    })
 }

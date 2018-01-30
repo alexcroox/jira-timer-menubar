@@ -34,6 +34,7 @@ class SearchContainer extends Component {
 
   onAddTimer (id, key, summary) {
     this.props.addTimer(id, key, summary)
+    this.onClearSearch()
   }
 
   onClearSearch () {

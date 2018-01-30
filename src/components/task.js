@@ -5,6 +5,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import Button from './button'
 import IconLink from './icon-link'
+import Control from '../components/control'
 
 class Task extends Component {
   constructor(props) {
@@ -14,7 +15,9 @@ class Task extends Component {
   render() {
     return (
       <TaskWrapper hasTimer={this.props.hasTimer}>
-        <Play icon={faPlay} onClick={this.props.onAddTimer} />
+        <Control onClick={this.props.onAddTimer}>
+          <FontAwesomeIcon icon={faPlay} />
+        </Control>
         <TaskTitle>{this.props.title}</TaskTitle>
         <TaskKey>{this.props.taskKey}</TaskKey>
       </TaskWrapper>
@@ -27,15 +30,6 @@ Task.propTypes = {
   taskKey: PropTypes.string.isRequired
 }
 
-const Play = styled(FontAwesomeIcon)`
-  color: #CCC;
-  margin-right: 15px;
-
-  &:hover {
-    cursor: pointer;
-  }
-`
-
 export const TaskContainer = styled.div`
   overflow: auto;
   height: 147px;
@@ -44,7 +38,7 @@ export const TaskContainer = styled.div`
 const TaskWrapper = styled.div`
   border-top: 1px solid #D8D8D8;
   background-color: #FFF;
-  padding: 10px 10px 10px 14px;
+  padding: 0 10px 0 4px;
   display: flex;
   align-items: center;
 
@@ -63,13 +57,18 @@ const TaskWrapper = styled.div`
   ${props => (props.hasTimer) && css`
     background-color: rgba(35,129,250,0.1) !important;
 
-    & > ${Play} {
+    & > ${Control} {
       opacity: 0;
     }
   `}
 
-  &:hover ${Play} {
+  & > ${Control} {
+    opacity: 0.5;
     color: #6B6B6B;
+  }
+
+  &:hover ${Control} {
+    opacity: 1;
   }
 `
 
