@@ -3,21 +3,25 @@ import { routerMiddleware, routerReducer } from 'react-router-redux'
 import { memoryHistory } from 'react-router'
 import { combineReducers } from 'redux-seamless-immutable'
 import Immutable from 'seamless-immutable'
+import storage, { persistMiddleware } from './storage'
 import thunk from 'redux-thunk'
 import user from '../modules/user'
 import timer from '../modules/timer'
+import recent from '../modules/recent'
 
-const initialState = Immutable({})
+const initialState = Immutable(storage.get('redux'))
 const enhancers = []
 
 const middleware = [
   thunk,
+  persistMiddleware,
   routerMiddleware(memoryHistory)
 ]
 
 const reducer = combineReducers({
   user,
   timer,
+  recent,
   router: routerReducer,
 })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
 
 const HeadingBar = styled.div`
@@ -8,6 +8,10 @@ const HeadingBar = styled.div`
   color: #888;
   font-weight: 500;
   padding: 8px 10px 7px;
+
+  ${props => (props.borderBottom) && css`
+    border-bottom: 1px solid #DADADA;
+  `}
 `
 
 export default HeadingBar

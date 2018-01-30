@@ -5,6 +5,8 @@ import path from 'path'
 require('fix-path')(); // resolve user $PATH env variable
 require('electron-debug')({ showDevTools: true });
 
+console.log('userData', app.getPath('userData'));
+
 const installExtensions = async () => {
   if (process.env.NODE_ENV === 'development') {
     const installer = require('electron-devtools-installer'); // eslint-disable-line

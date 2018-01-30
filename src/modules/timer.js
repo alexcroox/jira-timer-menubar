@@ -2,6 +2,7 @@ import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
 import api from '../lib/api'
+import { addRecentTask } from './recent'
 import { roundToNearestMinutes } from '../lib/time'
 import format from 'date-fns/format'
 
@@ -64,7 +65,7 @@ export default function reducer (state = initialState, action = {}) {
 
       if (timerIndex > -1) {
         let timer = list[timerIndex]
-        timer.posting = true
+        timer.posting = action.posting
 
         return state.set('list', Immutable(list))
       } else {
@@ -134,11 +135,14 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
     })
       .then(worklog => {
         console.log('Saved worklog', worklog)
-        dispatch(postingTimer(timer.id, false))
+        dispatch(deleteTimer(timer.id))
 
         new Notification(`${timer.key} posted`, {
           body: `Your time for ${timer.key} has been saved in JIRA`
         })
+
+        // Save to recents
+        dispatch(addRecentTask(timer))
       })
       .catch(error => {
         console.log('Error posting timer', error)
@@ -149,5 +153,4 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
         })
       })
     })
-
 }

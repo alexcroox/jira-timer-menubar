@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import styled from 'styled-components'
-import find from 'lodash.find'
-import api from '../../lib/api'
 import { addTimer } from '../../modules/timer'
+import styled from 'styled-components'
+import api from '../../lib/api'
 import Input from '../../components/input'
 import Task, { TaskContainer } from '../../components/task'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -147,12 +146,11 @@ class SearchContainer extends Component {
         </SearchWrapper>
 
         {this.state.results.length ? (
-          <TaskContainer>
+          <TaskContainer fixedHeight>
             {this.state.results.map(task => (
               <Task
                 key={task.id}
                 taskKey={task.key}
-                hasTimer={(find(this.props.timers, ['id', task.id])) ? true : false}
                 title={task.fields.summary}
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.fields.summary)}
               />
