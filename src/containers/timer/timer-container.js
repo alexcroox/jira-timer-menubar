@@ -50,12 +50,14 @@ class TimerContainer extends Component {
 
     this.props.timers.map(reduxTimer => {
 
-      if (reduxTimer.paused)
-        return
-
       let timer = {...reduxTimer}
 
-      let timeInMs = Date.now() - timer.startTime + timer.previouslyElapsed
+      let timeInMs = timer.previouslyElapsed
+
+      if (!timer.paused) {
+        timeInMs = (Date.now() - timer.startTime) + timer.previouslyElapsed
+      }
+
       let timeInSeconds = Math.round(timeInMs/1000)
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
       timer.menubarDisplay = formatSecondsToStopWatch(timeInSeconds, 'hh:mm')

@@ -34,10 +34,8 @@ export default function reducer (state = initialState, action = {}) {
     }
 
     case PAUSE_TIMER: {
-      let list = state.list.asMutable()
+      let list = Immutable.asMutable(state.list, {deep: true})
       let timerIndex = findIndex(list, ['id', action.timerId])
-
-      console.log('Index found', timerIndex, list, action.timerId)
 
       if (timerIndex > -1) {
         let timer = list[timerIndex]
@@ -45,7 +43,7 @@ export default function reducer (state = initialState, action = {}) {
 
         if (action.pause) {
           timer.endTime = Date.now()
-          timer.previouslyElapsed = Date.now() - timer.startTime
+          timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
         } else {
           timer.startTime = Date.now()
         }

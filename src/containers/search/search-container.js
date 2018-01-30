@@ -85,7 +85,7 @@ class SearchContainer extends Component {
     // JIRA api throws an error if you attempt a key search with a string
     // that doesn't have a dash in it
     let keySearch = query.indexOf("-") > -1
-    let jql = `text ~ "${query}"`
+    let jql = `summary ~ "${query}"`
     if (keySearch) jql += `OR key = "${query}"`
     jql += 'order by lastViewed DESC'
 
