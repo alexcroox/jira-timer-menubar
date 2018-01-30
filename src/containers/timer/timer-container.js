@@ -2,9 +2,9 @@ import { remote, ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import opn from 'opn'
 import find from 'lodash.find'
 import { formatSecondsToStopWatch } from '../../lib/time'
+import { openInJira } from '../../lib/jira'
 import { deleteTimer, pauseTimer, postTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
@@ -30,14 +30,9 @@ class TimerContainer extends Component {
   }
 
   componentDidMount () {
-    if (this.props.timers.length) {
-      this.displayTimers()
-    }
-
+    this.displayTimers()
     this.renderTime = true
   }
-
-  //opn(`https://sidigital.atlassian.net/projects/${issue.fields.project.key}/issues/${issue.key}`)
 
   componentWillUnmount () {
     console.warn('Unmounting')
@@ -107,6 +102,12 @@ class TimerContainer extends Component {
       label: `Post ${timer.menubarDisplay} to JIRA`,
       click () { postTimer(timer) }
     }))
+
+    menu.append(new MenuItem({
+      label: 'Open in JIRA',
+      click () { openInJira(timer.key) }
+    }))
+
     menu.append(new MenuItem({
       label: 'Delete timer',
       click () { deleteTimer(timer.id) }
@@ -116,7 +117,7 @@ class TimerContainer extends Component {
   }
 
   render () {
-    if (this.props.timers.length)
+    if (this.props.timers.length && !this.props.hideTimers)
       return (
         <div>
           {this.state.timers.map(timer => (

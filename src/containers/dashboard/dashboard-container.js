@@ -19,10 +19,7 @@ class DashboardContainer extends Component {
           withCreateTaskButton
         />
 
-        {this.props.timers.length !== 0 && (
-          <TimerContainer />
-        )}
-
+        <TimerContainer />
         <SearchContainer />
         <RecentContainer />
         <FooterContainer />

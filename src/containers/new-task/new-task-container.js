@@ -6,6 +6,7 @@ import { addTimer } from '../../modules/timer'
 import { isNotEmpty, isNotEmptyString } from '../../validation/helpers'
 import FooterContainer from '../footer/footer-container'
 import FormContainer from '../../components/form-container'
+import TimerContainer from '../timer/timer-container'
 import Header from '../../components/header'
 import ErrorMessage from '../../components/error'
 import NewTaskForm from './new-task-form'
@@ -172,6 +173,7 @@ class NewTaskContainer extends Component {
     return (
       <Fragment>
         <Header withBackButton titleText="Create New Task" />
+        <TimerContainer />
 
         <FormContainer>
           {this.state.createError && (

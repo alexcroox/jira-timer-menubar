@@ -1,8 +1,10 @@
+import { remote } from 'electron'
 import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
+import { openInJira } from '../lib/jira'
 import Button from './button'
 import IconLink from './icon-link'
 import Control from '../components/control'
@@ -10,11 +12,26 @@ import Control from '../components/control'
 class Task extends Component {
   constructor(props) {
     super(props)
+
+    this.onContextMenu = this.onContextMenu.bind(this)
+  }
+
+  onContextMenu (taskKey) {
+    const { Menu, MenuItem } = remote
+
+    const menu = new Menu()
+
+    menu.append(new MenuItem({
+      label: `Open ${taskKey} in JIRA`,
+      click () { openInJira(taskKey) }
+    }))
+
+    menu.popup()
   }
 
   render() {
     return (
-      <TaskWrapper hasTimer={this.props.hasTimer}>
+      <TaskWrapper hasTimer={this.props.hasTimer} onContextMenu={() => { this.onContextMenu(this.props.taskKey) }}>
         <Control onClick={this.props.onAddTimer}>
           <FontAwesomeIcon icon={faPlay} />
         </Control>

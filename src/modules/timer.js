@@ -2,6 +2,8 @@ import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
 import api from '../lib/api'
+import { roundToNearestMinutes } from '../lib/time'
+import format from 'date-fns/format'
 
 // Actions
 const ADD_TIMER = 'jt/timer/ADD_TIMER'
@@ -80,16 +82,16 @@ export const deleteTimer = timerId => ({
   timerId
 })
 
-export const pauseTimer = (timerId, posting) => ({
-  type: POST_TIMER,
-  timerId,
-  posting
-})
-
-export const postingTimer = (timerId, pause) => ({
+export const pauseTimer = (timerId, pause) => ({
   type: PAUSE_TIMER,
   timerId,
   pause
+})
+
+export const postingTimer = (timerId, posting) => ({
+  type: POST_TIMER,
+  timerId,
+  posting
 })
 
 // Side effects
@@ -107,31 +109,45 @@ export const addTimer = (id, key, summary) => dispatch => {
   dispatch({ type: ADD_TIMER, timer })
 }
 
-export const postTimer = timer => async dispatch => {
+export const postTimer = stateTimer => async (dispatch, getState) => {
 
-  dispatch(pauseTimer(timer.id, true))
-  dispatch(postingTimer(timer.id, true))
+  // Pause timer and save current elapsed time against timer
+  dispatch(pauseTimer(stateTimer.id, true))
+  dispatch(postingTimer(stateTimer.id, true))
 
-  api.post(`/issue/${timer.key}/worklog`, {
-    timeSpent: `${timer.timeSpentMinutes}m`,
-    started: format(worklog.started, 'YYYY-MM-DDTHH:mm:ss.SSSZZ')
-  })
-    .then(results => {
-      console.log('Search results', results)
+  // We need the state after the above dispatches
+  process.nextTick(() => {
 
-      this.setState({
-        searching: false,
-        results: results.issues
+    let timers = getState().timer.list
+
+    let timer = find(timers, ['id', stateTimer.id])
+
+    if (!timer)
+      return
+
+    let seconds = Math.round(timer.previouslyElapsed / 1000)
+    let nearestMinutes = roundToNearestMinutes(seconds)
+
+    api.post(`/issue/${timer.key}/worklog`, {
+      timeSpent: `${nearestMinutes}m`,
+      started: format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ')
+    })
+      .then(worklog => {
+        console.log('Saved worklog', worklog)
+        dispatch(postingTimer(timer.id, false))
+
+        new Notification(`${timer.key} posted`, {
+          body: `Your time for ${timer.key} has been saved in JIRA`
+        })
+      })
+      .catch(error => {
+        console.log('Error posting timer', error)
+        dispatch(postingTimer(timer.id, false))
+
+        new Notification('Error posting timer', {
+          body: `Timer ${timer.key} failed to send, please try again`
+        })
       })
     })
-    .catch(error => {
 
-      dispatch(postingTimer(timer.id, false))
-
-      console.log('Error posting timer', error)
-
-      new Notification('Error posting timer', {
-        body: `Timer ${timer.key} failed to send, please try again`
-      })
-    })
 }

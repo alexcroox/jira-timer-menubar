@@ -8,10 +8,11 @@ class Api {
   constructor () {
 
     let baseUrl = null
+    this.jiraDomain = null
     this.authToken = null
 
     this.request = request.defaults({
-      baseUrl: null,
+      baseUrl,
       timeout: 20000,
       json: true,
       simple: true
@@ -120,6 +121,8 @@ class Api {
   }
 
   setAuthHeaders (authToken, authUrl) {
+    this.jiraDomain = authUrl
+
     this.request = this.request.defaults({
       baseUrl: `https://${authUrl}/rest/api/2`,
       headers: {
