@@ -40,9 +40,11 @@ class Header extends Component {
 
           <Title>{this.props.titleText}</Title>
 
-          <IconLink to="/dashboard" onClick={this.onQuitApp}>
-            <FontAwesomeIcon icon={faPowerOff} />
-          </IconLink>
+          {this.props.withPowerButton && (
+            <IconLink to="/dashboard" onClick={this.onQuitApp}>
+              <FontAwesomeIcon icon={faPowerOff} />
+            </IconLink>
+          )}
         </HeaderStyled>
       </Fragment>
     )

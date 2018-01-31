@@ -30,6 +30,7 @@ class Api {
           .then(response => {
             console.log('Myself', response)
             store.dispatch(setProfile(response))
+            store.dispatch(fetchWorklogs())
           })
           .catch(error => console.log('Error fetching self on load'))
       })

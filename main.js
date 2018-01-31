@@ -77,7 +77,9 @@ ipcMain.on('refreshPosition', (event, args) => {
   //mb.showWindow()
 });
 
-ipcMain.on('fetchWorklogs', (event, userKey) => {
+ipcMain.on('fetchWorklogs', (event, args) => {
+
+  let { userKey, fullWeek } = args
 
   if (fetchingWorklogs)
     return
@@ -86,7 +88,7 @@ ipcMain.on('fetchWorklogs', (event, userKey) => {
 
   let executionStart = Date.now()
 
-  JiraWorklogs.fetch(userKey)
+  JiraWorklogs.fetch(userKey, fullWeek)
     .then(worklogs => {
       fetchingWorklogs = false
       let executionSeconds = Math.round((Date.now() - executionStart) / 1000)

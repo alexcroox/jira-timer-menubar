@@ -1,10 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import parse from 'date-fns/parse'
-import isToday from 'date-fns/is_today'
-import isThisWeek from 'date-fns/is_this_week'
-import isYesterday from 'date-fns/is_yesterday'
 import { secondsHuman } from '../../lib/time'
 
 class WorklogTotals extends Component {
@@ -13,28 +9,6 @@ class WorklogTotals extends Component {
   }
 
   render () {
-
-    let dayTotal = 0
-    let yesterdayTotal = 0
-    let weekTotal = 0
-
-    if (this.props.worklogs.length) {
-
-      this.props.worklogs.forEach(worklog => {
-        let created = parse(worklog.created)
-
-        if (isToday(created))
-          dayTotal += worklog.timeSpentSeconds
-
-        if (isYesterday(created))
-          yesterdayTotal += worklog.timeSpentSeconds
-
-        // Week starts on Monday (1)
-        if (isThisWeek(created, 1))
-          weekTotal += worklog.timeSpentSeconds
-      })
-    }
-
     return (
       <div>
         {this.props.worklogs.length === 0 && this.props.updating && (
@@ -44,16 +18,16 @@ class WorklogTotals extends Component {
         {this.props.worklogs.length !== 0 && (
           <Fragment>
             <TimeSummaryContainer>
-              Today <TimeSummary>{secondsHuman(dayTotal)}</TimeSummary>
+              Today <TimeSummary>{secondsHuman(this.props.totals.day)}</TimeSummary>
             </TimeSummaryContainer>
 
             {this.props.showAll && (
               <Fragment>
                 <TimeSummaryContainer>
-                  Yesterday <TimeSummary>{secondsHuman(yesterdayTotal)}</TimeSummary>
+                  Yesterday <TimeSummary>{secondsHuman(this.props.totals.yesterday)}</TimeSummary>
                 </TimeSummaryContainer>
                 <TimeSummaryContainer>
-                  Week <TimeSummary>{secondsHuman(weekTotal)}</TimeSummary>
+                  Week <TimeSummary>{secondsHuman(this.props.totals.week)}</TimeSummary>
                 </TimeSummaryContainer>
               </Fragment>
             )}
@@ -76,6 +50,7 @@ const TimeSummary = styled.span`
 
 const mapStateToProps = state => ({
   worklogs: state.worklog.list,
+  totals: state.worklog.totals,
   updating: state.worklog.updating
 })
 

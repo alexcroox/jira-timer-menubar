@@ -14,6 +14,7 @@ import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
 import { TaskTitle } from '../../components/task'
 import Button from '../../components/button'
 import Control from '../../components/control'
+import OptionDots from '../../components/option-dots'
 
 class TimerContainer extends Component {
   constructor (props) {
@@ -142,8 +143,9 @@ class TimerContainer extends Component {
 
               <Time>{timer.stopWatchDisplay}</Time>
               <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
-              <TimerOptions
-                icon={faEllipsisH}
+              <OptionDots
+                largeMarginLeft
+                light
                 onClick={() => this.onOpenOptions(timer)}
                 onContextMenu={() => this.onOpenOptions(timer)}
               />
@@ -156,7 +158,7 @@ class TimerContainer extends Component {
 }
 
 const TimerWrapper = styled.div`
-  padding: 0 10px 0 4px;
+  padding: 0 15px 0 4px;
   background: #2381FA;
   color: #FFF;
   display: flex;
@@ -177,17 +179,6 @@ const Time = styled.span`
   border-radius: 5px;
   margin-right: 15px;
   margin-left: 5px;
-`
-
-const TimerOptions = styled(FontAwesomeIcon)`
-  font-size: 23px;
-  margin-left: 15px;
-  margin-right: 5px;
-
-  &:hover {
-    cursor: pointer;
-    opacity: 0.8;
-  }
 `
 
 const mapDispatchToProps = {

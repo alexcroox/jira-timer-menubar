@@ -22,12 +22,14 @@ class JiraWorklogs {
       })
   }
 
-  fetch (userKey) {
+  fetch (userKey, fullWeek) {
 
     this.userKey = userKey
 
+    console.log('Full week?', fullWeek, userKey)
+
     return new Promise((resolve, reject) => {
-      this.fetchRecentlyUpdatedTasks()
+      this.fetchRecentlyUpdatedTasks(fullWeek)
         .then(response => {
 
           let tasks = response.issues
@@ -71,10 +73,14 @@ class JiraWorklogs {
     })
   }
 
-  fetchRecentlyUpdatedTasks () {
+  fetchRecentlyUpdatedTasks (fullWeek) {
     return new Promise((resolve, reject) => {
+
+      let start = fullWeek ? 'startOfWeek()' : 'startOfDay()'
+
       this.sendRequest('/search', 'POST', {
-          jql: `updated >= startOfWeek() ORDER BY updated DESC`,
+          jql: `updated >= ${start} ORDER BY updated DESC`,
+          maxResults: 100,
           fields: ['key', 'summary', 'project']
         })
         .then(issues => resolve(issues))
@@ -87,7 +93,7 @@ class JiraWorklogs {
 
       console.log('Fetching worklogs', task.key, this.userKey)
 
-      this.sendRequest(`/issue/${task.key}/worklog`, 'GET')
+      this.sendRequest(`/issue/${task.key}/worklog?maxResults=100`, 'GET')
         .then(response => {
 
           let currentUserWorklogs = []

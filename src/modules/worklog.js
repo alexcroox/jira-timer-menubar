@@ -1,6 +1,10 @@
 import { ipcRenderer } from 'electron'
 import Immutable from 'seamless-immutable'
 import find from 'lodash.find'
+import parse from 'date-fns/parse'
+import isToday from 'date-fns/is_today'
+import isThisWeek from 'date-fns/is_this_week'
+import isYesterday from 'date-fns/is_yesterday'
 
 // Actions
 const ADD_WORKLOG = 'jt/worklog/ADD_WORKLOG'
@@ -8,6 +12,11 @@ const SET_UPDATING = 'jt/worklog/SET_UPDATING'
 
 const initialState = Immutable({
   list: [],
+  totals: {
+    day: 0,
+    yesterday: 0,
+    week: 0
+  },
   updating: false
 })
 
@@ -16,10 +25,31 @@ export default function reducer (state = initialState, action = {}) {
   switch (action.type) {
 
     case ADD_WORKLOG: {
-      if (Array.isArray(action.worklog))
-        return state.set('list', Immutable(action.worklog))
-      else
-        return state.set('list', [action.worklog].concat(state.list))
+
+      let dayTotal = 0
+      let yesterdayTotal = 0
+      let weekTotal = 0
+
+      action.worklogs.forEach(worklog => {
+        let created = parse(worklog.created)
+
+        if (isToday(created))
+          dayTotal += worklog.timeSpentSeconds
+
+        if (isYesterday(created))
+          yesterdayTotal += worklog.timeSpentSeconds
+
+        // Week starts on Monday (1)
+        if (isThisWeek(created, 1))
+          weekTotal += worklog.timeSpentSeconds
+      })
+
+      let nextState = state.set('list', Immutable(action.worklogs))
+      nextState = nextState.setIn(['totals', 'day'], dayTotal)
+      nextState = nextState.setIn(['totals', 'yesterday'], yesterdayTotal)
+      nextState = nextState.setIn(['totals', 'week'], weekTotal)
+
+      return nextState
     }
 
     case SET_UPDATING:
@@ -35,14 +65,14 @@ export const setUpdating = updating => ({
   updating
 })
 
-// Can pass a single object to be added to the end of the list
-// or an array to replace the list entirely
-export const addWorklog = worklog => ({
+// Pass array of worklogs
+export const addWorklogs = worklogs => ({
   type: ADD_WORKLOG,
-  worklog
+  worklogs
 })
 
-export const fetchWorklogs = (username, password, authUrl) => (dispatch, getState) => {
+// Full week isn't supported yet (need to work on merging states)
+export const fetchWorklogs = (fullWeek = true) => (dispatch, getState) => {
 
   let state = getState()
   let updating = state.worklog.updating
@@ -61,6 +91,9 @@ export const fetchWorklogs = (username, password, authUrl) => (dispatch, getStat
 
   dispatch(setUpdating(true))
 
-  ipcRenderer.send('fetchWorklogs', state.user.profile.key)
+  ipcRenderer.send('fetchWorklogs', {
+    fullWeek,
+    userKey: state.user.profile.key
+  })
 }
 

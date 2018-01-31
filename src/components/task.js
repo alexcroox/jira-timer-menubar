@@ -55,14 +55,14 @@ export const TaskContainer = styled.div`
 `
 
 const TaskWrapper = styled.div`
-  border-top: 1px solid #D8D8D8;
+  border-top: 1px solid rgba(234,234,234,0.8);
   background-color: #FFF;
   padding: 10px 12px;
   display: flex;
   align-items: center;
 
   &:nth-child(even) {
-    background-color: #F4F3F2;
+    background-color: rgba(234,234,234,0.4);
   }
 
   &:first-child {

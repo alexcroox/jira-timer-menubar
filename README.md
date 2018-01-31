@@ -1,6 +1,6 @@
 # Jira Timer Menubar
 
-![ss](https://cl.ly/p6hW/Screen%20Shot%202018-01-27%20at%2017.10.22.png)
+![ss](https://cl.ly/pDyw/Screen%20Recording%202018-01-31%20at%2010.40%20pm.gif)
 
 ## Quick Start
 

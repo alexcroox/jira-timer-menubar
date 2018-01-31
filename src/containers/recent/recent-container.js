@@ -22,7 +22,7 @@ class RecentContainer extends Component {
     if (this.props.recentTasks.length)
       return (
         <Fragment>
-          <HeadingBar borderBottom>
+          <HeadingBar borderBottom borderTop>
             Recent tasks
           </HeadingBar>
 

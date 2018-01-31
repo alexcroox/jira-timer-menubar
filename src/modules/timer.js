@@ -3,7 +3,7 @@ import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
 import api from '../lib/api'
 import { addRecentTask } from './recent'
-import { roundToNearestMinutes } from '../lib/time'
+import { roundToNearestMinutes, secondsHuman } from '../lib/time'
 import format from 'date-fns/format'
 
 // Actions
@@ -128,6 +128,7 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
 
     let seconds = Math.round(timer.previouslyElapsed / 1000)
     let nearestMinutes = roundToNearestMinutes(seconds)
+    let humanTime = secondsHuman(nearestMinutes * 60)
 
     api.post(`/issue/${timer.key}/worklog`, {
       timeSpent: `${nearestMinutes}m`,
@@ -137,8 +138,8 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
         console.log('Saved worklog', worklog)
         dispatch(deleteTimer(timer.id))
 
-        new Notification(`${timer.key} posted`, {
-          body: `Your time for ${timer.key} has been saved in JIRA`
+        new Notification(`${humanTime} posted`, {
+          body: `Your time for ${timer.key} has been posted to JIRA`
         })
 
         // Save to recents
