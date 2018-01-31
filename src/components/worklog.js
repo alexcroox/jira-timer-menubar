@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import { openInJira } from '../lib/jira'
+import { secondsHuman } from '../lib/time'
 import humanTime from 'pretty-ms'
 
 class Worklog extends Component {
@@ -32,7 +33,7 @@ class Worklog extends Component {
       >
         <WorklogTaskKey>{this.props.task.key}</WorklogTaskKey>
         <TaskTitle>{this.props.task.summary}</TaskTitle>
-        <WorklogTime>{humanTime(this.props.timeSpentSeconds * 1000)}</WorklogTime>
+        <WorklogTime>{secondsHuman(this.props.timeSpentSeconds)}</WorklogTime>
       </WorklogWrapper>
     )
   }

@@ -17,6 +17,10 @@ export const storeState = (currentState) => {
   // We need to null the authToken as we store this in secure keychain
   mutableState.user.authToken = null
 
+  // If we quit the app while updating worklogs
+  // we want to be able to fetch them next time we load
+  mutableState.worklog.updating = false
+
   storage.set('redux', mutableState)
 }
 

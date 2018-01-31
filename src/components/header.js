@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
@@ -5,12 +6,17 @@ import PropTypes from 'prop-types'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faCog from '@fortawesome/fontawesome-free-solid/faCog'
 import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft'
+import faPowerOff from '@fortawesome/fontawesome-free-solid/faPowerOff'
 import Button from './button'
 import IconLink from './icon-link'
 
 class Header extends Component {
   constructor(props) {
     super(props)
+  }
+
+  onQuitApp () {
+    ipcRenderer.send('quit')
   }
 
   render() {
@@ -34,8 +40,8 @@ class Header extends Component {
 
           <Title>{this.props.titleText}</Title>
 
-          <IconLink to="/settings">
-            <FontAwesomeIcon icon={faCog} />
+          <IconLink to="/dashboard" onClick={this.onQuitApp}>
+            <FontAwesomeIcon icon={faPowerOff} />
           </IconLink>
         </HeaderStyled>
       </Fragment>
