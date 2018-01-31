@@ -1,11 +1,14 @@
 import { app, ipcMain } from 'electron'
 import menubar from 'menubar'
 import path from 'path'
+import JiraWorklogs from './jira-worklogs'
 
 require('fix-path')(); // resolve user $PATH env variable
 require('electron-debug')({ showDevTools: true });
 
 console.log('userData', app.getPath('userData'));
+
+let fetchingWorklogs = false
 
 const installExtensions = async () => {
   if (process.env.NODE_ENV === 'development') {
@@ -72,4 +75,26 @@ ipcMain.on('updateTitle', (event, title) => {
 
 ipcMain.on('refreshPosition', (event, args) => {
   //mb.showWindow()
+});
+
+ipcMain.on('fetchWorklogs', (event, userKey) => {
+
+  if (fetchingWorklogs)
+    return
+
+  fetchingWorklogs = true
+
+  let executionStart = Date.now()
+
+  JiraWorklogs.fetch(userKey)
+    .then(worklogs => {
+      fetchingWorklogs = false
+      let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
+      console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+      event.sender.send('worklogs', JSON.stringify(worklogs))
+    })
+    .catch(error => {
+      console.log('Failed to fetch worklogs', error)
+      event.sender.send('worklogs', JSON.stringify([]))
+    })
 });

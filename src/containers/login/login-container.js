@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
+import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
 import FormContainer from '../../components/form-container'
 import Header from '../../components/header'
+import ExternalLink from '../../components/external-link'
 import ErrorMessage from '../../components/error'
 import LoginForm from './login-form'
 import passwordValidationRule from '../../validation/password-validation'
@@ -69,11 +71,18 @@ class LoginContainer extends Component {
           />
         </FormContainer>
 
-        <FooterContainer />
+        <FooterContainer>
+          <Credits>created by <ExternalLink>Si digital</ExternalLink></Credits>
+        </FooterContainer>
       </Fragment>
     );
   }
 }
+
+const Credits = styled.div`
+  text-align: right;
+  width: 100%;
+`
 
 const mapDispatchToProps = dispatch => {
   return {

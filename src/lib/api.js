@@ -1,7 +1,8 @@
 import request from 'request-promise'
 import keychain from 'keytar'
 import store from './create-store'
-import { setAuthToken, userLogout } from '../modules/user'
+import { setAuthToken, userLogout, setProfile } from '../modules/user'
+import { fetchWorklogs } from '../modules/worklog'
 
 class Api {
 
@@ -24,6 +25,13 @@ class Api {
         this.authToken = credentials.password
         this.setAuthHeaders(this.authToken, credentials.account)
         store.dispatch(setAuthToken(this.authToken))
+
+        this.get('/myself')
+          .then(response => {
+            console.log('Myself', response)
+            store.dispatch(setProfile(response))
+          })
+          .catch(error => console.log('Error fetching self on load'))
       })
       .catch(error => console.log('New user'))
   }
@@ -81,9 +89,13 @@ class Api {
         .then(response => {
 
           console.log('Setting token', response)
-
+          store.dispatch(setProfile(response))
           store.dispatch(setAuthToken(this.authToken))
           keychain.setPassword('jira-timer-menubar', authUrl, this.authToken)
+
+          setTimeout(() => {
+            store.dispatch(fetchWorklogs())
+          }, 2000)
 
           resolve(response)
         })

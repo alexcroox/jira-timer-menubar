@@ -8,6 +8,7 @@ import thunk from 'redux-thunk'
 import user from '../modules/user'
 import timer from '../modules/timer'
 import recent from '../modules/recent'
+import worklog from '../modules/worklog'
 
 const initialState = Immutable(storage.get('redux'))
 const enhancers = []
@@ -22,6 +23,7 @@ const reducer = combineReducers({
   user,
   timer,
   recent,
+  worklog,
   router: routerReducer,
 })
 

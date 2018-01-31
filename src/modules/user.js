@@ -8,11 +8,13 @@ const USER_LOGIN = 'jt/user/USER_LOGIN'
 const USER_LOGIN_RESPONSE = 'jt/user/USER_LOGIN_RESPONSE'
 const USER_LOGOUT = 'jt/user/USER_LOGOUT'
 const USER_SET_AUTH_TOKEN = 'jt/user/USER_SET_AUTH_TOKEN'
+const USER_SET_PROFILE = 'jt/user/USER_SET_PROFILE'
 
 const initialState = Immutable({
   loginPending: false,
   loginError: false,
   authToken: null,
+  profile: {}
 })
 
 // Reducer
@@ -44,6 +46,9 @@ export default function reducer (state = initialState, action = {}) {
       return state.set('authToken', action.token)
     }
 
+    case USER_SET_PROFILE:
+      return state.set('profile', action.profile)
+
     default: return state
   }
 }
@@ -58,6 +63,11 @@ export const userLoginResponse = (status, error) => ({
 export const setAuthToken = token => ({
   type: USER_SET_AUTH_TOKEN,
   token
+})
+
+export const setProfile = profile => ({
+  type: USER_SET_PROFILE,
+  profile
 })
 
 export const isLoggedIn = state =>

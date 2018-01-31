@@ -194,8 +194,6 @@ class NewTaskContainer extends Component {
             projectId={this.state.projectId}
           />
         </FormContainer>
-
-        <FooterContainer />
       </Fragment>
     );
   }

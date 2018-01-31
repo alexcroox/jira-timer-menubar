@@ -4,6 +4,7 @@ import styled, { injectGlobal } from 'styled-components'
 import DashboardContainer from '../dashboard/dashboard-container'
 import NewTaskContainer from '../new-task/new-task-container'
 import LoginContainer from '../login/login-container'
+import WorklogContainer from '../worklog/worklog-container'
 import 'react-select/dist/react-select.css'
 
 // The window needed to be a certain height for the non-js page
@@ -27,6 +28,7 @@ const App = () =>  {
         <Route path="/dashboard" component={DashboardContainer} />
         <Route path="/settings" component={DashboardContainer} />
         <Route path="/create-task" component={NewTaskContainer} />
+        <Route path="/worklogs" component={WorklogContainer} />
         <Route path="/" component={LoginContainer} />
       </Switch>
     </AppWindow>
