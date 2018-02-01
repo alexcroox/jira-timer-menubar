@@ -1,16 +1,13 @@
-import { ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import keychain from 'keytar'
 import styled from 'styled-components'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faPowerOff from '@fortawesome/fontawesome-free-solid/faPowerOff'
 import FooterContainer from '../footer/footer-container'
 import TimerContainer from '../timer/timer-container'
 import Header from '../../components/header'
-import Button, { ButtonIcon } from '../../components/button'
+import Button from '../../components/button'
 import Divider from '../../components/divider'
 import Section from '../../components/section'
 
@@ -20,10 +17,6 @@ class SettingsContainer extends Component {
 
   }
 
-  onQuitApp () {
-    ipcRenderer.send('quit')
-  }
-
   render () {
     return (
       <Fragment>
@@ -31,7 +24,12 @@ class SettingsContainer extends Component {
           <Redirect to="/" />
         )}
 
-        <Header withBackButton titleText="Settings" />
+        <Header
+          titleText="Settings"
+          withBackButton
+          withQuitButton
+        />
+
         <TimerContainer />
 
         {this.props.profile && this.props.profile.avatarUrls && (
@@ -44,16 +42,10 @@ class SettingsContainer extends Component {
               </ProfileDetails>
               <Button default onClick={this.props.userLogout}>Logout</Button>
             </ProfileWrapper>
-
-            <Divider />
           </Fragment>
         )}
 
         <Section noPaddingTop>
-          <Button default onClick={this.onQuitApp}>
-            <ButtonIcon icon={faPowerOff} />
-            Quit app
-          </Button>
         </Section>
       </Fragment>
     );

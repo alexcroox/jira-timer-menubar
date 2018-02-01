@@ -9,7 +9,7 @@ const Button = (props) => (
 )
 
 export const ButtonIcon = styled(FontAwesomeIcon)`
-  margin-right: 5px;
+  margin-right: 7px;
 `
 
 const ButtonStyled = styled.span`
