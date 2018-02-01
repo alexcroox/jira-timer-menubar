@@ -55,7 +55,7 @@ class NewTaskContainer extends Component {
     // back the cached list
     if (this.state.projects.length)
       return callback(null, {
-        options: this.state.projects,
+        options: this.state.projectOptions,
         complete: true
       })
 
@@ -110,10 +110,12 @@ class NewTaskContainer extends Component {
 
     if (project) {
 
-      console.log('projectissuyetypes', project)
-
       let options = []
-      project.issueTypes.map(issueType => {
+      project.issueTypes.forEach(issueType => {
+
+        if (issueType.name === 'Sub-task')
+          return
+
         options.push({
           value: issueType.id,
           label: issueType.name
