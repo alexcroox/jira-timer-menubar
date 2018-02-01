@@ -30,7 +30,7 @@ class LoginContainer extends Component {
     this.state = {
       form: {
         authUrl: 'sidigital.atlassian.net',
-        username: 'alex@sidigital.co',
+        username: '',
         password: ''
       }
     }

@@ -92,7 +92,7 @@ ipcMain.on('fetchWorklogs', (event, args) => {
 
   let executionStart = Date.now()
 
-  JiraWorklogs.fetch(userKey, fullWeek)
+  JiraWorklogs.fetchMine(userKey, fullWeek)
     .then(worklogs => {
       fetchingWorklogs = false
       let executionSeconds = Math.round((Date.now() - executionStart) / 1000)

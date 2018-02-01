@@ -15,11 +15,34 @@ import differenceInDays from 'date-fns/difference_in_days'
 class JiraWorklogs {
 
   constructor () {
+
+    this.authKey = null
+    this.baseUrl = null
+
     this.getCredentialsFromKeyChain()
-      .then(credentials => {
-        this.authKey = credentials.password
-        this.baseUrl = credentials.account
-      })
+      .then(credentials => console.log('Keychain credentials found'))
+      .catch(error => console.log('Unable to fetch credentials', error))
+  }
+
+  fetchMine (userKey, fullWeek) {
+    return new Promise((resolve, reject) => {
+      if (!this.authKey) {
+        this.getCredentialsFromKeyChain()
+          .then(() => {
+            this.fetch(userKey, fullWeek)
+              .then(worklogs => resolve(worklogs))
+              .catch(error => reject(error))
+          })
+          .catch(error => {
+            console.log('Unable to fetch credentials', error)
+            reject(error)
+          })
+      } else {
+        this.fetch(userKey, fullWeek)
+          .then(worklogs => resolve(worklogs))
+          .catch(error => reject(error))
+      }
+    })
   }
 
   fetch (userKey, fullWeek) {
@@ -139,7 +162,17 @@ class JiraWorklogs {
   getCredentialsFromKeyChain () {
     return new Promise((resolve, reject) => {
       keychain.findCredentials('jira-timer-menubar')
-        .then(credentials => resolve(credentials[0]))
+        .then(credentials => {
+          if (!credentials || !credentials.length)
+            return reject('No credentials yet')
+
+          console.log('Set credentials')
+
+          this.authKey = credentials[0].password
+          this.baseUrl = credentials[0].account
+
+          resolve()
+        })
         .catch(error => reject(error))
     })
   }
