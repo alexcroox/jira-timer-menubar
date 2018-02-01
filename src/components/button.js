@@ -1,11 +1,16 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 
 const Button = (props) => (
   <ButtonStyled {...props}>
     {props.children}
   </ButtonStyled>
 )
+
+export const ButtonIcon = styled(FontAwesomeIcon)`
+  margin-right: 5px;
+`
 
 const ButtonStyled = styled.span`
   display: inline-block;

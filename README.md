@@ -21,3 +21,9 @@ $ npm run dev
 ```bash
 $ npm run build
 ```
+
+#### For linux users
+
+If you are running newer versions of GNOME you will need the 
+[TopIcons Extension](https://extensions.gnome.org/extension/495/topicons/)
+otherwise no icon will appear in your tray, and no window can be opened.

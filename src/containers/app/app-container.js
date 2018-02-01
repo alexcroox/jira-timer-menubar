@@ -5,6 +5,7 @@ import DashboardContainer from '../dashboard/dashboard-container'
 import NewTaskContainer from '../new-task/new-task-container'
 import LoginContainer from '../login/login-container'
 import WorklogContainer from '../worklog/worklog-container'
+import SettingsContainer from '../settings/settings-container'
 import 'react-select/dist/react-select.css'
 
 // The window needed to be a certain height for the non-js page
@@ -26,7 +27,7 @@ const App = () =>  {
     <AppWindow>
       <Switch>
         <Route path="/dashboard" component={DashboardContainer} />
-        <Route path="/settings" component={DashboardContainer} />
+        <Route path="/settings" component={SettingsContainer} />
         <Route path="/create-task" component={NewTaskContainer} />
         <Route path="/worklogs" component={WorklogContainer} />
         <Route path="/" component={LoginContainer} />

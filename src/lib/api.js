@@ -76,6 +76,12 @@ class Api {
     })
   }
 
+  logout () {
+    keychain.deletePassword('jira-timer-menubar', this.jiraDomain)
+    this.authToken = null
+    this.setAuthHeaders(null, null)
+  }
+
   login (username, password, authUrl) {
     return new Promise((resolve, reject) => {
 

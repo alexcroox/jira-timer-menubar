@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import IconLink from '../../components/icon-link'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -18,10 +19,14 @@ class DashboardContainer extends Component {
   render () {
     return (
       <Fragment>
+        {!this.props.authToken && (
+          <Redirect to="/" />
+        )}
+
         <Header
           titleText="Jira Timer"
           withCreateTaskButton
-          withPowerButton
+          withSettingsButton
         />
 
         <TimerContainer />

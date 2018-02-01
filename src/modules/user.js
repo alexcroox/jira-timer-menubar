@@ -89,6 +89,6 @@ export const userLogin = (username, password, authUrl) => async dispatch => {
 }
 
 export const userLogout = () => dispatch => {
-  //dispatch(push('/'))
+  api.logout()
   dispatch({ type: USER_LOGOUT })
 }

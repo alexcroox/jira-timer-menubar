@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Jira Timer",
   "productName": "Jira Timer",
-  "main": "./dist/bundle.js",
+  "main": "index.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "NODE_ENV=development electron .",
