@@ -7,7 +7,6 @@ import { secondsHuman } from '../lib/time'
 import humanTime from 'pretty-ms'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-import OptionDots, { OptionDotsStyled } from './option-dots'
 
 class Worklog extends Component {
   constructor(props) {
@@ -16,24 +15,24 @@ class Worklog extends Component {
     this.onOpenOptions = this.onOpenOptions.bind(this)
   }
 
-  onOpenOptions (taskKey) {
+  onOpenOptions () {
     const { Menu, MenuItem } = remote
 
     const menu = new Menu()
 
     menu.append(new MenuItem({
-      label: `Edit time logged for ${taskKey}`,
-      click () { openInJira(taskKey) }
+      label: `Edit ${secondsHuman(this.props.timeSpentSeconds)} logged for ${this.props.task.key}`,
+      click () { openInJira(this.props.task.key) }
     }))
 
     menu.append(new MenuItem({
-      label: `Open ${taskKey} in JIRA`,
-      click () { openInJira(taskKey) }
+      label: `Open ${this.props.task.key} in JIRA`,
+      click () { openInJira(this.props.task.key) }
     }))
 
     menu.append(new MenuItem({
-      label: `Delete this timelog for ${taskKey}`,
-      click () { openInJira(taskKey) }
+      label: `Delete ${secondsHuman(this.props.timeSpentSeconds)} from ${this.props.task.key}`,
+      click () { openInJira(this.props.task.key) }
     }))
 
     menu.popup()
@@ -41,14 +40,10 @@ class Worklog extends Component {
 
   render() {
     return (
-      <WorklogWrapper>
+      <WorklogWrapper onContextMenu={() => this.onOpenOptions()}>
         <WorklogTaskKey>{this.props.task.key}</WorklogTaskKey>
         <TaskTitle>{this.props.task.summary}</TaskTitle>
         <WorklogTime>{secondsHuman(this.props.timeSpentSeconds)}</WorklogTime>
-        <OptionDots
-          onClick={() => this.onOpenOptions(this.props.task.key)}
-          onContextMenu={() => this.onOpenOptions(this.props.task.key)}
-        />
       </WorklogWrapper>
     )
   }
@@ -69,16 +64,8 @@ const WorklogWrapper = styled.div`
     background-color: rgba(234,234,234,0.4);
   }
 
-  & > ${OptionDotsStyled} {
-    opacity: 0.2;
-  }
-
   &:hover {
     background-color: rgba(35,129,250,0.1);
-
-    & > ${OptionDotsStyled} {
-      opacity: 1;
-    }
   }
 `
 

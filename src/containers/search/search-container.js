@@ -146,7 +146,7 @@ class SearchContainer extends Component {
         </SearchWrapper>
 
         {this.state.results.length ? (
-          <TaskContainer fixedHeight>
+          <TaskContainer maxHeight>
             {this.state.results.map(task => (
               <Task
                 key={task.id}

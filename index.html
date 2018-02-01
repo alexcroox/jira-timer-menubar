@@ -39,7 +39,7 @@
         background: #fff;
         border-radius: 6px;
         overflow: hidden;
-        box-shadow: 0 0 3px rgba(0,0,0,.2);
+        box-shadow: 0 0 8px rgba(0,0,0,.4);
         position: relative;
         top: 2px;
         left: 0;
@@ -48,22 +48,33 @@
       }
 
       .tray-triangle {
+        width: 29px;
+        height: 15px;
         position: absolute;
-        z-index: 2;
-        top: 2px;
+        overflow: hidden;
+        box-shadow: 0 16px 10px -17px rgba(0, 0, 0, 0.5);
         left: 50%;
         transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 0.75rem solid transparent;
-        border-right: 0.75rem solid transparent;
-        border-bottom: 0.75rem solid #fff;
+        top: -1px;
+        z-index: 10;
+      }
+
+      .tray-triangle:after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: #FFF;
+        transform: rotate(45deg);
+        top: 9px;
+        left: 5px;
+        box-shadow: -1px -1px 10px -2px rgba(0, 0, 0, 0.5);
       }
     </style>
   </head>
   <body>
     <div class="app-base">
-      <div class=tray-triangle></div>
+      <div class="tray-triangle"></div>
       <div id="root">
         <svg class="init-loading" width="80px"  height="80px"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"><g transform="rotate(150 50 50)"><path d="M80 50 A30 30 0 0 1 59.270509831248425 78.53169548885461" fill="none" stroke="#ffffcb" stroke-width="10"></path><path d="M59.270509831248425 78.53169548885461 A30 30 0 0 1 25.72949016875158 67.6335575687742" fill="none" stroke="#fac090" stroke-width="10"></path><path d="M25.72949016875158 67.6335575687742 A30 30 0 0 1 25.729490168751575 32.366442431225806" fill="none" stroke="#ff7c81" stroke-width="10"></path><path d="M25.729490168751575 32.366442431225806 A30 30 0 0 1 59.27050983124842 21.46830451114539" fill="none" stroke="#c0f6d2" stroke-width="10"></path><path d="M59.27050983124842 21.46830451114539 A30 30 0 0 1 80 49.99999999999999" fill="none" stroke="#dae4bf" stroke-width="10"></path><animateTransform attributeName="transform" type="rotate" values="0 50 50;360 50 50" times="0;1" dur="1" repeatCount="indefinite"></animateTransform></g></svg>
       </div>

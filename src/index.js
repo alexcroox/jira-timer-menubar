@@ -1,3 +1,17 @@
+import log from 'electron-log'
+
+const originalConsoleLog = console.log.bind(console)
+console.log = (...args) => {
+  log.debug(args)
+  originalConsoleLog(...args)
+}
+
+window.onerror = (err) => {
+  log.error(args)
+  originalConsoleLog(...args)
+}
+
+
 import { ipcRenderer } from 'electron'
 import React from 'react'
 import { render } from 'react-dom'

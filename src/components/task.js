@@ -49,8 +49,8 @@ Task.propTypes = {
 export const TaskContainer = styled.div`
   overflow: auto;
 
-  ${props => (props.fixedHeight) && css`
-    height: 147px;
+  ${props => (props.maxHeight) && css`
+    max-height: 147px;
   `}
 `
 

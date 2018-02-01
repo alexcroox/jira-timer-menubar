@@ -7,7 +7,7 @@ import isThisWeek from 'date-fns/is_this_week'
 import isYesterday from 'date-fns/is_yesterday'
 
 // Actions
-const ADD_WORKLOG = 'jt/worklog/ADD_WORKLOG'
+const ADD_WORKLOGS = 'jt/worklog/ADD_WORKLOGS'
 const SET_UPDATING = 'jt/worklog/SET_UPDATING'
 
 const initialState = Immutable({
@@ -24,7 +24,7 @@ const initialState = Immutable({
 export default function reducer (state = initialState, action = {}) {
   switch (action.type) {
 
-    case ADD_WORKLOG: {
+    case ADD_WORKLOGS: {
 
       let dayTotal = 0
       let yesterdayTotal = 0
@@ -67,7 +67,7 @@ export const setUpdating = updating => ({
 
 // Pass array of worklogs
 export const addWorklogs = worklogs => ({
-  type: ADD_WORKLOG,
+  type: ADD_WORKLOGS,
   worklogs
 })
 

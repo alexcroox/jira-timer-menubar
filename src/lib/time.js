@@ -12,5 +12,9 @@ export const roundToNearestMinutes = (seconds, nearestMinute = 15) => {
 }
 
 export const secondsHuman = seconds => {
+
+  if (!seconds)
+    return '0h'
+
   return humanTime(seconds * 1000)
 }

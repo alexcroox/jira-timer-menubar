@@ -3,6 +3,7 @@ import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
 import api from '../lib/api'
 import { addRecentTask } from './recent'
+import { fetchWorklogs } from './worklog'
 import { roundToNearestMinutes, secondsHuman } from '../lib/time'
 import format from 'date-fns/format'
 
@@ -144,6 +145,7 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
 
         // Save to recents
         dispatch(addRecentTask(timer))
+        dispatch(fetchWorklogs())
       })
       .catch(error => {
         console.log('Error posting timer', error)

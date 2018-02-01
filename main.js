@@ -1,7 +1,10 @@
 import { app, ipcMain } from 'electron'
+import log from 'electron-log'
 import menubar from 'menubar'
 import path from 'path'
 import JiraWorklogs from './jira-worklogs'
+
+log.transports.console.level = 'warn'
 
 require('fix-path')(); // resolve user $PATH env variable
 require('electron-debug')({ showDevTools: true });
@@ -33,7 +36,8 @@ const mb = menubar({
   icon: path.join(app.getAppPath(), '/static/tray.png'),
   minWidth: 500,
   maxWidth: 500,
-  minHeight: 500,
+  minHeight: 530,
+  hasShadow: false,
   preloadWindow: process.env.NODE_ENV !== 'development',
   resizable: true,
   transparent: true,

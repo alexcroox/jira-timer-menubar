@@ -12,16 +12,8 @@ const OptionDots = (props) => (
 
 export const OptionDotsStyled = styled(FontAwesomeIcon)`
   font-size: 23px;
-  margin-left: 5px;
-  color: #6B6B6B;
-
-  ${props => (props.light) && css`
-    color: #FFF;
-  `}
-
-  ${props => (props.largeMarginLeft) && css`
-    margin-left: 15px;
-  `}
+  margin-left: 15px;
+  color: #FFF;
 
   &:hover {
     cursor: pointer;

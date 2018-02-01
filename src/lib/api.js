@@ -21,7 +21,6 @@ class Api {
 
     this.getCredentialsFromKeyChain()
       .then(credentials => {
-        console.log('Creds', credentials)
         this.authToken = credentials.password
         this.setAuthHeaders(this.authToken, credentials.account)
         store.dispatch(setAuthToken(this.authToken))

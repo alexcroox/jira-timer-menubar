@@ -27,7 +27,7 @@ class RecentContainer extends Component {
           </HeadingBar>
 
           {this.props.recentTasks.length !== 0 && (
-            <TaskContainer>
+            <TaskContainer maxHeight>
               {this.props.recentTasks.map(task => (
                 <Task
                   key={task.id}

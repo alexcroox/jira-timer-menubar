@@ -41,8 +41,6 @@ class JiraWorklogs {
           // Lets throttle the number of API calls we are making at once
           λ.each(tasks, 4, (task, callback) => {
 
-            console.log('Starting', task.key)
-
             this.fetchWorklogsForTaskAndUser(task)
               .then(userWorklogs => {
 
@@ -90,8 +88,6 @@ class JiraWorklogs {
 
   fetchWorklogsForTaskAndUser (task) {
     return new Promise((resolve, reject) => {
-
-      console.log('Fetching worklogs', task.key, this.userKey)
 
       this.sendRequest(`/issue/${task.key}/worklog?maxResults=100`, 'GET')
         .then(response => {

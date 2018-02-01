@@ -1,4 +1,4 @@
-# Jira Timer Menubar
+# JIRA Timer Menubar
 
 <img src="/static/demo.gif?raw=true">
 

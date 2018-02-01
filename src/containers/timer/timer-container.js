@@ -144,8 +144,6 @@ class TimerContainer extends Component {
               <Time>{timer.stopWatchDisplay}</Time>
               <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
               <OptionDots
-                largeMarginLeft
-                light
                 onClick={() => this.onOpenOptions(timer)}
                 onContextMenu={() => this.onOpenOptions(timer)}
               />
