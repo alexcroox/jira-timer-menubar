@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
-import { formatSecondsToStopWatch } from '../../lib/time'
+import { formatSecondsToStopWatch, roundToNearestMinutes } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
 import { deleteTimer, pauseTimer, postTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -62,7 +62,7 @@ class TimerContainer extends Component {
 
       let timeInSeconds = Math.round(timeInMs/1000)
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
-      timer.menubarDisplay = formatSecondsToStopWatch(timeInSeconds, 'hh:mm')
+      timer.menubarDisplay = formatSecondsToStopWatch((roundToNearestMinutes(timeInSeconds,1) - 1) * 60, 'hh:mm')
 
       return timer
     })
