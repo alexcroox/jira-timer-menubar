@@ -14,10 +14,18 @@ export default function reducer (state = initialState, action = {}) {
 
     case ADD_TASK: {
       // We don't want to allow duplicate recents
-      let existing = find(state.list, ['id', action.task.id])
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let existing = find(list, ['id', action.task.id])
 
-      if (!existing)
-        return state.set('list', [action.task].concat(state.list))
+      if (!existing) {
+        let newTask = {...action.task}
+        newTask.lastPosted = Date.now()
+        state.list.push(newTask)
+      } else {
+        existing.lastPosted = Date.now()
+      }
+
+      return state.set('list', Immutable(list))
     }
 
     default: return state

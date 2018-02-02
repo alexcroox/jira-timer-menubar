@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
+import sortBy from 'lodash.sortby'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -19,28 +20,33 @@ class RecentContainer extends Component {
   }
 
   render () {
-    if (this.props.recentTasks.length)
+    if (this.props.recentTasks.length) {
+      let orderedByOldest = sortBy(this.props.recentTasks, function(t) {
+        return (typeof t.lastPosted !== "undefined")? parseInt(t.lastPosted) : 0
+      })
+      let orderedByMostRecent = orderedByOldest.reverse()
+
       return (
         <Fragment>
           <HeadingBar borderBottom borderTop>
             Recent tasks
           </HeadingBar>
 
-          {this.props.recentTasks.length !== 0 && (
-            <TaskContainer maxHeight>
-              {this.props.recentTasks.map(task => (
-                <Task
-                  key={task.id}
-                  taskKey={task.key}
-                  title={task.summary}
-                  onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary)}
-                />
-              ))}
-            </TaskContainer>
-          )}
+          <TaskContainer maxHeight>
+            {orderedByMostRecent.map(task => (
+              <Task
+                key={task.id}
+                taskKey={task.key}
+                title={task.summary}
+                onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary)}
+              />
+            ))}
+          </TaskContainer>
         </Fragment>
       )
-    else return (null)
+    } else {
+      return (null)
+    }
   }
 }
 
