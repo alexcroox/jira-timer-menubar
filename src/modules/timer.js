@@ -140,7 +140,8 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
         dispatch(deleteTimer(timer.id))
 
         new Notification(`${humanTime} posted`, {
-          body: `Your time for ${timer.key} has been posted to JIRA`
+          body: `Your time for ${timer.key} has been posted to JIRA`,
+          silent: true
         })
 
         // Save to recents
