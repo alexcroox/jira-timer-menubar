@@ -1,6 +1,10 @@
+import { remote } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
+import { deleteWorklog } from '../../modules/worklog'
 import styled from 'styled-components'
+import { openInJira } from '../../lib/jira'
+import { secondsHuman } from '../../lib/time'
 import parse from 'date-fns/parse'
 import isToday from 'date-fns/is_today'
 import isThisWeek from 'date-fns/is_this_week'
@@ -16,14 +20,39 @@ import LargeIcon from '../../components/large-icon'
 import HeadingBar from '../../components/heading-bar'
 import WorklogTotals from './worklog-totals'
 
-
 class WorklogContainer extends Component {
   constructor (props) {
     super(props)
+
+    this.onOpenOptions = this.onOpenOptions.bind(this)
   }
 
   componentWillMount () {
     this.props.fetchWorklogs()
+  }
+
+  onOpenOptions (worklog) {
+    const { Menu, MenuItem } = remote
+
+    const menu = new Menu()
+    const deleteWorklog = this.props.deleteWorklog
+
+    menu.append(new MenuItem({
+      label: `Edit ${secondsHuman(worklog.timeSpentSeconds)} logged for ${worklog.task.key}`,
+      click () { openInJira(worklog.task.key) }
+    }))
+
+    menu.append(new MenuItem({
+      label: `Open ${worklog.task.key} in JIRA`,
+      click () { openInJira(worklog.task.key) }
+    }))
+
+    menu.append(new MenuItem({
+      label: `Delete ${secondsHuman(worklog.timeSpentSeconds)} from ${worklog.task.key}`,
+      click () { deleteWorklog(worklog) }
+    }))
+
+    menu.popup()
   }
 
   render () {
@@ -39,19 +68,25 @@ class WorklogContainer extends Component {
       this.props.worklogs.forEach(worklog => {
         let created = parse(worklog.created)
 
+        let WorkLogTemplate = <Worklog
+          key={worklog.id}
+          onOpenOptions={() => this.onOpenOptions(worklog)}
+          {...worklog}
+        />
+
         if (isToday(created)) {
-          DayList.push(<Worklog key={worklog.id} {...worklog} />)
+          DayList.push(WorkLogTemplate)
           alreadyAssigned.push(worklog.id)
         }
 
         if (isYesterday(created)) {
-          YesterdayList.push(<Worklog key={worklog.id} {...worklog} />)
+          YesterdayList.push(WorkLogTemplate)
           alreadyAssigned.push(worklog.id)
         }
 
         // Week starts on Monday (1)
         if (alreadyAssigned.indexOf(worklog.id) === -1) {
-          WeekList.push(<Worklog key={worklog.id} {...worklog} />)
+          WeekList.push(WorkLogTemplate)
         }
       })
     }
@@ -128,7 +163,8 @@ const WorklogsUpdating = styled.span`
 `
 
 const mapDispatchToProps = {
-  fetchWorklogs
+  fetchWorklogs,
+  deleteWorklog
 }
 
 const mapStateToProps = state => ({

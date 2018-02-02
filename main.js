@@ -85,8 +85,10 @@ ipcMain.on('fetchWorklogs', (event, args) => {
 
   let { userKey, fullWeek } = args
 
-  if (fetchingWorklogs)
+  if (fetchingWorklogs) {
+    console.log('Already fetching worklogs, request denied')
     return
+  }
 
   fetchingWorklogs = true
 

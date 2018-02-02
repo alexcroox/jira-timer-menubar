@@ -14,6 +14,14 @@ const Control = styled.span`
   ${props => (props.light) && css`
     color: #FFF;
   `}
+
+  ${props => (props.noPadding) && css`
+    padding: 0;
+  `}
+
+  ${props => (props.marginRight) && css`
+    margin-right: 10px;
+  `}
 `
 
 export default Control
