@@ -22,6 +22,15 @@ injectGlobal`
   }
 `
 
+// The top arrow only makes sense on macOS
+if (process.platform !== 'darwin') {
+  injectGlobal`
+    .tray-triangle {
+      display: none;
+    }
+  `
+}
+
 const App = () =>  {
   return (
     <AppWindow>
