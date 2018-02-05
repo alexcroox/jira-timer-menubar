@@ -1,8 +1,8 @@
 {
-  "presets": ["es2015", "stage-0", "react"],
-  "env": {
-    "development": {
-      "presets": ["react-hmre"]
-    }
-  }
+  "presets": ["env", "stage-0", "react"],
+  "plugins": [
+    "babel-plugin-styled-components",
+    "react-hot-loader/babel",
+    ["transform-class-properties", { "loose": true }]
+  ]
 }

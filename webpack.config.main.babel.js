@@ -4,19 +4,11 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const baseConfig = require('./webpack.config.base');
 
 const config = merge(baseConfig, {
-  entry: ['babel-polyfill', './src/index'],
+  entry: ['babel-polyfill', './main.js'],
 
   output: {
     publicPath: './dist/',
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
-      },
-    ],
+    filename: 'main.js',
   },
 
   plugins: [
@@ -27,6 +19,8 @@ const config = merge(baseConfig, {
       },
     }),
   ],
+
+  target: 'electron-main',
 });
 
 module.exports = config;

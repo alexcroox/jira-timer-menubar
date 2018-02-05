@@ -7,28 +7,27 @@ import JiraWorklogs from './jira-worklogs'
 log.transports.console.level = 'warn'
 
 require('fix-path')(); // resolve user $PATH env variable
-require('electron-debug')({ showDevTools: true });
+
+if (process.env.NODE_ENV === 'development') {
+  require('electron-debug')({ showDevTools: true });
+}
+
+const installExtensions = async () => {
+  if (process.env.NODE_ENV === 'development') {
+    const installer = require('electron-devtools-installer');
+
+    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+
+    return Promise.all(
+      extensions.map(name => installer.default(installer[name], forceDownload)),
+    ).catch(console.log);
+  }
+};
 
 console.log('userData', app.getPath('userData'));
 
 let fetchingWorklogs = false
-
-const installExtensions = async () => {
-  if (process.env.NODE_ENV === 'development') {
-    const installer = require('electron-devtools-installer'); // eslint-disable-line
-
-    const extensions = [
-      'REACT_DEVELOPER_TOOLS',
-      'REDUX_DEVTOOLS',
-    ];
-    const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    for (const name of extensions) { // eslint-disable-line
-      try {
-        await installer.default(installer[name], forceDownload);
-      } catch (e) {} // eslint-disable-line
-    }
-  }
-};
 
 // menubar
 const mb = menubar({

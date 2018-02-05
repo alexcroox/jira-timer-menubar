@@ -19,6 +19,11 @@ module.exports = {
       {
         test: /\.node$/,
         loader: 'node-loader'
+      },
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ],
+        exclude: /node_modules/,
       }
     ],
   },
