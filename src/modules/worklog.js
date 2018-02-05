@@ -41,6 +41,9 @@ export default function reducer (state = initialState, action = {}) {
       // we've deleted a worklog and re-add it!
       let previouslyDeleted = state.deleted
 
+      if (typeof previouslyDeleted === "undefined")
+        previouslyDeleted = []
+
       action.worklogs.forEach(worklog => {
 
         if (previouslyDeleted.indexOf(worklog.id) > -1)
@@ -86,8 +89,13 @@ export default function reducer (state = initialState, action = {}) {
       let list = Immutable.asMutable(state.list, {deep: true})
       let existingWorklogIndex = findIndex(list, ['id', action.worklogId])
 
+      let previouslyDeleted = state.deleted
+
+      if (typeof previouslyDeleted === "undefined")
+        previouslyDeleted = []
+
       if (existingWorklogIndex > -1) {
-        let nextState = state.set('deleted', [action.worklogId].concat(state.deleted))
+        let nextState = state.set('deleted', [action.worklogId].concat(previouslyDeleted))
         list.splice(existingWorklogIndex, 1)
         return nextState.set('list', Immutable(list))
       } else {

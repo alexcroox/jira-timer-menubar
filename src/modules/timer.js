@@ -131,6 +131,9 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
     let nearestMinutes = roundToNearestMinutes(seconds)
     let humanTime = secondsHuman(nearestMinutes * 60)
 
+    console.log('previouslyElapsed', timer.previouslyElapsed)
+    console.log('Posting', nearestMinutes)
+
     api.post(`/issue/${timer.key}/worklog`, {
       timeSpent: `${nearestMinutes}m`,
       started: format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ')

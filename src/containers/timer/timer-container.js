@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
-import { formatSecondsToStopWatch, roundToNearestMinutes } from '../../lib/time'
+import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
 import { deleteTimer, pauseTimer, postTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -63,6 +63,7 @@ class TimerContainer extends Component {
       let timeInSeconds = Math.round(timeInMs/1000)
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
       timer.menubarDisplay = formatSecondsToStopWatch((roundToNearestMinutes(timeInSeconds,1) - 1) * 60, 'hh:mm')
+      timer.realTimeSecondsElapsed = timeInSeconds
 
       return timer
     })
@@ -97,10 +98,13 @@ class TimerContainer extends Component {
     let postTimer = this.props.postTimer
     let deleteTimer = this.props.deleteTimer
 
+    let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
+    let humanTime = secondsHuman(nearestMinutes * 60)
+
     const menu = new Menu()
 
     menu.append(new MenuItem({
-      label: `Post ${timer.menubarDisplay} to JIRA`,
+      label: `Post ${humanTime} to JIRA`,
       click () { postTimer(timer) }
     }))
 
