@@ -8,6 +8,7 @@ import SearchContainer from '../search/search-container'
 import FooterContainer from '../footer/footer-container'
 import RecentContainer from '../recent/recent-container'
 import TimerContainer from '../timer/timer-container'
+import UpdateContainer from '../update/update-container'
 import WorklogTotals from '../worklog/worklog-totals'
 import Header from '../../components/header'
 
@@ -30,6 +31,7 @@ class DashboardContainer extends Component {
         />
 
         <TimerContainer />
+        <UpdateContainer />
         <SearchContainer />
         <RecentContainer />
 

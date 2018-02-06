@@ -6,6 +6,7 @@ import keychain from 'keytar'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
 import TimerContainer from '../timer/timer-container'
+import UpdateContainer from '../update/update-container'
 import Header from '../../components/header'
 import Button from '../../components/button'
 import Divider from '../../components/divider'
@@ -31,6 +32,7 @@ class SettingsContainer extends Component {
         />
 
         <TimerContainer />
+        <UpdateContainer />
 
         {this.props.profile && this.props.profile.avatarUrls && (
           <Fragment>

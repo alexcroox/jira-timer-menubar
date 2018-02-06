@@ -14,6 +14,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt'
 import FooterContainer from '../footer/footer-container'
 import TimerContainer from '../timer/timer-container'
+import UpdateContainer from '../update/update-container'
 import Header from '../../components/header'
 import Worklog from '../../components/worklog'
 import LargeIcon from '../../components/large-icon'
@@ -99,6 +100,7 @@ class WorklogContainer extends Component {
         />
 
         <TimerContainer />
+        <UpdateContainer />
 
         <Worklogs>
           {DayList.length !== 0 && (
