@@ -1,18 +1,18 @@
 {
   "name": "jira-timer",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "Jira Timer",
   "productName": "Jira Timer",
   "main": "dist/main.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "NODE_ENV=development electron .",
-    "dev": "concurrently -k 'node -r babel-register server.js' 'npm start'",
-    "pack": "npm run pack:main && npm run pack:renderer",
+    "dev": "json -I -f package.json -e 'this.main=\"index.js\"' && concurrently -k 'node -r babel-register server.js' 'npm start'",
+    "pack": "json -I -f package.json -e 'this.main=\"dist/main.js\"' && npm run pack:main && npm run pack:renderer",
     "pack:renderer": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "pack:main": "NODE_ENV=production webpack --config webpack.config.main.babel.js",
     "build": "npm run pack && electron-builder",
-    "release": "npm --no-git-tag-version version patch && npm run build --mac -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
+    "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder --mac -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
   },
   "author": "Alex Crooks",
   "repository": {
@@ -82,6 +82,7 @@
     "date-fns": "^1.29.0",
     "electron-log": "^2.2.14",
     "electron-store": "^1.3.0",
+    "electron-updater": "^2.20.1",
     "fix-path": "^2.1.0",
     "hh-mm-ss": "^1.2.0",
     "history": "^4.7.2",
@@ -119,6 +120,7 @@
     "seamless-immutable": "^7.1.2",
     "string-template": "^1.0.0",
     "styled-components": "^3.0.2",
+    "styled-components-spacing": "^2.1.3",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
@@ -137,7 +139,9 @@
     "eslint-plugin-react": "^7.6.0",
     "express": "^4.14.0",
     "file-loader": "^1.1.6",
+    "json": "^9.0.6",
     "npm-version": "^1.1.0",
+    "open-url": "^2.0.2",
     "style-loader": "^0.19.1",
     "stylelint": "^8.4.0",
     "stylelint-config-standard": "^17.0.0",

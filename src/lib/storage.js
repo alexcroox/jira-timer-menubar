@@ -1,5 +1,6 @@
 import Store from 'electron-store'
 import Immutable from 'seamless-immutable'
+import { initialState } from '../modules/updater'
 
 const storage = new Store()
 
@@ -20,6 +21,8 @@ export const storeState = (currentState) => {
   // If we quit the app while updating worklogs
   // we want to be able to fetch them next time we load
   mutableState.worklog.updating = false
+
+  mutableState.update = initialState
 
   storage.set('redux', mutableState)
 }

@@ -30,6 +30,10 @@ const ButtonStyled = styled.span`
     cursor: pointer;
   }
 
+  ${props => (props.inline) && css`
+    text-decoration: underline;
+  `}
+
   ${props => (props.large) && css`
     padding: 6px 12px;
   `}

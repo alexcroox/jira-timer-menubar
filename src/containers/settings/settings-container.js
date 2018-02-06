@@ -1,20 +1,29 @@
+import { ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import keychain from 'keytar'
+import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
 import TimerContainer from '../timer/timer-container'
+import UpdateContainer from '../update/update-container'
 import Header from '../../components/header'
+import HeadingBar from '../../components/heading-bar'
 import Button from '../../components/button'
 import Divider from '../../components/divider'
-import Section from '../../components/section'
+import Section, { SectionTitle } from '../../components/section'
 
 class SettingsContainer extends Component {
   constructor (props) {
     super(props)
 
+    this.onOpenDevTools = this.onOpenDevTools.bind(this)
+  }
+
+  onOpenDevTools () {
+    ipcRenderer.send('openDevTools')
   }
 
   render () {
@@ -30,6 +39,7 @@ class SettingsContainer extends Component {
           withQuitButton
         />
 
+        <UpdateContainer />
         <TimerContainer />
 
         {this.props.profile && this.props.profile.avatarUrls && (
@@ -45,7 +55,12 @@ class SettingsContainer extends Component {
           </Fragment>
         )}
 
+        <Divider />
+
         <Section noPaddingTop>
+          <SectionTitle>About</SectionTitle>
+          <Margin bottom={2}>App version v{this.props.version}</Margin>
+          <Button default onClick={this.onOpenDevTools}>Open dev tools</Button>
         </Section>
       </Fragment>
     );
@@ -82,7 +97,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => ({
   authToken: state.user.authToken,
-  profile: state.user.profile
+  profile: state.user.profile,
+  version: state.updater.version,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)

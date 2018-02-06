@@ -7,8 +7,8 @@ console.log = (...args) => {
 }
 
 window.onerror = (err) => {
-  log.error(args)
-  originalConsoleLog(...args)
+  log.error(err)
+  originalConsoleLog(...err)
 }
 
 
@@ -42,7 +42,6 @@ store.dispatch(fetchWorklogs(true))
 
 // Globally listen out for worklogs coming from main process
 ipcRenderer.on('worklogs', (event, worklogJson) => {
-
   let worklogs = JSON.parse(worklogJson)
   console.log('Got worklogs from main process', worklogs.length)
   store.dispatch(addWorklogs(worklogs))

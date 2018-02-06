@@ -3,3 +3,4 @@ dist
 release
 build/*
 signing
+dev-app-update.yml

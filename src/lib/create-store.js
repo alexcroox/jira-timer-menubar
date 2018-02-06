@@ -9,6 +9,7 @@ import user from '../modules/user'
 import timer from '../modules/timer'
 import recent from '../modules/recent'
 import worklog from '../modules/worklog'
+import updater from '../modules/updater'
 
 const initialState = Immutable(storage.get('redux'))
 const enhancers = []
@@ -20,6 +21,7 @@ const middleware = [
 ]
 
 const reducer = combineReducers({
+  updater,
   user,
   timer,
   recent,
