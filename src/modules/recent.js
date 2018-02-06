@@ -20,7 +20,7 @@ export default function reducer (state = initialState, action = {}) {
       if (!existing) {
         let newTask = {...action.task}
         newTask.lastPosted = Date.now()
-        state.list.push(newTask)
+        list.push(newTask)
       } else {
         existing.lastPosted = Date.now()
       }
