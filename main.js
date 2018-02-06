@@ -37,6 +37,7 @@ console.log('userData', app.getPath('userData'));
 
 let fetchingWorklogs = false
 let willQuitApp = false
+let updateAvailable = false
 
 // menubar
 const mb = menubar({
@@ -46,9 +47,11 @@ const mb = menubar({
   maxWidth: 500,
   minHeight: 530,
   hasShadow: false,
-  preloadWindow: process.env.NODE_ENV !== 'development',
+  preloadWindow: true,
   resizable: true,
   transparent: true,
+  frame: false,
+  toolbar: false
 });
 
 mb.on('ready', async () => {
@@ -86,13 +89,9 @@ ipcMain.on('quit', () => {
   app.quit();
 });
 
-ipcMain.on('updateInstall', (event, message) => {
-
-  console.log('Installing update')
-
-  willQuitApp = true
-  autoUpdater.quitAndInstall()
-})
+ipcMain.on('openDevTools', (event) => {
+  mb.window.webContents.openDevTools();
+});
 
 ipcMain.on('updateTitle', (event, title) => {
   mb.tray.setTitle(` ${title}`)
@@ -128,25 +127,48 @@ ipcMain.on('fetchWorklogs', (event, args) => {
     })
 });
 
+ipcMain.on('installUpdate', (event, message) => {
+
+  console.log('Installing update')
+
+  willQuitApp = true
+  autoUpdater.quitAndInstall()
+})
+
+ipcMain.on('updateStatus', (event) => {
+  event.sender.send('updateStatus', JSON.stringify(updateAvailable))
+});
+
 autoUpdater.on('checking-for-update', () => {
-  mb.webContents.send('updateChecking')
+  console.log('Checking for updates...')
+  mb.window.webContents.send('updateChecking')
 })
 
 autoUpdater.on('update-not-available', (ev, info) => {
 
-  mb.webContents.send('updateNotAvailable')
+  console.log('Update not available')
+
+  mb.window.webContents.send('updateNotAvailable')
 })
 
 autoUpdater.on('update-available', (updateInfo) => {
 
-  mb.webContents.send('updateDownloading', updateInfo)
+  console.log('Update available', updateInfo)
+  updateAvailable = updateInfo
+  mb.window.webContents.send('updateStatus', JSON.stringify(updateAvailable))
 })
 
-autoUpdater.on('update-downloaded', (ev, info) => {
+autoUpdater.on('download-progress', (progress) => {
+  console.log('Download progress', progress);
+  mb.window.webContents.send('updateDownloadProgress', JSON.stringify(progress))
+});
 
-  mb.webContents.send('updateReady')
+autoUpdater.on('update-downloaded', (ev, info) => {
+  console.log('Update downloaded')
+  mb.window.webContents.send('updateReady')
 })
 
 autoUpdater.on('error', (ev, err) => {
-  mb.webContents.send('updateError')
+  console.log('Update error', err)
+  mb.window.webContents.send('updateError')
 })

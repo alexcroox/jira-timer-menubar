@@ -30,8 +30,8 @@ class DashboardContainer extends Component {
           withSettingsButton
         />
 
-        <TimerContainer />
         <UpdateContainer />
+        <TimerContainer />
         <SearchContainer />
         <RecentContainer />
 

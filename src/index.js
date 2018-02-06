@@ -7,8 +7,8 @@ console.log = (...args) => {
 }
 
 window.onerror = (err) => {
-  log.error(args)
-  originalConsoleLog(...args)
+  log.error(err)
+  originalConsoleLog(...err)
 }
 
 

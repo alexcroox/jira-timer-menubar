@@ -9,4 +9,11 @@ const Section = styled.div`
   `}
 `
 
+export const SectionTitle = styled.span`
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+`
+
 export default Section

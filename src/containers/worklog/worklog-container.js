@@ -99,8 +99,8 @@ class WorklogContainer extends Component {
           withBackButton
         />
 
-        <TimerContainer />
         <UpdateContainer />
+        <TimerContainer />
 
         <Worklogs>
           {DayList.length !== 0 && (
