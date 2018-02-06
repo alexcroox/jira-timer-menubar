@@ -1,6 +1,6 @@
 # JIRA Timer Menubar
 
-<img src="/static/demo.gif?raw=true">
+<img src="/static/demo-new.gif?raw=true">
 
 ## Quick Start
 
