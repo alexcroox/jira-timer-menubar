@@ -99,6 +99,7 @@
     "node-loader": "^0.6.0",
     "object-get": "^2.1.0",
     "opn": "^5.2.0",
+    "parse-duration": "^0.1.1",
     "performance-now": "^2.1.0",
     "pretty-ms": "^3.1.0",
     "prop-types": "^15.6.0",

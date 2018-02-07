@@ -3,9 +3,10 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
+import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
-import { deleteTimer, pauseTimer, postTimer } from '../../modules/timer'
+import { deleteTimer, pauseTimer, postTimer, updateTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
@@ -23,11 +24,19 @@ class TimerContainer extends Component {
     this.renderTime = true
     this.lastTitleUpdate = null
     this.state = {
-      timers: []
+      timers: [],
+      editingTimer: null,
+      editedTime: ''
     }
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
     this.displayTimers = this.displayTimers.bind(this)
+    this.onEditTime = this.onEditTime.bind(this)
+    this.onSaveEditedTime = this.onSaveEditedTime.bind(this)
+    this.onChange = this.onChange.bind(this)
+    this.onPlay = this.onPlay.bind(this)
+    this.onResetEditTime = this.onResetEditTime.bind(this)
+    this.onKeyPress = this.onKeyPress.bind(this)
   }
 
   componentDidMount () {
@@ -38,6 +47,47 @@ class TimerContainer extends Component {
   componentWillUnmount () {
     console.warn('Unmounting')
     this.renderTime = false
+  }
+
+  onKeyPress (e, timerId) {
+    if (e.key === 'Enter')
+      this.onSaveEditedTime(timerId)
+
+    if (e.key === 'Escape')
+      this.onResetEditTime()
+  }
+
+  onEditTime (timerId) {
+    this.props.pauseTimer(timerId, true)
+
+    this.setState({ editingTimer: timerId })
+  }
+
+  onChange (event) {
+    this.setState({ editedTime: event.target.value })
+  }
+
+  onSaveEditedTime (timerId) {
+
+    let editedTime = this.state.editedTime
+    if (editedTime != '') {
+      let ms = parseDuration(editedTime)
+
+      // Is the timer entered valid?
+      if (ms > 0)
+        this.props.updateTimer(timerId, ms)
+    }
+
+    this.onResetEditTime()
+  }
+
+  onResetEditTime () {
+    this.setState({ editingTimer: null, editedTime: '' })
+  }
+
+  onPlay (timerId) {
+    this.onResetEditTime()
+    this.props.pauseTimer(timerId, false)
   }
 
   displayTimers () {
@@ -134,7 +184,7 @@ class TimerContainer extends Component {
               ) : (
                 <Fragment>
                   {timer.paused ? (
-                    <Control light onClick={() => this.props.pauseTimer(timer.id, false)}>
+                    <Control light onClick={() => this.onPlay(timer.id)}>
                       <FontAwesomeIcon icon={faPlay} />
                     </Control>
                   ) : (
@@ -145,7 +195,21 @@ class TimerContainer extends Component {
                 </Fragment>
               )}
 
-              <Time>{timer.stopWatchDisplay}</Time>
+              <Time>
+                {this.state.editingTimer === timer.id ? (
+                  <EditTime
+                    autoFocus
+                    value={this.state.editedTime}
+                    onChange={this.onChange}
+                    placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
+                    onKeyUp={(e) => this.onKeyPress(e, timer.id)}
+                  />
+                ) : (
+                  <span onClick={() => this.onEditTime(timer.id)}>
+                    {timer.stopWatchDisplay}
+                  </span>
+                )}
+              </Time>
               <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
               <OptionDots
                 onClick={() => this.onOpenOptions(timer)}
@@ -158,6 +222,22 @@ class TimerContainer extends Component {
     else return (null)
   }
 }
+
+const EditTime = styled.input`
+  background: none;
+  border: none;
+  color: #FFF;
+  outline: none;
+  width: 50px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  font-size: 13px;
+
+  &::placeholder {
+    color: #FFF;
+    font-style: italic;
+  }
+`
 
 const TimerWrapper = styled.div`
   padding: 0 15px 0 4px;
@@ -186,7 +266,8 @@ const Time = styled.span`
 const mapDispatchToProps = {
   deleteTimer,
   pauseTimer,
-  postTimer
+  postTimer,
+  updateTimer
 }
 
 const mapStateToProps = state => ({

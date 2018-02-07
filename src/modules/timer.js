@@ -12,6 +12,7 @@ const ADD_TIMER = 'jt/timer/ADD_TIMER'
 const DELETE_TIMER = 'jt/timer/DELETE_TIMER'
 const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 const POST_TIMER = 'jt/timer/POST_TIMER'
+const UPDATE_TIMER = 'jt/timer/UPDATE_TIMER'
 
 const initialState = Immutable({
   list: []
@@ -79,6 +80,20 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case UPDATE_TIMER: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+        timer.previouslyElapsed = action.ms
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
@@ -99,6 +114,12 @@ export const postingTimer = (timerId, posting) => ({
   type: POST_TIMER,
   timerId,
   posting
+})
+
+export const updateTimer = (timerId, ms) => ({
+  type: UPDATE_TIMER,
+  timerId,
+  ms
 })
 
 // Side effects
@@ -154,7 +175,7 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
 
         // Save to recents
         dispatch(addRecentTask(timer))
-        dispatch(fetchWorklogs())
+        dispatch(fetchWorklogs(false))
       })
       .catch(error => {
         console.log('Error posting timer', error)
