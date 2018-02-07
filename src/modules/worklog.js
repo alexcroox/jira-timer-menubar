@@ -44,7 +44,39 @@ export default function reducer (state = initialState, action = {}) {
       if (typeof previouslyDeleted === "undefined")
         previouslyDeleted = []
 
-      action.worklogs.forEach(worklog => {
+      let currentWorklogs = Immutable.asMutable(state.list, {deep: true})
+      let workLogs = action.worklogs
+
+      // If we are sending less than the full week lets add to the array if new
+      // or update existing time if duplicate
+      if (!action.fullRefresh) {
+        action.worklogs.forEach(worklog => {
+          let existingWorklog = find(currentWorklogs, ['id', worklog.id])
+
+          if (existingWorklog) {
+            existingWorklog.timeSpentSeconds = worklog.timeSpentSeconds
+          } else {
+            currentWorklogs.push(worklog)
+          }
+        })
+
+        // Now loop through all existing worklogs, delete any that aren't present in passed
+        // worklogs that are from the same day
+        currentWorklogs.forEach((worklog, index) => {
+          let created = parse(worklog.created)
+
+          if (isToday(created)) {
+            let matchingWorklog = find(action.worklogs, ['id', worklog.id])
+
+            if (!matchingWorklog)
+              currentWorklogs.splice(index, 1)
+          }
+        })
+
+        workLogs = currentWorklogs
+      }
+
+      workLogs.forEach(worklog => {
 
         if (previouslyDeleted.indexOf(worklog.id) > -1)
           return
@@ -114,9 +146,10 @@ export const setUpdating = updating => ({
 })
 
 // Pass array of worklogs
-export const addWorklogs = worklogs => ({
+export const addWorklogs = (worklogs, fullRefresh) => ({
   type: ADD_WORKLOGS,
-  worklogs
+  worklogs,
+  fullRefresh
 })
 
 // Full week isn't supported yet (need to work on merging states)

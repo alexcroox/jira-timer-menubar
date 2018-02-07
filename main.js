@@ -119,7 +119,10 @@ ipcMain.on('fetchWorklogs', (event, args) => {
       fetchingWorklogs = false
       let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
       console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
-      event.sender.send('worklogs', JSON.stringify(worklogs))
+      event.sender.send('worklogs', JSON.stringify({
+        fullWeek,
+        worklogs
+      }))
     })
     .catch(error => {
       console.log('Failed to fetch worklogs', error)

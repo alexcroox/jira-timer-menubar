@@ -12,7 +12,7 @@ window.onerror = (err) => {
 }
 
 
-import { ipcRenderer } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
@@ -20,6 +20,7 @@ import { MemoryRouter } from 'react-router-dom'
 import store from './lib/create-store'
 import { storeState } from './lib/storage'
 import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
+import { setVersion, setUpdateInfo, setDownloaded } from './modules/updater'
 import AppContainer from 'containers/app/app-container'
 
 render(
@@ -35,15 +36,35 @@ setInterval(() => {
   storeState(store.getState())
 }, 60000)
 
+console.log('App version', remote.app.getVersion())
+
 // We need to keep the window position synced under the icon
 ipcRenderer.send('refreshPosition')
 
 store.dispatch(fetchWorklogs(true))
 
 // Globally listen out for worklogs coming from main process
-ipcRenderer.on('worklogs', (event, worklogJson) => {
-  let worklogs = JSON.parse(worklogJson)
-  console.log('Got worklogs from main process', worklogs.length)
-  store.dispatch(addWorklogs(worklogs))
+ipcRenderer.on('worklogs', (event, worklogPayload) => {
+  let payload = JSON.parse(worklogPayload)
+  let worklogs = payload.worklogs
+  let fullWeek = payload.fullWeek
+
+  console.log('Got worklogs from main process', payload)
+  store.dispatch(addWorklogs(worklogs, fullWeek))
   store.dispatch(setUpdating(false))
 });
+
+store.dispatch(setVersion(remote.app.getVersion()))
+
+ipcRenderer.send('updateStatus')
+
+ipcRenderer.on('updateStatus', (event, info) => {
+  var updateInfo = JSON.parse(info)
+  console.log('updateStatus', updateInfo)
+  store.dispatch(setUpdateInfo(updateInfo))
+})
+
+ipcRenderer.on('updateReady', () => {
+  console.log('updateReady')
+  store.dispatch(setDownloaded())
+})

@@ -1,12 +1,9 @@
-import { remote, ipcRenderer } from 'electron'
+import { ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { setVersion, setUpdateInfo, setDownloaded } from '../../modules/updater'
 import styled from 'styled-components'
 import parse from 'date-fns/parse'
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import Button from '../../components/button'
 
 class UpdateContainer extends Component {
@@ -27,42 +24,6 @@ class UpdateContainer extends Component {
 
   onInstallUpdate () {
     ipcRenderer.send('installUpdate')
-  }
-
-  componentDidMount () {
-
-    console.log('App version', remote.app.getVersion())
-
-    this.props.setVersion(remote.app.getVersion())
-
-    ipcRenderer.send('updateStatus')
-
-    ipcRenderer.on('updateStatus', (event, info) => {
-      var updateInfo = JSON.parse(info)
-      console.log('updateStatus', updateInfo)
-      this.props.setUpdateInfo(updateInfo)
-    })
-
-    ipcRenderer.on('updateChecking', () => {
-      console.log('updateChecking')
-    })
-
-    ipcRenderer.on('updateNotAvailable', () => {
-      console.log('updateNotAvailable')
-    })
-
-    ipcRenderer.on('updateReady', () => {
-      console.log('updateReady')
-      this.props.setDownloaded()
-    })
-
-    ipcRenderer.on('updateDownloading', (event, info) => {
-      console.log('updateDownloading', JSON.stringify(info))
-    })
-
-    ipcRenderer.on('updateError', () => {
-      console.log('updateError')
-    })
   }
 
   render () {
@@ -125,19 +86,13 @@ const UpdateNotes = styled.div`
   line-height: 23px;
 `
 
-const mapDispatchToProps = {
-  setVersion,
-  setUpdateInfo,
-  setDownloaded
-}
-
 const mapStateToProps = state => ({
   version: state.updater.version,
   updateInfo: state.updater.updateInfo,
   downloaded: state.updater.downloaded,
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(UpdateContainer)
+export default connect(mapStateToProps)(UpdateContainer)
 
 
 

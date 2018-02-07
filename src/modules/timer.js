@@ -45,14 +45,19 @@ export default function reducer (state = initialState, action = {}) {
 
       if (timerIndex > -1) {
         let timer = list[timerIndex]
-        timer.paused = action.pause
 
         if (action.pause) {
-          timer.endTime = Date.now()
-          timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
+          // We need to make sure the timer isn't already paused. Otherwise we will
+          // be adding time since it was last paused!
+          if (!timer.paused) {
+            timer.endTime = Date.now()
+            timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
+          }
         } else {
           timer.startTime = Date.now()
         }
+
+        timer.paused = action.pause
 
         return state.set('list', Immutable(list))
       } else {

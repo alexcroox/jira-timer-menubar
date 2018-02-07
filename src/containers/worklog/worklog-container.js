@@ -29,7 +29,7 @@ class WorklogContainer extends Component {
   }
 
   componentWillMount () {
-    this.props.fetchWorklogs()
+    this.props.fetchWorklogs(false)
   }
 
   onOpenOptions (worklog) {
