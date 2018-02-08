@@ -1,5 +1,5 @@
 import request from 'request-promise'
-import keychain from 'keytar'
+import keychain from 'keytar-prebuild'
 import store from './create-store'
 import { setAuthToken, userLogout, setProfile } from '../modules/user'
 import { fetchWorklogs } from '../modules/worklog'

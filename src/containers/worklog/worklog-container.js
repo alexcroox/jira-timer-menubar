@@ -20,21 +20,38 @@ import Worklog from '../../components/worklog'
 import LargeIcon from '../../components/large-icon'
 import HeadingBar from '../../components/heading-bar'
 import WorklogTotals from './worklog-totals'
+const { Menu, MenuItem } = remote
 
 class WorklogContainer extends Component {
   constructor (props) {
     super(props)
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
+    this.onFetchOptions = this.onFetchOptions.bind(this)
   }
 
   componentWillMount () {
     this.props.fetchWorklogs(false)
   }
 
-  onOpenOptions (worklog) {
-    const { Menu, MenuItem } = remote
+  onFetchOptions () {
+    const menu = new Menu()
+    const fetchWorklogs = this.props.fetchWorklogs
 
+    menu.append(new MenuItem({
+      label: `(fast) Just today`,
+      click () { fetchWorklogs(false) }
+    }))
+
+    menu.append(new MenuItem({
+      label: `(slow) From week start`,
+      click () { fetchWorklogs(true) }
+    }))
+
+    menu.popup()
+  }
+
+  onOpenOptions (worklog) {
     const menu = new Menu()
     const deleteWorklog = this.props.deleteWorklog
 
@@ -144,7 +161,11 @@ class WorklogContainer extends Component {
             {this.props.updating ? (
               `Fetching worklogs...`
             ) : (
-              <LargeIcon clickable onClick={this.props.fetchWorklogs}>
+              <LargeIcon
+                clickable
+                onClick={() => { this.props.fetchWorklogs(false) }}
+                onContextMenu={this.onFetchOptions}
+              >
                 <FontAwesomeIcon icon={faSyncAlt} />
               </LargeIcon>
             )}

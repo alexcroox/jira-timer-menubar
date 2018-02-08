@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import request from 'request-promise'
-import keychain from 'keytar'
+import keychain from 'keytar-prebuild'
 import λ from 'contra'
 import flatten from 'array-flatten'
 import parse from 'date-fns/parse'

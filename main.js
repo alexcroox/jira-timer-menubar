@@ -3,6 +3,7 @@ import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
 import menubar from 'menubar'
 import path from 'path'
+import delay from 'delay'
 import JiraWorklogs from './jira-worklogs'
 
 log.transports.console.level = 'warn'
@@ -38,40 +39,47 @@ console.log('userData', app.getPath('userData'));
 let fetchingWorklogs = false
 let willQuitApp = false
 let updateAvailable = false
+let mb = null
 
-// menubar
-const mb = menubar({
-  alwaysOnTop: process.env.NODE_ENV === 'development',
-  icon: path.join(app.getAppPath(), '/static/tray.png'),
-  minWidth: 500,
-  maxWidth: 500,
-  minHeight: 530,
-  hasShadow: false,
-  preloadWindow: true,
-  resizable: true,
-  transparent: true,
-  frame: false,
-  toolbar: false
-});
+app.on('ready', async () => {
 
-mb.on('ready', async () => {
-  await installExtensions();
+  // transparency workaround https://github.com/electron/electron/issues/2170
+  await delay(10)
 
-  mb.tray.setTitle(' Login')
+  mb = menubar({
+    alwaysOnTop: process.env.NODE_ENV === 'development',
+    icon: path.join(app.getAppPath(), '/static/tray.png'),
+    width: 500,
+    minWidth: 500,
+    maxWidth: 500,
+    minHeight: 530,
+    hasShadow: false,
+    preloadWindow: true,
+    resizable: true,
+    transparent: true,
+    frame: false,
+    toolbar: false
+  })
 
-  console.log('app is ready'); // eslint-disable-line
+  mb.on('ready', async () => {
+    await installExtensions()
 
-  if (process.env.NODE_ENV !== 'development')
-    autoUpdater.checkForUpdates()
-});
+    mb.tray.setTitle(' Login')
 
-mb.on('show', () => {
-  mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-active.png'))
-});
+    console.log('app is ready'); // eslint-disable-line
 
-mb.on('hide', () => {
-  mb.tray.setImage(path.join(app.getAppPath(), '/static/tray.png'))
-});
+    if (process.env.NODE_ENV !== 'development')
+      autoUpdater.checkForUpdates()
+  });
+
+  mb.on('show', () => {
+    mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-active.png'))
+  })
+
+  mb.on('hide', () => {
+    mb.tray.setImage(path.join(app.getAppPath(), '/static/tray.png'))
+  })
+})
 
 app.on('before-quit', () => willQuitApp = true)
 
@@ -82,24 +90,24 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-});
+})
 
 // ipc communication
 ipcMain.on('quit', () => {
   app.quit();
-});
+})
 
 ipcMain.on('openDevTools', (event) => {
   mb.window.webContents.openDevTools();
-});
+})
 
 ipcMain.on('updateTitle', (event, title) => {
   mb.tray.setTitle(` ${title}`)
-});
+})
 
 ipcMain.on('refreshPosition', (event, args) => {
   //mb.showWindow()
-});
+})
 
 ipcMain.on('fetchWorklogs', (event, args) => {
 
@@ -128,7 +136,7 @@ ipcMain.on('fetchWorklogs', (event, args) => {
       console.log('Failed to fetch worklogs', error)
       event.sender.send('worklogs', JSON.stringify([]))
     })
-});
+})
 
 ipcMain.on('installUpdate', (event, message) => {
 
@@ -140,7 +148,7 @@ ipcMain.on('installUpdate', (event, message) => {
 
 ipcMain.on('updateStatus', (event) => {
   event.sender.send('updateStatus', JSON.stringify(updateAvailable))
-});
+})
 
 autoUpdater.on('checking-for-update', () => {
   console.log('Checking for updates...')
@@ -164,7 +172,7 @@ autoUpdater.on('update-available', (updateInfo) => {
 autoUpdater.on('download-progress', (progress) => {
   console.log('Download progress', progress);
   mb.window.webContents.send('updateDownloadProgress', JSON.stringify(progress))
-});
+})
 
 autoUpdater.on('update-downloaded', (ev, info) => {
   console.log('Update downloaded')
