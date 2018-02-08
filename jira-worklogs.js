@@ -173,7 +173,7 @@ class JiraWorklogs {
           this.authKey = credentials[0].password
           this.baseUrl = credentials[0].account
 
-          resolve()
+          resolve(credentials[0])
         })
         .catch(error => reject(error))
     })

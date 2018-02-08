@@ -9,11 +9,13 @@ const USER_LOGIN_RESPONSE = 'jt/user/USER_LOGIN_RESPONSE'
 const USER_LOGOUT = 'jt/user/USER_LOGOUT'
 const USER_SET_AUTH_TOKEN = 'jt/user/USER_SET_AUTH_TOKEN'
 const USER_SET_PROFILE = 'jt/user/USER_SET_PROFILE'
+const USER_SET_JIRA_DOMAIN = 'jt/user/USER_SET_JIRA_DOMAIN'
 
 const initialState = Immutable({
   loginPending: false,
   loginError: false,
   authToken: null,
+  jiraDomain: null,
   profile: {}
 })
 
@@ -49,6 +51,9 @@ export default function reducer (state = initialState, action = {}) {
     case USER_SET_PROFILE:
       return state.set('profile', action.profile)
 
+    case USER_SET_JIRA_DOMAIN:
+      return state.set('jiraDomain', action.jiraDomain)
+
     default: return state
   }
 }
@@ -68,6 +73,11 @@ export const setAuthToken = token => ({
 export const setProfile = profile => ({
   type: USER_SET_PROFILE,
   profile
+})
+
+export const setJiraDomain = jiraDomain => ({
+  type: USER_SET_JIRA_DOMAIN,
+  jiraDomain
 })
 
 export const isLoggedIn = state =>

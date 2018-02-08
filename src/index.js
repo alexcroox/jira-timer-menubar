@@ -35,6 +35,8 @@ render(
 
 let credentials = remote.getCurrentWindow().credentials
 
+console.log('Credentials', credentials)
+
 if (credentials) {
   store.dispatch(setAuthToken(credentials.password))
   store.dispatch(setJiraDomain(credentials.account))
@@ -59,7 +61,7 @@ ipcRenderer.on('worklogs', (event, worklogPayload) => {
   let worklogs = payload.worklogs
   let fullWeek = payload.fullWeek
 
-  console.log('Got worklogs from main process', payload)
+  console.log('Got worklogs from main process', payload.worklogs.length)
   store.dispatch(addWorklogs(worklogs, fullWeek))
   store.dispatch(setUpdating(false))
 });

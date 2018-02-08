@@ -36,7 +36,8 @@
       "dist/",
       "static/",
       "index.html",
-      "main.js",
+      "index.js",
+      "jira-worklogs.js",
       "node_modules/",
       "package.json",
       "!**/signing/"
@@ -86,7 +87,6 @@
     "hh-mm-ss": "^1.2.0",
     "history": "^4.7.2",
     "keytar": "^4.1.0",
-    "keytar-prebuild": "^4.1.1",
     "lodash.filter": "^4.6.0",
     "lodash.find": "^4.6.0",
     "lodash.findindex": "^4.6.0",
