@@ -3,14 +3,12 @@
   "version": "0.1.7",
   "description": "Jira Timer",
   "productName": "Jira Timer",
-  "main": "dist/main.js",
+  "main": "index.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "NODE_ENV=development electron .",
-    "dev": "json -I -f package.json -e 'this.main=\"index.js\"' && concurrently -k 'node -r babel-register server.js' 'npm start'",
-    "pack": "json -I -f package.json -e 'this.main=\"dist/main.js\"' && npm run pack:main && npm run pack:renderer",
-    "pack:renderer": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
-    "pack:main": "NODE_ENV=production webpack --config webpack.config.main.babel.js",
+    "dev": "concurrently -k 'node -r babel-register server.js' 'npm start'",
+    "pack": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "build": "npm run pack && electron-builder",
     "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
   },

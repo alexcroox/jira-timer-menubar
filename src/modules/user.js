@@ -83,7 +83,7 @@ export const userLogin = (username, password, authUrl) => async dispatch => {
       dispatch(userLoginResponse('success', null))
     })
     .catch(error => {
-      console.log('error loggin in', error)
+      console.log('error logging in', error)
       dispatch(userLoginResponse('error', true))
     })
 }

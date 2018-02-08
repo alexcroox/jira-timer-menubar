@@ -47,6 +47,8 @@ export default function reducer (state = initialState, action = {}) {
       let currentWorklogs = Immutable.asMutable(state.list, {deep: true})
       let workLogs = action.worklogs
 
+      console.log('Sent worklogs', action.worklogs)
+
       // If we are sending less than the full week lets add to the array if new
       // or update existing time if duplicate
       if (!action.fullRefresh) {

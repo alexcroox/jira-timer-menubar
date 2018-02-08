@@ -1,11 +1,13 @@
-import { ipcMain } from 'electron'
-import request from 'request-promise'
-import keychain from 'keytar-prebuild'
-import λ from 'contra'
-import flatten from 'array-flatten'
-import parse from 'date-fns/parse'
-import orderBy from 'lodash.orderby'
-import differenceInDays from 'date-fns/difference_in_days'
+// CommonJS for Node :(
+
+const { ipcMain } = require('electron')
+const request = require('request-promise')
+const keychain = require('keytar')
+const λ = require('contra')
+const flatten = require('array-flatten')
+const parse = require('date-fns/parse')
+const orderBy = require('lodash.orderby')
+const differenceInDays = require('date-fns/difference_in_days')
 
 // JIRA doesn't provide a nice way to return all the users worklogs
 // We therefore need to do some pretty heavy lifting and it's best
@@ -178,4 +180,4 @@ class JiraWorklogs {
   }
 }
 
-export default new JiraWorklogs()
+module.exports = new JiraWorklogs()

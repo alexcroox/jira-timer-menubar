@@ -11,16 +11,17 @@ window.onerror = (err) => {
   originalConsoleLog(...err)
 }
 
-
 import { remote, ipcRenderer } from 'electron'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import store from './lib/create-store'
+import api from './lib/api'
 import { storeState } from './lib/storage'
 import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
 import { setVersion, setUpdateInfo, setDownloaded } from './modules/updater'
+import { setAuthToken, setJiraDomain } from './modules/user'
 import AppContainer from 'containers/app/app-container'
 
 render(
@@ -30,18 +31,27 @@ render(
     </MemoryRouter>
   </Provider>,
   document.getElementById('root'),
-);
+)
 
+let credentials = remote.getCurrentWindow().credentials
+
+if (credentials) {
+  store.dispatch(setAuthToken(credentials.password))
+  store.dispatch(setJiraDomain(credentials.account))
+
+  api.init(credentials.password, credentials.account)
+
+  // Lets fetch full worklogs on app launch
+  store.dispatch(fetchWorklogs(true))
+}
+
+console.log('App version', remote.app.getVersion())
+store.dispatch(setVersion(remote.app.getVersion()))
+
+// Save our local state to cache file every 60 seconds
 setInterval(() => {
   storeState(store.getState())
 }, 60000)
-
-console.log('App version', remote.app.getVersion())
-
-// We need to keep the window position synced under the icon
-ipcRenderer.send('refreshPosition')
-
-store.dispatch(fetchWorklogs(true))
 
 // Globally listen out for worklogs coming from main process
 ipcRenderer.on('worklogs', (event, worklogPayload) => {
@@ -54,8 +64,7 @@ ipcRenderer.on('worklogs', (event, worklogPayload) => {
   store.dispatch(setUpdating(false))
 });
 
-store.dispatch(setVersion(remote.app.getVersion()))
-
+// Request status of the auto update
 ipcRenderer.send('updateStatus')
 
 ipcRenderer.on('updateStatus', (event, info) => {
