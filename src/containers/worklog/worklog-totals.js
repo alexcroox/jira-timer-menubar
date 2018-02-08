@@ -27,7 +27,7 @@ class WorklogTotals extends Component {
                   Yesterday <TimeSummary>{secondsHuman(this.props.totals.yesterday)}</TimeSummary>
                 </TimeSummaryContainer>
                 <TimeSummaryContainer>
-                  Week <TimeSummary>{secondsHuman(this.props.totals.week)}</TimeSummary>
+                  Week <TimeSummary>{Math.floor(this.props.totals.week / 3600)}h</TimeSummary>
                 </TimeSummaryContainer>
               </Fragment>
             )}
