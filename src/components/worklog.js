@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
+import { Margin } from 'styled-components-spacing'
 import { secondsHuman } from '../lib/time'
 import humanTime from 'pretty-ms'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import Control from './control'
+import EditTime from './edit-time'
 
 class Worklog extends Component {
   constructor(props) {
@@ -23,7 +25,27 @@ class Worklog extends Component {
         )}
         <WorklogTaskKey>{this.props.task.key}</WorklogTaskKey>
         <TaskTitle>{this.props.task.summary}</TaskTitle>
-        <WorklogTime>{secondsHuman(this.props.timeSpentSeconds)}</WorklogTime>
+
+        {this.props.updating && (
+          <Margin right={2}>
+            <FontAwesomeIcon icon={faSpinner} spin />
+          </Margin>
+        )}
+
+        {this.props.editingWorklogTime === this.props.id ? (
+          <EditTime
+            worklog
+            timeId={this.props.id}
+            onTimeChanged={this.props.onTimeChanged}
+            onResetEditTime={this.props.onResetEditTime}
+            placeholder={this.props.timeEditPlaceholder}
+          />
+        ) : (
+          <WorklogTime onClick={() => this.props.onEditTime(this.props.id)}>
+            {secondsHuman(this.props.timeSpentSeconds)}
+          </WorklogTime>
+        )}
+
       </WorklogWrapper>
     )
   }

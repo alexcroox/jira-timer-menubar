@@ -5,11 +5,15 @@ import { deleteWorklog } from '../../modules/worklog'
 import styled from 'styled-components'
 import { openInJira } from '../../lib/jira'
 import { secondsHuman } from '../../lib/time'
+import sortBy from 'lodash.sortby'
+import find from 'lodash.find'
+import parseDuration from 'parse-duration'
 import parse from 'date-fns/parse'
+import format from 'date-fns/format'
 import isToday from 'date-fns/is_today'
 import isThisWeek from 'date-fns/is_this_week'
 import isYesterday from 'date-fns/is_yesterday'
-import { fetchWorklogs } from '../../modules/worklog'
+import { fetchWorklogs, updateWorkLogTime } from '../../modules/worklog'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt'
 import FooterContainer from '../footer/footer-container'
@@ -26,8 +30,15 @@ class WorklogContainer extends Component {
   constructor (props) {
     super(props)
 
+    this.state = {
+      editingWorklogTime: null
+    }
+
     this.onOpenOptions = this.onOpenOptions.bind(this)
     this.onFetchOptions = this.onFetchOptions.bind(this)
+    this.onTimeChanged = this.onTimeChanged.bind(this)
+    this.onEditTime = this.onEditTime.bind(this)
+    this.onResetEditTime = this.onResetEditTime.bind(this)
   }
 
   componentWillMount () {
@@ -53,11 +64,10 @@ class WorklogContainer extends Component {
 
   onOpenOptions (worklog) {
     const menu = new Menu()
-    const deleteWorklog = this.props.deleteWorklog
 
     menu.append(new MenuItem({
       label: `Edit ${secondsHuman(worklog.timeSpentSeconds)} logged for ${worklog.task.key}`,
-      click () { openInJira(worklog.task.key) }
+      click: () => { this.setState({ editingWorklogTime: worklog.id }) }
     }))
 
     menu.append(new MenuItem({
@@ -67,10 +77,30 @@ class WorklogContainer extends Component {
 
     menu.append(new MenuItem({
       label: `Delete ${secondsHuman(worklog.timeSpentSeconds)} from ${worklog.task.key}`,
-      click () { deleteWorklog(worklog) }
+      click: () => { this.props.deleteWorklog(worklog) }
     }))
 
     menu.popup()
+  }
+
+  onEditTime (worklogId) {
+    this.setState({ editingWorklogTime: worklogId })
+  }
+
+  onTimeChanged (worklog, editedTime) {
+    if (editedTime != '') {
+      let ms = parseDuration(editedTime)
+
+      // Is the timer entered valid?
+      if (ms > 0)
+        this.props.updateWorkLogTime(worklog, Math.round(ms / 1000))
+    }
+
+    this.onResetEditTime()
+  }
+
+  onResetEditTime () {
+    this.setState({ editingWorklogTime: null })
   }
 
   render () {
@@ -88,6 +118,12 @@ class WorklogContainer extends Component {
 
         let WorkLogTemplate = <Worklog
           key={worklog.id}
+          updating={this.props.updatingWorklog === worklog.id}
+          editingWorklogTime={this.state.editingWorklogTime}
+          onTimeChanged={(timeId, editedTime) => { this.onTimeChanged(worklog, editedTime) }}
+          onEditTime={this.onEditTime}
+          onResetEditTime={this.onResetEditTime}
+          timeEditPlaceholder={secondsHuman(worklog.timeSpentSeconds)}
           onOpenOptions={() => this.onOpenOptions(worklog)}
           {...worklog}
         />
@@ -102,11 +138,25 @@ class WorklogContainer extends Component {
           alreadyAssigned.push(worklog.id)
         }
 
-        // Week starts on Monday (1)
+        // For the rest of the week group by day of week heading
         if (alreadyAssigned.indexOf(worklog.id) === -1) {
-          WeekList.push(WorkLogTemplate)
+          let weekDay = format(created, 'dddd')
+          let weekIndex = format(created, 'd')
+          let findExistingDay = find(WeekList, ['weekIndex', weekIndex])
+          if (!findExistingDay) {
+            WeekList.push({
+              label: weekDay,
+              weekIndex,
+              tasks: [WorkLogTemplate]
+            })
+          } else {
+            findExistingDay.tasks.push(WorkLogTemplate)
+          }
         }
       })
+
+      // Order WeekList
+      WeekList = sortBy(WeekList, ['index'])
     }
 
     return (
@@ -142,16 +192,16 @@ class WorklogContainer extends Component {
             </Fragment>
           )}
 
-          {WeekList.length !== 0 && (
-            <Fragment>
+          {WeekList.map(weekDay => (
+            <div key={weekDay.weekIndex}>
               <HeadingBar borderBottom borderTop>
-                Earlier in the week
+                {weekDay.label}
               </HeadingBar>
               <div>
-                {WeekList}
+                {weekDay.tasks}
               </div>
-            </Fragment>
-          )}
+            </div>
+          ))}
         </Worklogs>
 
         <FooterContainer>
@@ -187,12 +237,14 @@ const WorklogsUpdating = styled.span`
 
 const mapDispatchToProps = {
   fetchWorklogs,
-  deleteWorklog
+  deleteWorklog,
+  updateWorkLogTime
 }
 
 const mapStateToProps = state => ({
   worklogs: state.worklog.list,
-  updating: state.worklog.updating
+  updating: state.worklog.updating,
+  updatingWorklog: state.worklog.updatingWorklog
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorklogContainer)

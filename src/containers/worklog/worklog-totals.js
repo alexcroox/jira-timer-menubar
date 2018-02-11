@@ -15,7 +15,7 @@ class WorklogTotals extends Component {
           `Calculating posted time...`
         )}
 
-        {this.props.worklogs.length !== 0 && (
+        {!this.props.updating && (
           <Fragment>
             <TimeSummaryContainer>
               Today <TimeSummary>{secondsHuman(this.props.totals.day)}</TimeSummary>

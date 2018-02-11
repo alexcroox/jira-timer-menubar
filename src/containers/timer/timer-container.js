@@ -16,6 +16,7 @@ import { TaskTitle } from '../../components/task'
 import Button from '../../components/button'
 import Control from '../../components/control'
 import OptionDots from '../../components/option-dots'
+import EditTime from '../../components/edit-time'
 
 class TimerContainer extends Component {
   constructor (props) {
@@ -25,18 +26,15 @@ class TimerContainer extends Component {
     this.lastTitleUpdate = null
     this.state = {
       timers: [],
-      editingTimer: null,
-      editedTime: ''
+      editingTimer: null
     }
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
     this.displayTimers = this.displayTimers.bind(this)
+    this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
-    this.onSaveEditedTime = this.onSaveEditedTime.bind(this)
-    this.onChange = this.onChange.bind(this)
-    this.onPlay = this.onPlay.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
-    this.onKeyPress = this.onKeyPress.bind(this)
+    this.onPlay = this.onPlay.bind(this)
   }
 
   componentDidMount () {
@@ -47,42 +45,6 @@ class TimerContainer extends Component {
   componentWillUnmount () {
     console.warn('Unmounting')
     this.renderTime = false
-  }
-
-  onKeyPress (e, timerId) {
-    if (e.key === 'Enter')
-      this.onSaveEditedTime(timerId)
-
-    if (e.key === 'Escape')
-      this.onResetEditTime()
-  }
-
-  onEditTime (timerId) {
-    this.props.pauseTimer(timerId, true)
-
-    this.setState({ editingTimer: timerId })
-  }
-
-  onChange (event) {
-    this.setState({ editedTime: event.target.value })
-  }
-
-  onSaveEditedTime (timerId) {
-
-    let editedTime = this.state.editedTime
-    if (editedTime != '') {
-      let ms = parseDuration(editedTime)
-
-      // Is the timer entered valid?
-      if (ms > 0)
-        this.props.updateTimer(timerId, ms)
-    }
-
-    this.onResetEditTime()
-  }
-
-  onResetEditTime () {
-    this.setState({ editingTimer: null, editedTime: '' })
   }
 
   onPlay (timerId) {
@@ -142,11 +104,30 @@ class TimerContainer extends Component {
       setTimeout(() => this.displayTimers(), 500)
   }
 
+  onEditTime (timerId) {
+    this.props.pauseTimer(timerId, true)
+
+    this.setState({ editingTimer: timerId })
+  }
+
+  onTimeChanged (timerId, editedTime) {
+    if (editedTime != '') {
+      let ms = parseDuration(editedTime)
+
+      // Is the timer entered valid?
+      if (ms > 0)
+        this.props.updateTimer(timerId, ms)
+    }
+
+    this.onResetEditTime()
+  }
+
+  onResetEditTime () {
+    this.setState({ editingTimer: null })
+  }
+
   onOpenOptions (timer) {
     const { Menu, MenuItem } = remote
-
-    let postTimer = this.props.postTimer
-    let deleteTimer = this.props.deleteTimer
 
     let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
     let humanTime = secondsHuman(nearestMinutes * 60)
@@ -155,7 +136,7 @@ class TimerContainer extends Component {
 
     menu.append(new MenuItem({
       label: `Post ${humanTime} to JIRA`,
-      click () { postTimer(timer) }
+      click: () => { this.props.postTimer(timer) }
     }))
 
     menu.append(new MenuItem({
@@ -164,8 +145,13 @@ class TimerContainer extends Component {
     }))
 
     menu.append(new MenuItem({
+      label: 'Edit time',
+      click: () => { this.onEditTime(timer.id) }
+    }))
+
+    menu.append(new MenuItem({
       label: 'Delete timer',
-      click () { deleteTimer(timer.id) }
+      click: () => { this.props.deleteTimer(timer.id) }
     }))
 
     menu.popup()
@@ -198,11 +184,10 @@ class TimerContainer extends Component {
               <Time>
                 {this.state.editingTimer === timer.id ? (
                   <EditTime
-                    autoFocus
-                    value={this.state.editedTime}
-                    onChange={this.onChange}
+                    timeId={timer.id}
+                    onTimeChanged={this.onTimeChanged}
+                    onResetEditTime={this.onResetEditTime}
                     placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
-                    onKeyUp={(e) => this.onKeyPress(e, timer.id)}
                   />
                 ) : (
                   <span onClick={() => this.onEditTime(timer.id)}>
@@ -222,22 +207,6 @@ class TimerContainer extends Component {
     else return (null)
   }
 }
-
-const EditTime = styled.input`
-  background: none;
-  border: none;
-  color: #FFF;
-  outline: none;
-  width: 50px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  font-size: 13px;
-
-  &::placeholder {
-    color: #FFF;
-    font-style: italic;
-  }
-`
 
 const TimerWrapper = styled.div`
   padding: 0 15px 0 4px;

@@ -14,6 +14,8 @@ const ADD_WORKLOGS = 'jt/worklog/ADD_WORKLOGS'
 const SET_UPDATING = 'jt/worklog/SET_UPDATING'
 const SET_DELETING = 'jt/worklog/SET_DELETING'
 const DELETE_WORKLOG = 'jt/worklog/DELETE_WORKLOG'
+const UPDATE_TIME = 'jt/worklog/UPDATE_TIME'
+const SET_UPDATING_WORKLOG = 'jt/worklog/SET_UPDATING_WORKLOG'
 
 const initialState = Immutable({
   list: [],
@@ -23,6 +25,7 @@ const initialState = Immutable({
     week: 0
   },
   updating: false,
+  updatingWorklog: null,
   deleted: []
 })
 
@@ -137,6 +140,21 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case SET_UPDATING_WORKLOG:
+      return state.set('updatingWorklog', action.worklogId)
+
+    case UPDATE_TIME: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let existingWorklog = find(list, ['id', action.worklogId])
+
+      if (existingWorklog) {
+        existingWorklog.timeSpentSeconds = action.timeSpentSeconds
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
@@ -152,6 +170,17 @@ export const addWorklogs = (worklogs, fullRefresh) => ({
   type: ADD_WORKLOGS,
   worklogs,
   fullRefresh
+})
+
+export const setNewTime = (worklogId, timeSpentSeconds) => ({
+  type: UPDATE_TIME,
+  worklogId,
+  timeSpentSeconds
+})
+
+export const setUpdatingWorklog = worklogId => ({
+  type: SET_UPDATING_WORKLOG,
+  worklogId
 })
 
 // Full week isn't supported yet (need to work on merging states)
@@ -218,6 +247,42 @@ export const deleteWorklog = worklog => async dispatch => {
         worklogId: worklog.id,
         deleting: false
       })
+    })
+}
+
+export const updateWorkLogTime = (worklog, timeSpentSeconds) => async dispatch => {
+
+  if (typeof worklog.id === "undefined")
+    return false
+
+  console.log('timeSpentSeconds', timeSpentSeconds)
+
+  dispatch(setUpdatingWorklog(worklog.id))
+
+  api.put(`/issue/${worklog.task.key}/worklog/${worklog.id}`, {
+    timeSpentSeconds
+  })
+    .then(response => {
+
+      console.log('Updated worklog time', worklog)
+
+      dispatch(setUpdatingWorklog(null))
+      dispatch(setNewTime(worklog.id, timeSpentSeconds))
+      dispatch(fetchWorklogs(false))
+
+      new Notification(`Worklog time updated`, {
+        body: `The workog for ${worklog.task.key} has changed time to ${secondsHuman(timeSpentSeconds)}`,
+        silent: true
+      })
+    })
+    .catch(error => {
+      console.error('Failed to update worklog time', error)
+
+      new Notification(`Failed to update worklog time`, {
+        body: `An error occured while updating time for ${worklog.task.key}`,
+      })
+
+      dispatch(setUpdatingWorklog(null))
     })
 }
 
