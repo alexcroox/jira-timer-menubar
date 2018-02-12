@@ -4,7 +4,7 @@ const { app, ipcMain } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const menubar = require('menubar')
-const keychain = require('keytar')
+const keychain = require('keytar-prebuild')
 const path = require('path')
 const delay = require('delay')
 const JiraWorklogs = require('./jira-worklogs')
@@ -15,7 +15,6 @@ autoUpdater.logger.transports.file.level = 'info'
 
 log.info(app.getName());
 log.info(app.getVersion());
-
 console.log(app.getName(), app.getVersion())
 
 // resolve user $PATH env variable
@@ -35,6 +34,12 @@ const installExtensions = async () => {
     extensions.map(name => installer.default(installer[name], forceDownload)),
   ).catch(console.log);
 };
+
+// Set to start at login. TODO: Use auto-launch to allow user to
+// configure this in settings
+app.setLoginItemSettings({
+  openAtLogin: true
+})
 
 let fetchingWorklogs = false
 let willQuitApp = false
@@ -57,7 +62,7 @@ function launchMenuBar () {
 
     mb = menubar({
       alwaysOnTop: process.env.NODE_ENV === 'development',
-      icon: path.join(app.getAppPath(), '/static/tray.png'),
+      icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
       width: 500,
       minWidth: 500,
       maxWidth: 500,
@@ -79,17 +84,14 @@ function launchMenuBar () {
       mb.tray.setTitle(' Login')
 
       console.log('app is ready'); // eslint-disable-line
-
-      if (process.env.NODE_ENV !== 'development')
-        autoUpdater.checkForUpdates()
     });
 
     mb.on('show', () => {
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-active.png'))
+      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
     })
 
     mb.on('hide', () => {
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray.png'))
+      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
     })
   })
 }
@@ -168,7 +170,9 @@ ipcMain.on('installUpdate', (event, message) => {
 })
 
 ipcMain.on('updateStatus', (event) => {
-  event.sender.send('updateStatus', JSON.stringify(updateAvailable))
+
+  if (process.env.NODE_ENV !== 'development')
+    autoUpdater.checkForUpdates()
 })
 
 autoUpdater.on('checking-for-update', () => {
