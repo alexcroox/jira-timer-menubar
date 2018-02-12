@@ -1,6 +1,6 @@
 {
   "name": "jira-timer",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Jira Timer",
   "productName": "Jira Timer",
   "main": "index.js",
@@ -10,7 +10,7 @@
     "dev": "concurrently -k 'node -r babel-register server.js' 'npm start'",
     "pack": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "build": "npm run pack && electron-builder",
-    "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
+    "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder --mac --linux -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
   },
   "author": "Alex Crooks",
   "repository": {
@@ -59,6 +59,9 @@
     },
     "mac": {
       "icon": "static/app.icns"
+    },
+    "linux": {
+      "icon": "static/"
     }
   },
   "dependencies": {

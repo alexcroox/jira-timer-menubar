@@ -9,7 +9,7 @@ const path = require('path')
 const delay = require('delay')
 const JiraWorklogs = require('./jira-worklogs')
 
-log.transports.console.level = 'warn'
+log.transports.console.level = 'info'
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info'
 
