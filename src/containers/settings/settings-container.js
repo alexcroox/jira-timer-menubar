@@ -19,10 +19,15 @@ class SettingsContainer extends Component {
     super(props)
 
     this.onOpenDevTools = this.onOpenDevTools.bind(this)
+    this.onCheckForUpdates = this.onCheckForUpdates.bind(this)
   }
 
   onOpenDevTools () {
     ipcRenderer.send('openDevTools')
+  }
+
+  onCheckForUpdates () {
+    ipcRenderer.send('updateStatus')
   }
 
   render () {
@@ -59,7 +64,11 @@ class SettingsContainer extends Component {
         <Section noPaddingTop>
           <SectionTitle>About</SectionTitle>
           <Margin bottom={2}>App version v{this.props.version}</Margin>
-          <Button default onClick={this.onOpenDevTools}>Open dev tools</Button>
+
+          <FlexContainer>
+            <Button primary onClick={this.onCheckForUpdates}>Check for updates</Button>
+            <Button default onClick={this.onOpenDevTools}>Open dev tools</Button>
+          </FlexContainer>
         </Section>
       </Fragment>
     );
@@ -88,6 +97,13 @@ const ProfileName = styled.span`
     font-weight: bold;
     margin-bottom: 5px;
   }
+`
+
+const FlexContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 `
 
 const mapDispatchToProps = {

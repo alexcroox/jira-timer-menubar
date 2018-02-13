@@ -50,8 +50,6 @@ export default function reducer (state = initialState, action = {}) {
       let currentWorklogs = Immutable.asMutable(state.list, {deep: true})
       let workLogs = action.worklogs
 
-      console.log('Sent worklogs', action.worklogs)
-
       // If we are sending less than the full week lets add to the array if new
       // or update existing time if duplicate
       if (!action.fullRefresh) {
@@ -99,7 +97,7 @@ export default function reducer (state = initialState, action = {}) {
           weekTotal += worklog.timeSpentSeconds
       })
 
-      let nextState = state.set('list', Immutable(action.worklogs))
+      let nextState = state.set('list', Immutable(workLogs))
       nextState = nextState.setIn(['totals', 'day'], dayTotal)
       nextState = nextState.setIn(['totals', 'yesterday'], yesterdayTotal)
       nextState = nextState.setIn(['totals', 'week'], weekTotal)
