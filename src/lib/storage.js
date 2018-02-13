@@ -22,7 +22,7 @@ export const storeState = (currentState) => {
   // we want to be able to fetch them next time we load
   mutableState.worklog.updating = false
 
-  mutableState.update = initialState
+  mutableState.updater = initialState
 
   storage.set('redux', mutableState)
 }
