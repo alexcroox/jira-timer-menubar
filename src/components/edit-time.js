@@ -39,6 +39,7 @@ class EditTime extends Component {
         value={this.state.editedTime}
         onChange={this.onChange}
         onKeyUp={this.onKeyPress}
+        onBlur={this.onResetEditTime}
       />
     )
   }
