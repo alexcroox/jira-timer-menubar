@@ -37,9 +37,12 @@ const installExtensions = async () => {
 
 // Set to start at login. TODO: Use auto-launch to allow user to
 // configure this in settings
-app.setLoginItemSettings({
-  openAtLogin: true
-})
+// https://github.com/zulip/zulip-electron/blob/68acf2ec643b78223ea89fdc5dbc77ffabdb3541/app/main/startup.js
+if (process.env.NODE_ENV !== 'development') {
+  app.setLoginItemSettings({
+    openAtLogin: true
+  })
+}
 
 let fetchingWorklogs = false
 let willQuitApp = false
