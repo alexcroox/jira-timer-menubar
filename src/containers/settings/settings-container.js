@@ -13,6 +13,9 @@ import HeadingBar from '../../components/heading-bar'
 import Button from '../../components/button'
 import Divider from '../../components/divider'
 import Section, { SectionTitle } from '../../components/section'
+import Fieldset from '../../components/fieldset'
+import Label from '../../components/label'
+import Select from 'react-select'
 
 class SettingsContainer extends Component {
   constructor (props) {
@@ -31,6 +34,15 @@ class SettingsContainer extends Component {
   }
 
   render () {
+    let maxRecentOptions = []
+
+    for (let i = 1; i < 50; i++) {
+      maxRecentOptions.push({
+        label: i,
+        value: i
+      })
+    }
+
     return (
       <Fragment>
         {!this.props.authToken && (
@@ -58,6 +70,22 @@ class SettingsContainer extends Component {
             </ProfileWrapper>
           </Fragment>
         )}
+
+        <Divider />
+
+        <Section noPaddingTop>
+          <SectionTitle>Settings</SectionTitle>
+
+          <Fieldset>
+            <Label>Max number of recent tasks to display</Label>
+            <Select
+              name="max-recents"
+              value={5}
+              options={maxRecentOptions}
+              searchable={false}
+            />
+          </Fieldset>
+        </Section>
 
         <Divider />
 
