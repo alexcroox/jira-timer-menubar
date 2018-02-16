@@ -55,9 +55,8 @@ class JiraWorklogs {
 
     return new Promise((resolve, reject) => {
       this.fetchRecentlyUpdatedTasks(fullWeek)
-        .then(response => {
+        .then(tasks => {
 
-          let tasks = response.issues
           console.log('Latest tasks', tasks.length)
 
           let worklogs = []
@@ -96,17 +95,42 @@ class JiraWorklogs {
     })
   }
 
-  fetchRecentlyUpdatedTasks (fullWeek) {
+  fetchRecentlyUpdatedTasks (fullWeek, startAt = 0) {
     return new Promise((resolve, reject) => {
+      let tasks = []
 
+      this.fetchUpdatedTasks(fullWeek, startAt)
+        .then(response => {
+          tasks = response.issues
+
+          if (response.total > 100 && startAt === 0) {
+            this.fetchUpdatedTasks(fullWeek, 100)
+              .then(response => {
+                tasks = tasks.concat(response.issues)
+                resolve(tasks)
+              })
+              .catch(error => resolve(tasks))
+          } else {
+            resolve(tasks)
+          }
+        })
+        .catch(error => reject(error))
+    })
+  }
+
+  fetchUpdatedTasks(fullWeek, startAt) {
+    return new Promise((resolve, reject) => {
       let start = fullWeek ? 'startOfWeek()' : 'startOfDay()'
 
+      console.log('Fetching tasks, start at: ', startAt)
+
       this.sendRequest('/search', 'POST', {
-          jql: `updated >= ${start} ORDER BY updated DESC`,
-          maxResults: 100,
-          fields: ['key', 'summary', 'project']
-        })
-        .then(issues => resolve(issues))
+        jql: `updated >= ${start} AND timeSpent > 0m ORDER BY updated DESC`,
+        maxResults: 100,
+        startAt,
+        fields: ['key', 'summary', 'project']
+      })
+        .then(response => resolve(response))
         .catch(error => reject(error))
     })
   }

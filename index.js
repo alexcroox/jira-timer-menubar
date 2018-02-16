@@ -61,41 +61,42 @@ function launchMenuBar () {
   app.on('ready', async () => {
 
     // transparency workaround https://github.com/electron/electron/issues/2170
-    await delay(10)
+    setTimeout(() => {
 
-    mb = menubar({
-      alwaysOnTop: process.env.NODE_ENV === 'development',
-      icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
-      width: 500,
-      minWidth: 500,
-      maxWidth: 500,
-      minHeight: 530,
-      hasShadow: false,
-      preloadWindow: true,
-      resizable: true,
-      transparent: true,
-      frame: false,
-      toolbar: false
-    })
+      mb = menubar({
+        alwaysOnTop: process.env.NODE_ENV === 'development',
+        icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
+        width: 500,
+        minWidth: 500,
+        maxWidth: 500,
+        minHeight: 530,
+        hasShadow: false,
+        preloadWindow: true,
+        resizable: true,
+        transparent: true,
+        frame: false,
+        toolbar: false
+      })
 
-    mb.window.credentials = credentials
+      mb.window.credentials = credentials
 
-    mb.on('ready', async () => {
-      if (process.env.NODE_ENV === 'development')
-        await installExtensions()
+      mb.on('ready', async () => {
+        if (process.env.NODE_ENV === 'development')
+          await installExtensions()
 
-      mb.tray.setTitle(' Login')
+        mb.tray.setTitle(' Login')
 
-      console.log('app is ready'); // eslint-disable-line
-    });
+        console.log('app is ready'); // eslint-disable-line
+      });
 
-    mb.on('show', () => {
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
-    })
+      mb.on('show', () => {
+        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
+      })
 
-    mb.on('hide', () => {
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
-    })
+      mb.on('hide', () => {
+        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
+      })
+    }, 100)
   })
 }
 
