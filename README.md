@@ -2,7 +2,11 @@
 
 <img src="/static/demo.gif?raw=true">
 
-## Quick Start
+## Install
+
+Head over to the [releases to download](https://github.com/alexcroox/jira-timer-menubar/releases/latest) for macOS or linux.
+
+## Local development
 
 #### Install dependencies
 
