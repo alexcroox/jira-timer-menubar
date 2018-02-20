@@ -187,7 +187,7 @@ class JiraWorklogs {
 
   getCredentialsFromKeyChain () {
     return new Promise((resolve, reject) => {
-      keychain.findCredentials('jira-timer-menubar')
+      keychain.findCredentials('jira-timer-mb')
         .then(credentials => {
           if (!credentials || !credentials.length)
             return reject('No credentials yet')

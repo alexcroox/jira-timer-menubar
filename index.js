@@ -125,13 +125,13 @@ ipcMain.on('updateTitle', (event, title) => {
 })
 
 ipcMain.on('setPassword', (event, args) => {
-  keychain.setPassword('jira-timer-menubar', args.jiraDomain, args.authToken)
+  keychain.setPassword('jira-timer-mb', args.jiraDomain, args.authToken)
 })
 
 ipcMain.on('deletePassword', (event) => {
   JiraWorklogs.getCredentialsFromKeyChain()
     .then(keyChainCredentials => {
-      keychain.deletePassword('jira-timer-menubar', keyChainCredentials.account)
+      keychain.deletePassword('jira-timer-mb', keyChainCredentials.account)
     })
     .catch(() => console.log('Failed to delete keychain as it doesnt exist'))
 })
