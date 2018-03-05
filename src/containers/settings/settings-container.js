@@ -39,7 +39,9 @@ class SettingsContainer extends Component {
 
         <Header
           titleText="Settings"
+          settingsLink="/dashboard"
           withBackButton
+          withSettingsButton
           withQuitButton
         />
 
@@ -117,4 +119,3 @@ const mapStateToProps = state => ({
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)
-

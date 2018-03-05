@@ -9,6 +9,7 @@ import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft'
 import faPowerOff from '@fortawesome/fontawesome-free-solid/faPowerOff'
 import Button from './button'
 import IconLink from './icon-link'
+import IconWrap from './icon-wrap'
 
 class Header extends Component {
   constructor(props) {
@@ -21,6 +22,7 @@ class Header extends Component {
 
   render() {
     let rightAligned = !this.props.withCreateTaskButton && !this.props.withBackButton
+    let settingsIcons = this.props.withSettingsButton && this.props.withQuitButton
 
     return (
       <Fragment>
@@ -40,17 +42,19 @@ class Header extends Component {
 
           <Title>{this.props.titleText}</Title>
 
-          {this.props.withSettingsButton && (
-            <IconLink to="/settings">
-              <FontAwesomeIcon icon={faCog} />
-            </IconLink>
-          )}
+          <IconWrap>
+            {settingsIcons && (
+              <IconLink to={this.props.settingsLink}>
+                <FontAwesomeIcon icon={faCog} />
+              </IconLink>
+            )}
 
-          {this.props.withQuitButton && (
-            <IconLink to="/dashboard" onClick={this.onQuitApp}>
-              <FontAwesomeIcon icon={faPowerOff} />
-            </IconLink>
-          )}
+            {settingsIcons && (
+              <IconLink to="/dashboard" onClick={this.onQuitApp}>
+                <FontAwesomeIcon icon={faPowerOff} />
+              </IconLink>
+            )}
+          </IconWrap>
         </HeaderStyled>
       </Fragment>
     )
