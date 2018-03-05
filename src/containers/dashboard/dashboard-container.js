@@ -29,7 +29,6 @@ class DashboardContainer extends Component {
           settingsLink="/settings"
           withCreateTaskButton
           withSettingsButton
-          testing
           withQuitButton
         />
 
