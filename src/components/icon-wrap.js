@@ -6,5 +6,4 @@ const IconWrap = styled.div`
     margin-right: 1em;
   }
 `
-
 export default IconWrap
