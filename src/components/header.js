@@ -42,19 +42,18 @@ class Header extends Component {
 
           <Title>{this.props.titleText}</Title>
 
-          <IconWrap>
-            {settingsIcons && (
-              <IconLink to={this.props.settingsLink}>
-                <FontAwesomeIcon icon={faCog} />
-              </IconLink>
-            )}
 
             {settingsIcons && (
-              <IconLink to="/dashboard" onClick={this.onQuitApp}>
-                <FontAwesomeIcon icon={faPowerOff} />
-              </IconLink>
+              <IconWrap>
+                <IconLink to={this.props.settingsLink}>
+                  <FontAwesomeIcon icon={faCog} />
+                </IconLink>
+                <IconLink to="/dashboard" onClick={this.onQuitApp}>
+                  <FontAwesomeIcon icon={faPowerOff} />
+                </IconLink>
+              </IconWrap>
             )}
-          </IconWrap>
+
         </HeaderStyled>
       </Fragment>
     )
