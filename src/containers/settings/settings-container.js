@@ -39,7 +39,9 @@ class SettingsContainer extends Component {
 
         <Header
           titleText="Settings"
+          settingsLink="/dashboard"
           withBackButton
+          withSettingsButton
           withQuitButton
         />
 
@@ -67,7 +69,6 @@ class SettingsContainer extends Component {
 
           <FlexContainer>
             <Button primary onClick={this.onCheckForUpdates}>Check for updates</Button>
-            <Button default onClick={this.onOpenDevTools}>Open dev tools</Button>
           </FlexContainer>
         </Section>
       </Fragment>
@@ -117,4 +118,3 @@ const mapStateToProps = state => ({
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)
-

@@ -26,6 +26,7 @@ class DashboardContainer extends Component {
 
         <Header
           titleText="Jira Timer"
+          settingsLink="/settings"
           withCreateTaskButton
           withSettingsButton
         />
