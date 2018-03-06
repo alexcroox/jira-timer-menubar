@@ -4,3 +4,4 @@ release
 build/*
 signing
 dev-app-update.yml
+yarn.lock

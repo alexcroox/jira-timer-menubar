@@ -22,7 +22,6 @@ class Header extends Component {
 
   render() {
     let rightAligned = !this.props.withCreateTaskButton && !this.props.withBackButton
-    let settingsIcons = this.props.withSettingsButton && this.props.withQuitButton
 
     return (
       <Fragment>
@@ -43,16 +42,19 @@ class Header extends Component {
           <Title>{this.props.titleText}</Title>
 
 
-            {settingsIcons && (
-              <IconWrap>
-                <IconLink to={this.props.settingsLink}>
-                  <FontAwesomeIcon icon={faCog} />
-                </IconLink>
-                <IconLink to="/dashboard" onClick={this.onQuitApp}>
-                  <FontAwesomeIcon icon={faPowerOff} />
-                </IconLink>
-              </IconWrap>
+          <IconWrap>
+            {this.props.withQuitButton && (
+              <IconLink to="/dashboard" onClick={this.onQuitApp}>
+                <FontAwesomeIcon icon={faPowerOff} />
+              </IconLink>
             )}
+
+            {this.props.withSettingsButton && (
+              <IconLink to={this.props.settingsLink}>
+                <FontAwesomeIcon icon={faCog} />
+              </IconLink>
+            )}
+          </IconWrap>
 
         </HeaderStyled>
       </Fragment>
