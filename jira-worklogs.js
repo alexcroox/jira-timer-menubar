@@ -16,8 +16,9 @@ const differenceInDays = require('date-fns/difference_in_days')
 
 class JiraWorklogs {
 
-  constructor () {
+  constructor (keychainService) {
 
+    this.keychainService = keychainService
     this.authKey = null
     this.baseUrl = null
 
@@ -187,7 +188,7 @@ class JiraWorklogs {
 
   getCredentialsFromKeyChain () {
     return new Promise((resolve, reject) => {
-      keychain.findCredentials('jira-timer-mb')
+      keychain.findCredentials(this.keychainService)
         .then(credentials => {
           if (!credentials || !credentials.length)
             return reject('No credentials yet')
@@ -204,4 +205,4 @@ class JiraWorklogs {
   }
 }
 
-module.exports = new JiraWorklogs()
+module.exports = JiraWorklogs

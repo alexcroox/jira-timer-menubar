@@ -1,39 +1,51 @@
 // CommonJS for Node :(
 
 const { app, ipcMain } = require('electron')
-const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 const menubar = require('menubar')
 const keychain = require('keytar-prebuild')
 const path = require('path')
 const delay = require('delay')
 const JiraWorklogs = require('./jira-worklogs')
+const Updater = require('./auto-updater')
+const keyChainService = (process.env.NODE_ENV !== 'development') ? 'jira-timer-mb' : 'jira-timer-mb-dev'
+const Worklogs = new JiraWorklogs(keyChainService)
 
 log.transports.console.level = 'info'
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = 'info'
 
-log.info(app.getName());
-log.info(app.getVersion());
+log.info(app.getName())
+log.info(app.getVersion())
 console.log(app.getName(), app.getVersion())
 
+// Start event handling for the auto updater
+const autoUpdater = new Updater(log)
+autoUpdater.handleEvents()
+
 // resolve user $PATH env variable
-require('fix-path')();
+require('fix-path')()
 
 if (process.env.NODE_ENV === 'development') {
-  require('electron-debug')({ showDevTools: true });
+  require('electron-debug')({ showDevTools: true })
 }
 
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
+const installExtensions = () => {
+  return new Promise((resolve, reject) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Installing dev extensions')
 
-  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
+      const installer = require('electron-devtools-installer')
 
-  return Promise.all(
-    extensions.map(name => installer.default(installer[name], forceDownload)),
-  ).catch(console.log);
-};
+      const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS']
+      const forceDownload = !!process.env.UPGRADE_EXTENSIONS
+
+      Promise.all(
+        extensions.map(name => installer.default(installer[name], forceDownload)),
+      ).then(() => resolve()).catch(console.log)
+    } else {
+      return resolve()
+    }
+  })
+}
 
 // Set to start at login. TODO: Use auto-launch to allow user to
 // configure this in settings
@@ -50,7 +62,7 @@ let updateAvailable = false
 let mb = null
 let credentials = null
 
-JiraWorklogs.getCredentialsFromKeyChain()
+Worklogs.getCredentialsFromKeyChain()
   .then(keyChainCredentials => {
     credentials = keyChainCredentials
     launchMenuBar()
@@ -58,7 +70,9 @@ JiraWorklogs.getCredentialsFromKeyChain()
   .catch(launchMenuBar)
 
 function launchMenuBar () {
-  app.on('ready', async () => {
+  app.on('ready', () => {
+
+    installExtensions()
 
     // transparency workaround https://github.com/electron/electron/issues/2170
     setTimeout(() => {
@@ -80,14 +94,10 @@ function launchMenuBar () {
 
       mb.window.credentials = credentials
 
-      mb.on('ready', async () => {
-        if (process.env.NODE_ENV === 'development')
-          await installExtensions()
-
+      mb.on('ready', () => {
+        console.log('Menubar ready')
         mb.tray.setTitle(' Login')
-
-        console.log('app is ready'); // eslint-disable-line
-      });
+      })
 
       mb.on('show', () => {
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
@@ -107,17 +117,17 @@ app.on('window-all-closed', () => {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
 })
 
 // ipc communication
 ipcMain.on('quit', () => {
-  app.quit();
+  app.quit()
 })
 
 ipcMain.on('openDevTools', (event) => {
-  mb.window.webContents.openDevTools();
+  mb.window.webContents.openDevTools()
 })
 
 ipcMain.on('updateTitle', (event, title) => {
@@ -125,13 +135,13 @@ ipcMain.on('updateTitle', (event, title) => {
 })
 
 ipcMain.on('setPassword', (event, args) => {
-  keychain.setPassword('jira-timer-mb', args.jiraDomain, args.authToken)
+  keychain.setPassword(keyChainService, args.jiraDomain, args.authToken)
 })
 
 ipcMain.on('deletePassword', (event) => {
-  JiraWorklogs.getCredentialsFromKeyChain()
+  Worklogs.getCredentialsFromKeyChain()
     .then(keyChainCredentials => {
-      keychain.deletePassword('jira-timer-mb', keyChainCredentials.account)
+      keychain.deletePassword(keyChainService, keyChainCredentials.account)
     })
     .catch(() => console.log('Failed to delete keychain as it doesnt exist'))
 })
@@ -149,11 +159,12 @@ ipcMain.on('fetchWorklogs', (event, args) => {
 
   let executionStart = Date.now()
 
-  JiraWorklogs.fetchMine(userKey, fullWeek)
+  Worklogs.fetchMine(userKey, fullWeek)
     .then(worklogs => {
       fetchingWorklogs = false
       let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
       console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+
       event.sender.send('worklogs', JSON.stringify({
         fullWeek,
         worklogs
@@ -163,52 +174,4 @@ ipcMain.on('fetchWorklogs', (event, args) => {
       console.log('Failed to fetch worklogs', error)
       event.sender.send('worklogs', JSON.stringify([]))
     })
-})
-
-ipcMain.on('installUpdate', (event, message) => {
-
-  console.log('Installing update')
-
-  willQuitApp = true
-  autoUpdater.quitAndInstall()
-})
-
-ipcMain.on('updateStatus', (event) => {
-
-  if (process.env.NODE_ENV !== 'development')
-    autoUpdater.checkForUpdates()
-})
-
-autoUpdater.on('checking-for-update', () => {
-  console.log('Checking for updates...')
-  mb.window.webContents.send('updateChecking')
-})
-
-autoUpdater.on('update-not-available', (ev, info) => {
-
-  console.log('Update not available')
-
-  mb.window.webContents.send('updateNotAvailable')
-})
-
-autoUpdater.on('update-available', (updateInfo) => {
-
-  console.log('Update available', updateInfo)
-  updateAvailable = updateInfo
-  mb.window.webContents.send('updateStatus', JSON.stringify(updateAvailable))
-})
-
-autoUpdater.on('download-progress', (progress) => {
-  console.log('Download progress', progress);
-  mb.window.webContents.send('updateDownloadProgress', JSON.stringify(progress))
-})
-
-autoUpdater.on('update-downloaded', (ev, info) => {
-  console.log('Update downloaded')
-  mb.window.webContents.send('updateReady')
-})
-
-autoUpdater.on('error', (ev, err) => {
-  console.log('Update error', err)
-  mb.window.webContents.send('updateError')
 })

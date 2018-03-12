@@ -210,7 +210,7 @@ class TimerContainer extends Component {
 
 const TimerWrapper = styled.div`
   padding: 0 15px 0 4px;
-  background: #2381FA;
+  background: #2E87FB;
   color: #FFF;
   display: flex;
   align-items: center;

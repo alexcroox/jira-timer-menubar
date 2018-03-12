@@ -6,8 +6,9 @@ import PropTypes from 'prop-types'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faCog from '@fortawesome/fontawesome-free-solid/faCog'
 import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft'
+import faPlus from '@fortawesome/fontawesome-free-solid/faPlus'
 import faPowerOff from '@fortawesome/fontawesome-free-solid/faPowerOff'
-import Button from './button'
+import Button, { ButtonIcon } from './button'
 import IconLink from './icon-link'
 import IconWrap from './icon-wrap'
 
@@ -29,7 +30,10 @@ class Header extends Component {
 
           {this.props.withCreateTaskButton && (
             <Link to="/create-task">
-              <Button default>New task</Button>
+              <Button default withIcon>
+                <ButtonIcon icon={faPlus} />
+                New task
+              </Button>
             </Link>
           )}
 

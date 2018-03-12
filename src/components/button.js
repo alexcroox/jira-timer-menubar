@@ -14,16 +14,16 @@ export const ButtonIcon = styled(FontAwesomeIcon)`
 
 const ButtonStyled = styled.span`
   display: inline-block;
-  padding: 3px 8px;
+  padding: 4px 10px;
   margin-bottom: 0;
   line-height: 1.4;
   font-size: 12px;
   letter-spacing: 0.03em;
   white-space: nowrap;
   border: 1px solid transparent;
-  border-radius: 4px;
-  box-shadow: 0 1px 1px rgba(0,0,0,.06);
+  border-radius: 3.01px;
   position: relative;
+  font-weight: 500;
   z-index: 1;
 
   &:hover {
@@ -39,27 +39,21 @@ const ButtonStyled = styled.span`
   `}
 
   ${props => (props.default) && css`
-    border-color: #c2c0c2 #c2c0c2 #a19fa1;
-    background-color: #fcfcfc;
-    background-image: linear-gradient(to bottom,#fcfcfc 0,#f1f1f1 100%);
-    color: #333;
+    background-color: #ebecf0;
+    color: #505f79;
 
     &:hover {
-      background-color: #ddd;
-      background-image: none;
+      background-color: #505f79;
+      color: #FFF;
     }
   `}
 
   ${props => (props.primary) && css`
-    text-shadow: 0 1px 1px rgba(0,0,0,.1);
-    border-color: #388df8 #388df8 #0866dc;
-    background-color: #6eb4f7;
-    background-image: linear-gradient(to bottom,#6eb4f7 0,#1a82fb 100%);
+    background-color: #0052cc;
     color: #fff;
 
     &:hover {
-      background-color: #3e9bf4;
-      background-image: linear-gradient(to bottom,#3e9bf4 0,#0469de 100%);
+      background-color: #0065ff;
     }
   `}
 
@@ -77,15 +71,11 @@ const ButtonStyled = styled.span`
   `}
 
   ${props => (props.loading) && css`
-    background-color: #ddd;
-    background-image: none;
-    border-color: #c2c0c2 #c2c0c2 #a19fa1;
-    color: #333;
+    background-color: #ebecf0;
+    color: #999;
 
     &:hover {
-      cursor: default;
-      background-color: #ddd;
-      background-image: none;
+      cursor: not-allowed;
     }
   `}
 `
