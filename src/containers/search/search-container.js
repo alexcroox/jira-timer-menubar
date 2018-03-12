@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
@@ -17,8 +18,11 @@ class SearchContainer extends Component {
       noResults: false,
       error: false,
       query: '',
-      results: []
+      results: [],
+      cursor: -1
     }
+
+    this.listRefs = {}
 
     this.onChange = this.onChange.bind(this)
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -56,14 +60,58 @@ class SearchContainer extends Component {
   }
 
   onKeyDown (e) {
-    if (e.keyCode === 13) {
-      clearTimeout(this.searchTimer)
-      this.triggerChange()
+    switch (e.keyCode) {
+      // Enter
+      case 13:
+        if (this.state.cursor === -1) {
+          clearTimeout(this.searchTimer)
+          this.triggerChange()
+        } else {
+          // Pressing enter while navigating tasks with keyboard
+          let chosenTask = this.state.results[this.state.cursor]
+          this.onAddTimer(chosenTask.id, chosenTask.key, chosenTask.fields.summary)
+        }
+        break
+
+      // Up arrow
+      case 38:
+        e.preventDefault()
+
+        console.log(this.state.cursor)
+
+        if (this.state.cursor > -1)
+          this.setState(prevState => ({
+            cursor: prevState.cursor - 1
+          }))
+
+          this.scrollActiveTaskIntoView()
+        break
+
+      // Down arrow
+      case 40:
+        e.preventDefault()
+
+        if (this.state.cursor < this.state.results.length - 1)
+          this.setState(prevState => ({
+            cursor: prevState.cursor + 1
+          }))
+
+          this.scrollActiveTaskIntoView()
+        break
+    }
+  }
+
+  scrollActiveTaskIntoView () {
+    let itemComponent = this.refs.activeItem
+    if (itemComponent) {
+      let domNode = ReactDOM.findDOMNode(itemComponent)
+      domNode.scrollIntoView(true)
     }
   }
 
   triggerChange () {
     this.search(this.state.query)
+    this.setState({ cursor: -1 })
   }
 
   search (query) {
@@ -147,10 +195,12 @@ class SearchContainer extends Component {
 
         {this.state.results.length ? (
           <TaskContainer maxHeight>
-            {this.state.results.map(task => (
+            {this.state.results.map((task, i) => (
               <Task
                 key={task.id}
+                ref={i === this.state.cursor ? 'activeItem' : null}
                 taskKey={task.key}
+                highlighted={i === this.state.cursor}
                 title={task.fields.summary}
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.fields.summary)}
               />

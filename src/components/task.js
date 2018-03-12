@@ -30,6 +30,7 @@ class Task extends Component {
   render() {
     return (
       <TaskWrapper
+        highlighted={this.props.highlighted}
         hasTimer={this.props.hasTimer}
         onClick={this.props.onAddTimer}
         onContextMenu={() => { this.onContextMenu(this.props.taskKey) }}
@@ -73,6 +74,24 @@ const TaskWrapper = styled.div`
     cursor: pointer;
     background-color: rgba(35,129,250,0.1)
   }
+
+  ${props => (props.highlighted) && css`
+    background-color: #2E87FB;
+    color: #FFF;
+
+    &:nth-child(even) {
+      background-color: #2E87FB;
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: #0049C5
+    }
+
+    & > ${TaskKey} {
+      color: #FFF;
+    }
+  `}
 `
 
 const TaskKey = styled.span`
