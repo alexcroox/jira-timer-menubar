@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
+import { setChecking } from '../../modules/updater'
 import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
@@ -27,6 +28,8 @@ class SettingsContainer extends Component {
   }
 
   onCheckForUpdates () {
+    console.log('Checking for updates')
+    this.props.setChecking(true)
     ipcRenderer.send('updateStatus')
   }
 
@@ -68,7 +71,19 @@ class SettingsContainer extends Component {
           <Margin bottom={2}>App version v{this.props.version}</Margin>
 
           <FlexContainer>
-            <Button primary onClick={this.onCheckForUpdates}>Check for updates</Button>
+            <div>
+              <Button
+                primary
+                onClick={this.onCheckForUpdates}
+                loading={this.props.updatesChecking}
+              >
+                {!this.props.updatesChecking ? ('Check for updates') : ('Checking for updates...')}
+              </Button>
+
+              {!this.props.updateAvailable && (
+                <Margin top={2}>No updates available</Margin>
+              )}
+            </div>
           </FlexContainer>
         </Section>
       </Fragment>
@@ -108,13 +123,16 @@ const FlexContainer = styled.div`
 `
 
 const mapDispatchToProps = {
-  userLogout
+  userLogout,
+  setChecking
 }
 
 const mapStateToProps = state => ({
   authToken: state.user.authToken,
   profile: state.user.profile,
   version: state.updater.version,
+  updateAvailable: state.updater.updateAvailable,
+  updatesChecking: state.updater.checking,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)

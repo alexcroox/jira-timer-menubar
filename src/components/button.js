@@ -23,7 +23,6 @@ const ButtonStyled = styled.span`
   border: 1px solid transparent;
   border-radius: 3.01px;
   position: relative;
-  font-weight: 500;
   z-index: 1;
 
   &:hover {
@@ -76,6 +75,7 @@ const ButtonStyled = styled.span`
 
     &:hover {
       cursor: not-allowed;
+      background-color: #ebecf0;
     }
   `}
 `

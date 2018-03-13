@@ -17,16 +17,11 @@ log.info(app.getName())
 log.info(app.getVersion())
 console.log(app.getName(), app.getVersion())
 
-// Start event handling for the auto updater
-const autoUpdater = new Updater(log)
-autoUpdater.handleEvents()
-
 // resolve user $PATH env variable
 require('fix-path')()
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development')
   require('electron-debug')({ showDevTools: true })
-}
 
 const installExtensions = () => {
   return new Promise((resolve, reject) => {
@@ -93,6 +88,10 @@ function launchMenuBar () {
       })
 
       mb.window.credentials = credentials
+
+      // Start event handling for the auto updater
+      const autoUpdater = new Updater(mb.window.webContents, log)
+      autoUpdater.handleEvents()
 
       mb.on('ready', () => {
         console.log('Menubar ready')

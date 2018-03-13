@@ -20,7 +20,7 @@ import store from './lib/create-store'
 import api from './lib/api'
 import { storeState } from './lib/storage'
 import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
-import { setVersion, setUpdateInfo, setDownloaded } from './modules/updater'
+import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from './modules/updater'
 import { setAuthToken, setJiraDomain } from './modules/user'
 import AppContainer from 'containers/app/app-container'
 
@@ -71,9 +71,16 @@ ipcRenderer.on('updateStatus', (event, info) => {
   var updateInfo = JSON.parse(info)
   console.log('updateStatus', updateInfo)
   store.dispatch(setUpdateInfo(updateInfo))
+  store.dispatch(setChecking(false))
 })
 
 ipcRenderer.on('updateReady', () => {
   console.log('updateReady')
   store.dispatch(setDownloaded())
+})
+
+ipcRenderer.on('updateNotAvailable', () => {
+  console.log('updateNotAvailable')
+  store.dispatch(setUpdateAvailable(false))
+  store.dispatch(setChecking(false))
 })

@@ -5,7 +5,9 @@ const { autoUpdater } = require('electron-updater')
 
 class Updater {
 
-  constructor (log) {
+  constructor (renderProcess, log) {
+
+    this.renderProcess = renderProcess
     autoUpdater.logger = log
     autoUpdater.logger.transports.file.level = 'info'
   }
@@ -24,40 +26,41 @@ class Updater {
 
       if (process.env.NODE_ENV !== 'development')
         autoUpdater.checkForUpdates()
+      else
+        setTimeout(() => this.renderProcess.send('updateNotAvailable'), 3000)
     })
 
     autoUpdater.on('checking-for-update', () => {
       console.log('Checking for updates...')
-      mb.window.webContents.send('updateChecking')
+      this.renderProcess.send('updateChecking')
     })
 
     autoUpdater.on('update-not-available', (ev, info) => {
 
       console.log('Update not available')
 
-      mb.window.webContents.send('updateNotAvailable')
+      this.renderProcess.send('updateNotAvailable')
     })
 
     autoUpdater.on('update-available', (updateInfo) => {
 
       console.log('Update available', updateInfo)
-      updateAvailable = updateInfo
-      mb.window.webContents.send('updateStatus', JSON.stringify(updateAvailable))
+      this.renderProcess.send('updateStatus', JSON.stringify(updateInfo))
     })
 
     autoUpdater.on('download-progress', (progress) => {
       console.log('Download progress', progress);
-      mb.window.webContents.send('updateDownloadProgress', JSON.stringify(progress))
+      this.renderProcess.send('updateDownloadProgress', JSON.stringify(progress))
     })
 
     autoUpdater.on('update-downloaded', (ev, info) => {
       console.log('Update downloaded')
-      mb.window.webContents.send('updateReady')
+      this.renderProcess.send('updateReady')
     })
 
     autoUpdater.on('error', (ev, err) => {
       console.log('Update error', err)
-      mb.window.webContents.send('updateError')
+      this.renderProcess.send('updateError')
     })
   }
 }
