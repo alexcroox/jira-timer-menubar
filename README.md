@@ -26,7 +26,7 @@ $ npm install
 $ npm run dev
 ```
 
-#### Build for distribution
+#### Build for release testing
 
 ```bash
 $ npm run build
