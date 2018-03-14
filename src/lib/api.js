@@ -27,7 +27,6 @@ class Api {
 
       this.get('/myself')
         .then(response => {
-          console.log('Myself', response)
           store.dispatch(setProfile(response))
           store.dispatch(fetchWorklogs())
         })

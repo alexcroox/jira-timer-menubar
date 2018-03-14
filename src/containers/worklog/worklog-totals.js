@@ -21,15 +21,14 @@ class WorklogTotals extends Component {
               Today <TimeSummary>{secondsHuman(this.props.totals.day)}</TimeSummary>
             </TimeSummaryContainer>
 
+            <TimeSummaryContainer>
+                Yesterday <TimeSummary>{secondsHuman(this.props.totals.yesterday)}</TimeSummary>
+              </TimeSummaryContainer>
+
             {this.props.showAll && (
-              <Fragment>
-                <TimeSummaryContainer>
-                  Yesterday <TimeSummary>{secondsHuman(this.props.totals.yesterday)}</TimeSummary>
-                </TimeSummaryContainer>
-                <TimeSummaryContainer>
-                  Week <TimeSummary>{Math.floor(this.props.totals.week / 3600)}h</TimeSummary>
-                </TimeSummaryContainer>
-              </Fragment>
+              <TimeSummaryContainer>
+                Week <TimeSummary>{Math.floor(this.props.totals.week / 3600)}h</TimeSummary>
+              </TimeSummaryContainer>
             )}
           </Fragment>
         )}

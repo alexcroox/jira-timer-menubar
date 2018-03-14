@@ -4,6 +4,7 @@ import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import { setChecking } from '../../modules/updater'
+import { setOpenAtLogin } from '../../modules/settings'
 import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
@@ -14,6 +15,8 @@ import HeadingBar from '../../components/heading-bar'
 import Button from '../../components/button'
 import Divider from '../../components/divider'
 import Section, { SectionTitle } from '../../components/section'
+import Fieldset from '../../components/fieldset'
+import Checkbox from '../../components/checkbox'
 
 class SettingsContainer extends Component {
   constructor (props) {
@@ -21,6 +24,7 @@ class SettingsContainer extends Component {
 
     this.onOpenDevTools = this.onOpenDevTools.bind(this)
     this.onCheckForUpdates = this.onCheckForUpdates.bind(this)
+    this.onSetOpenAtLogin = this.onSetOpenAtLogin.bind(this)
   }
 
   onOpenDevTools () {
@@ -31,6 +35,10 @@ class SettingsContainer extends Component {
     console.log('Checking for updates')
     this.props.setChecking(true)
     ipcRenderer.send('updateStatus')
+  }
+
+  onSetOpenAtLogin (event) {
+    this.props.setOpenAtLogin(event.target.checked)
   }
 
   render () {
@@ -63,6 +71,19 @@ class SettingsContainer extends Component {
             </ProfileWrapper>
           </Fragment>
         )}
+
+        <Divider />
+
+        <Section noPaddingTop>
+          <SectionTitle>Settings</SectionTitle>
+          <Fieldset>
+            <Checkbox
+              label="Launch at login"
+              checked={this.props.settings.openAtLogin}
+              onChange={this.onSetOpenAtLogin}
+            />
+          </Fieldset>
+        </Section>
 
         <Divider />
 
@@ -124,7 +145,8 @@ const FlexContainer = styled.div`
 
 const mapDispatchToProps = {
   userLogout,
-  setChecking
+  setChecking,
+  setOpenAtLogin,
 }
 
 const mapStateToProps = state => ({
@@ -133,6 +155,7 @@ const mapStateToProps = state => ({
   version: state.updater.version,
   updateAvailable: state.updater.updateAvailable,
   updatesChecking: state.updater.checking,
+  settings: state.settings,
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingsContainer)

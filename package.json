@@ -10,7 +10,7 @@
     "dev": "concurrently -k 'node -r babel-register server.js' 'npm start'",
     "pack": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "build": "npm run pack && electron-builder",
-    "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder --linux --mac -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases"
+    "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder --linux --mac -p always && open-url https://github.com/alexcroox/jira-timer-menubar/releases && npm run postinstall"
   },
   "author": "Alex Crooks",
   "repository": {

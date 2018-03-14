@@ -1,10 +1,12 @@
 # JIRA Timer Menubar
 
+macOS and Linux menubar app for JIRA time logging. Built with React and Electron
+
 <img src="/static/demo.gif?raw=true">
 
 ## Install
 
-Head over to the [releases to download](https://github.com/alexcroox/jira-timer-menubar/releases/latest) for macOS or linux.
+Head over to the [releases to download](https://github.com/alexcroox/jira-timer-menubar/releases/latest) for macOS or Linux.
 
 #### Linux users
 

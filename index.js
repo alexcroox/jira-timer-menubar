@@ -42,18 +42,8 @@ const installExtensions = () => {
   })
 }
 
-// Set to start at login. TODO: Use auto-launch to allow user to
-// configure this in settings
-// https://github.com/zulip/zulip-electron/blob/68acf2ec643b78223ea89fdc5dbc77ffabdb3541/app/main/startup.js
-if (process.env.NODE_ENV !== 'development') {
-  app.setLoginItemSettings({
-    openAtLogin: true
-  })
-}
-
 let fetchingWorklogs = false
 let willQuitApp = false
-let updateAvailable = false
 let mb = null
 let credentials = null
 
@@ -82,6 +72,7 @@ function launchMenuBar () {
         hasShadow: false,
         preloadWindow: true,
         resizable: true,
+        useContentSize: true,
         transparent: true,
         frame: false,
         toolbar: false
@@ -173,4 +164,12 @@ ipcMain.on('fetchWorklogs', (event, args) => {
       console.log('Failed to fetch worklogs', error)
       event.sender.send('worklogs', JSON.stringify([]))
     })
+})
+
+ipcMain.on('openAtLogin', (event, args) => {
+  if (process.env.NODE_ENV !== 'development') {
+    app.setLoginItemSettings({
+      openAtLogin: args.enabled
+    })
+  }
 })

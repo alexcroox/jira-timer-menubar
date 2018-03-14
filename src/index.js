@@ -18,10 +18,12 @@ import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import store from './lib/create-store'
 import api from './lib/api'
+import handleComms from './lib/process-communication'
 import { storeState } from './lib/storage'
 import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
 import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from './modules/updater'
 import { setAuthToken, setJiraDomain } from './modules/user'
+import { setFirstLaunchSettings } from './modules/settings'
 import AppContainer from 'containers/app/app-container'
 
 render(
@@ -48,39 +50,11 @@ if (credentials) {
 console.log('App version', remote.app.getVersion())
 store.dispatch(setVersion(remote.app.getVersion()))
 
+// Listen and respond to inter process communication
+store.dispatch(setFirstLaunchSettings())
+handleComms()
+
 // Save our local state to cache file every 60 seconds
 setInterval(() => {
   storeState(store.getState())
 }, 60000)
-
-// Globally listen out for worklogs coming from main process
-ipcRenderer.on('worklogs', (event, worklogPayload) => {
-  let payload = JSON.parse(worklogPayload)
-  let worklogs = payload.worklogs
-  let fullWeek = payload.fullWeek
-
-  console.log('Got worklogs from main process', fullWeek, payload.worklogs.length)
-  store.dispatch(addWorklogs(worklogs, fullWeek))
-  store.dispatch(setUpdating(false))
-});
-
-// Request status of the auto update
-ipcRenderer.send('updateStatus')
-
-ipcRenderer.on('updateStatus', (event, info) => {
-  var updateInfo = JSON.parse(info)
-  console.log('updateStatus', updateInfo)
-  store.dispatch(setUpdateInfo(updateInfo))
-  store.dispatch(setChecking(false))
-})
-
-ipcRenderer.on('updateReady', () => {
-  console.log('updateReady')
-  store.dispatch(setDownloaded())
-})
-
-ipcRenderer.on('updateNotAvailable', () => {
-  console.log('updateNotAvailable')
-  store.dispatch(setUpdateAvailable(false))
-  store.dispatch(setChecking(false))
-})

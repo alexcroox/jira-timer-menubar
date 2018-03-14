@@ -16,7 +16,7 @@ const initialState = Immutable({
   loginError: false,
   authToken: null,
   jiraDomain: null,
-  profile: {}
+  profile: {},
 })
 
 // Reducer
