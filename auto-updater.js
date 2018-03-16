@@ -1,6 +1,5 @@
 // CommonJS for Node :(
-
-const { ipcMain } = require('electron')
+const { app, ipcMain } = require('electron')
 const { autoUpdater } = require('electron-updater')
 
 class Updater {
@@ -10,15 +9,18 @@ class Updater {
     this.renderProcess = renderProcess
     autoUpdater.logger = log
     autoUpdater.logger.transports.file.level = 'info'
+    this.willQuitApp = false
   }
 
   handleEvents () {
+
+    app.on('before-quit', () => this.willQuitApp = true)
 
     ipcMain.on('installUpdate', (event, message) => {
 
       console.log('Installing update')
 
-      willQuitApp = true
+      this.willQuitApp = true
       autoUpdater.quitAndInstall()
     })
 
