@@ -139,10 +139,12 @@ class JiraWorklogs {
   fetchWorklogsForTaskAndUser (task) {
     return new Promise((resolve, reject) => {
 
-      this.sendRequest(`/issue/${task.key}/worklog?maxResults=100`, 'GET')
+      this.sendRequest(`/issue/${task.key}/worklog?maxResults=1000`, 'GET')
         .then(response => {
 
           let currentUserWorklogs = []
+
+          //console.log('Worklogs in issue', task.key, response.worklogs.length)
 
           response.worklogs.forEach(worklog => {
 
