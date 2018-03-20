@@ -42,9 +42,9 @@ const installExtensions = () => {
   })
 }
 
-let fetchingWorklogs = false
 let mb = null
 let credentials = null
+let jiraUserKey = null
 
 Worklogs.getCredentialsFromKeyChain()
   .then(keyChainCredentials => {
@@ -72,6 +72,7 @@ function launchMenuBar () {
         ]
       }
     ])
+
     Menu.setApplicationMenu(menu)
 
     installExtensions()
@@ -108,6 +109,17 @@ function launchMenuBar () {
 
       mb.on('show', () => {
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
+
+        if (jiraUserKey) {
+          Worklogs.request(jiraUserKey, false, true)
+            .then(worklogs => {
+              mb.window.webContents.send('worklogs', JSON.stringify({
+                fullWeek,
+                worklogs
+              }))
+            })
+            .catch(() => {})
+        }
       })
 
       mb.on('hide', () => {
@@ -155,30 +167,16 @@ ipcMain.on('fetchWorklogs', (event, args) => {
 
   let { userKey, fullWeek } = args
 
-  if (fetchingWorklogs) {
-    console.log('Already fetching worklogs, request denied')
-    return
-  }
+  jiraUserKey = userKey
 
-  fetchingWorklogs = true
-
-  let executionStart = Date.now()
-
-  Worklogs.fetchMine(userKey, fullWeek)
+  Worklogs.request(userKey, fullWeek)
     .then(worklogs => {
-      fetchingWorklogs = false
-      let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
-      console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
-
       event.sender.send('worklogs', JSON.stringify({
         fullWeek,
         worklogs
       }))
     })
-    .catch(error => {
-      console.log('Failed to fetch worklogs', error)
-      event.sender.send('worklogs', JSON.stringify([]))
-    })
+    .catch(error => event.sender.send('worklogs', JSON.stringify([])))
 })
 
 ipcMain.on('openAtLogin', (event, args) => {

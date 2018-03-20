@@ -21,10 +21,55 @@ class JiraWorklogs {
     this.keychainService = keychainService
     this.authKey = null
     this.baseUrl = null
+    this.fetching = false
+    this.lastFetched = Date.now()
 
     this.getCredentialsFromKeyChain()
       .then(credentials => console.log('Keychain credentials found'))
       .catch(error => console.log('Unable to fetch credentials', error))
+  }
+
+  request (userKey, fullWeek, throttle) {
+    throttle = throttle || false
+
+    return new Promise((resolve, reject) => {
+
+      if (this.fetching) {
+        console.log('Already fetching worklogs, request denied')
+        return reject()
+      }
+
+      let executionStart = Date.now()
+
+      // For regular requests we want to throttle how often then can be called
+      if (throttle) {
+        let secondsSinceLastFetch = Math.round((executionStart - this.lastFetched) / 1000)
+
+        if (secondsSinceLastFetch < 60) {
+          console.log('Fetched too recently, request denied')
+          return reject()
+        }
+      }
+
+      this.fetching = true
+
+      this.fetchMine(userKey, fullWeek)
+        .then(worklogs => {
+          this.fetching = false
+          let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
+          console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+
+          this.lastFetched = Date.now()
+          resolve(worklogs)
+        })
+        .catch(error => {
+          this.fetching = false
+          console.log('Failed to fetch worklogs', error)
+
+          this.lastFetched = Date.now()
+          reject(error)
+        })
+    })
   }
 
   fetchMine (userKey, fullWeek) {
