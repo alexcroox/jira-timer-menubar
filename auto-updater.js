@@ -9,18 +9,12 @@ class Updater {
     this.renderProcess = renderProcess
     autoUpdater.logger = log
     autoUpdater.logger.transports.file.level = 'info'
-    this.willQuitApp = false
   }
 
   handleEvents () {
 
-    app.on('before-quit', () => this.willQuitApp = true)
-
     ipcMain.on('installUpdate', (event, message) => {
-
       console.log('Installing update')
-
-      this.willQuitApp = true
       autoUpdater.quitAndInstall()
     })
 
