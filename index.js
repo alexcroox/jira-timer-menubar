@@ -1,6 +1,6 @@
 // CommonJS for Node :(
 
-const { app, ipcMain } = require('electron')
+const { app, ipcMain, Menu } = require('electron')
 const log = require('electron-log')
 const menubar = require('menubar')
 const keychain = require('keytar-prebuild')
@@ -43,7 +43,6 @@ const installExtensions = () => {
 }
 
 let fetchingWorklogs = false
-let willQuitApp = false
 let mb = null
 let credentials = null
 
@@ -56,6 +55,24 @@ Worklogs.getCredentialsFromKeyChain()
 
 function launchMenuBar () {
   app.on('ready', () => {
+
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'Edit',
+        submenu: [
+          {role: 'undo'},
+          {role: 'redo'},
+          {type: 'separator'},
+          {role: 'cut'},
+          {role: 'copy'},
+          {role: 'paste'},
+          {role: 'pasteandmatchstyle'},
+          {role: 'delete'},
+          {role: 'selectall'}
+        ]
+      }
+    ])
+    Menu.setApplicationMenu(menu)
 
     installExtensions()
 
@@ -99,8 +116,6 @@ function launchMenuBar () {
     }, 100)
   })
 }
-
-app.on('before-quit', () => willQuitApp = true)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
