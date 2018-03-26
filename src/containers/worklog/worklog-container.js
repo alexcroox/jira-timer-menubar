@@ -163,6 +163,8 @@ class WorklogContainer extends Component {
       <Fragment>
         <Header
           titleText="Posted Times"
+          settingsLink="/settings"
+          withSettingsButton
           withBackButton
         />
 
