@@ -29,11 +29,8 @@ class JiraWorklogs {
       .catch(error => console.log('Unable to fetch credentials', error))
   }
 
-  request (userKey, fullWeek, throttle) {
-    throttle = throttle || false
-
+  checkLock (throttle) {
     return new Promise((resolve, reject) => {
-
       if (this.fetching) {
         console.log('Already fetching worklogs, request denied')
         return reject()
@@ -51,24 +48,40 @@ class JiraWorklogs {
         }
       }
 
-      this.fetching = true
+      resolve()
+    })
+  }
 
-      this.fetchMine(userKey, fullWeek)
-        .then(worklogs => {
-          this.fetching = false
-          let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
-          console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+  request (userKey, fullWeek, throttle) {
+    throttle = throttle || false
 
-          this.lastFetched = Date.now()
-          resolve(worklogs)
+    let executionStart = Date.now()
+
+    return new Promise((resolve, reject) => {
+
+      this.checkLock(throttle)
+        .then(() => {
+
+          this.fetching = true
+
+          this.fetchMine(userKey, fullWeek)
+            .then(worklogs => {
+              this.fetching = false
+              let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
+              console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+
+              this.lastFetched = Date.now()
+              resolve(worklogs)
+            })
+            .catch(error => {
+              this.fetching = false
+              console.log('Failed to fetch worklogs', error)
+
+              this.lastFetched = Date.now()
+              reject(error)
+            })
         })
-        .catch(error => {
-          this.fetching = false
-          console.log('Failed to fetch worklogs', error)
-
-          this.lastFetched = Date.now()
-          reject(error)
-        })
+        .catch(() => reject())
     })
   }
 

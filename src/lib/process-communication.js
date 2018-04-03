@@ -9,14 +9,21 @@ const handleComms = () => {
   // Request status of the auto update
   ipcRenderer.send('updateStatus')
 
+  ipcRenderer.on('fetchingWorklogs', (event, info) => {
+    store.dispatch(setUpdating(true))
+  })
+
   // Listen out for worklogs coming from main process
   ipcRenderer.on('worklogs', (event, worklogPayload) => {
     let payload = JSON.parse(worklogPayload)
     let worklogs = payload.worklogs
     let fullWeek = payload.fullWeek
 
-    console.log('Got worklogs from main process', fullWeek, payload.worklogs.length)
-    store.dispatch(addWorklogs(worklogs, fullWeek))
+    if (typeof payload.worklogs !== "undefined") {
+      console.log('Got worklogs from main process', fullWeek, payload.worklogs.length)
+      store.dispatch(addWorklogs(worklogs, fullWeek))
+    }
+
     store.dispatch(setUpdating(false))
   })
 

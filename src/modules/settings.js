@@ -34,8 +34,6 @@ export const setFirstLaunchSettings = () => dispatch => {
 
   let state = store.getState()
 
-  console.log('state', state)
-
   if (state.settings.firstLaunch) {
     dispatch(setSingleSetting('firstLaunch', false))
     dispatch(setOpenAtLogin(true))

@@ -11,7 +11,8 @@ const Updater = require('./auto-updater')
 const keyChainService = (process.env.NODE_ENV !== 'development') ? 'jira-timer-mb' : 'jira-timer-mb-dev'
 const Worklogs = new JiraWorklogs(keyChainService)
 
-log.transports.console.level = 'info'
+log.transports.file.level = 'debug'
+log.transports.console.level = 'debug'
 
 log.info(app.getName())
 log.info(app.getVersion())
@@ -111,14 +112,33 @@ function launchMenuBar () {
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
 
         if (jiraUserKey) {
-          Worklogs.request(jiraUserKey, false, true)
-            .then(worklogs => {
-              mb.window.webContents.send('worklogs', JSON.stringify({
-                fullWeek,
-                worklogs
-              }))
+
+          let renderProcess = mb.window.webContents
+
+          Worklogs.checkLock(true)
+            .then(() => {
+              console.log('Telling render process we are fetching worklogs')
+              renderProcess.send('fetchingWorklogs')
+
+              let fullWeek = false
+
+              Worklogs.request(jiraUserKey, fullWeek, true)
+                .then(worklogs => {
+                  console.log('All good', worklogs.length)
+                  renderProcess.send('worklogs', JSON.stringify({
+                    fullWeek,
+                    worklogs
+                  }))
+                })
+                .catch(error => {
+                  console.error('Error fetching worklogs', error)
+                  renderProcess.send('worklogs', JSON.stringify([]))
+                })
             })
-            .catch(() => {})
+            .catch(error => {
+              console.error('Error checking worklog lock')
+              renderProcess.send('worklogs', JSON.stringify([]))
+            })
         }
       })
 

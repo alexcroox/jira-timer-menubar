@@ -181,7 +181,6 @@ export const setUpdatingWorklog = worklogId => ({
   worklogId
 })
 
-// Full week isn't supported yet (need to work on merging states)
 export const fetchWorklogs = (fullWeek = true) => async (dispatch, getState) => {
 
   let state = getState()

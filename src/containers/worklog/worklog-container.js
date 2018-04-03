@@ -111,7 +111,7 @@ class WorklogContainer extends Component {
 
     let alreadyAssigned = []
 
-    if (this.props.worklogs.length) {
+    if (this.props.worklogs && this.props.worklogs.length) {
 
       this.props.worklogs.forEach(worklog => {
         let created = parse(worklog.created)

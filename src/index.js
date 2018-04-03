@@ -1,16 +1,3 @@
-import log from 'electron-log'
-
-const originalConsoleLog = console.log.bind(console)
-console.log = (...args) => {
-  log.debug(args)
-  originalConsoleLog(...args)
-}
-
-window.onerror = (err) => {
-  log.error(err)
-  originalConsoleLog(...err)
-}
-
 import { remote, ipcRenderer } from 'electron'
 import React from 'react'
 import { render } from 'react-dom'
@@ -25,6 +12,19 @@ import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailab
 import { setAuthToken, setJiraDomain } from './modules/user'
 import { setFirstLaunchSettings } from './modules/settings'
 import AppContainer from 'containers/app/app-container'
+
+const log = remote.require('electron-log')
+
+const originalConsoleLog = console.log.bind(console)
+console.log = (...args) => {
+  log.info(args)
+  originalConsoleLog(...args)
+}
+
+window.onerror = (err) => {
+  log.error(err)
+  originalConsoleLog(...err)
+}
 
 render(
   <Provider store={store}>
