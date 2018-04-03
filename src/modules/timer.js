@@ -1,4 +1,4 @@
-import Immutable from 'seamless-immutable'
+import produce from 'immer'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
 import api from '../lib/api'
@@ -14,89 +14,67 @@ const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 const POST_TIMER = 'jt/timer/POST_TIMER'
 const UPDATE_TIMER = 'jt/timer/UPDATE_TIMER'
 
-const initialState = Immutable({
+const initialState = {
   list: []
-})
+}
 
 // Reducer
-export default function reducer (state = initialState, action = {}) {
-  switch (action.type) {
+export default produce(
+  (draft, action) => {
+    switch (action.type) {
 
-    case ADD_TIMER: {
-      // We don't want to allow duplicate timers
-      let existingTimer = find(state.list, ['id', action.timer.id])
+      case ADD_TIMER: {
+        // We don't want to allow duplicate timers
+        let existingTimer = find(draft.list, ['id', action.timer.id])
 
-      if (state.list.length < 5 && !existingTimer)
-        return state.set('list', [action.timer].concat(state.list))
-    }
-
-    case DELETE_TIMER: {
-      let timerIndex = findIndex(state.list, ['id', action.timerId])
-
-      if (timerIndex > -1) {
-        let list = state.list.asMutable()
-        list.splice(timerIndex, 1)
-        return state.set('list', Immutable(list))
+        if (draft.list.length < 5 && !existingTimer)
+          draft.list = [action.timer].concat(draft.list)
       }
-    }
 
-    case PAUSE_TIMER: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let timerIndex = findIndex(list, ['id', action.timerId])
+      case DELETE_TIMER: {
+        let timerIndex = findIndex(draft.list, ['id', action.timerId])
 
-      if (timerIndex > -1) {
-        let timer = list[timerIndex]
+        if (timerIndex > -1)
+          draft.list.splice(timerIndex, 1)
+      }
 
-        if (action.pause) {
-          // We need to make sure the timer isn't already paused. Otherwise we will
-          // be adding time since it was last paused!
-          if (!timer.paused) {
-            timer.endTime = Date.now()
-            timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
+      case PAUSE_TIMER: {
+        let timerIndex = findIndex(draft.list, ['id', action.timerId])
+
+        if (timerIndex > -1) {
+          let timer = draft.list[timerIndex]
+
+          if (action.pause) {
+            // We need to make sure the timer isn't already paused. Otherwise we will
+            // be adding time since it was last paused!
+            if (!timer.paused) {
+              timer.endTime = Date.now()
+              timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
+            }
+          } else {
+            timer.startTime = Date.now()
           }
-        } else {
-          timer.startTime = Date.now()
+
+          timer.paused = action.pause
         }
+      }
 
-        timer.paused = action.pause
+      case POST_TIMER: {
+        let timerIndex = findIndex(draft.list, ['id', action.timerId])
 
-        return state.set('list', Immutable(list))
-      } else {
-        return state
+        if (timerIndex > -1)
+          draft.list[timerIndex].posting = action.posting
+      }
+
+      case UPDATE_TIMER: {
+        let timerIndex = findIndex(draft.list, ['id', action.timerId])
+
+        if (timerIndex > -1)
+          draft.list[timerIndex].previouslyElapsed = action.ms
       }
     }
-
-    case POST_TIMER: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let timerIndex = findIndex(list, ['id', action.timerId])
-
-      if (timerIndex > -1) {
-        let timer = list[timerIndex]
-        timer.posting = action.posting
-
-        return state.set('list', Immutable(list))
-      } else {
-        return state
-      }
-    }
-
-    case UPDATE_TIMER: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let timerIndex = findIndex(list, ['id', action.timerId])
-
-      if (timerIndex > -1) {
-        let timer = list[timerIndex]
-        timer.previouslyElapsed = action.ms
-
-        return state.set('list', Immutable(list))
-      } else {
-        return state
-      }
-    }
-
-    default: return state
-  }
-}
+  }, initialState
+)
 
 // Action Creators
 export const deleteTimer = timerId => ({

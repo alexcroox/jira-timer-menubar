@@ -1,4 +1,4 @@
-import Immutable from 'seamless-immutable'
+import produce from 'immer'
 import api from '../lib/api'
 import { ipcRenderer } from 'electron'
 import { push } from 'react-router-redux'
@@ -11,52 +11,49 @@ const USER_SET_AUTH_TOKEN = 'jt/user/USER_SET_AUTH_TOKEN'
 const USER_SET_PROFILE = 'jt/user/USER_SET_PROFILE'
 const USER_SET_JIRA_DOMAIN = 'jt/user/USER_SET_JIRA_DOMAIN'
 
-const initialState = Immutable({
+const initialState = {
   loginPending: false,
   loginError: false,
   authToken: null,
   jiraDomain: null,
   profile: {},
-})
+}
 
 // Reducer
-export default function reducer (state = initialState, action = {}) {
-  switch (action.type) {
+export default produce(
+  (draft, action) => {
+    switch (action.type) {
 
-    case USER_LOGIN:
-      return state.set('loginPending', true)
+      case USER_LOGIN:
+        draft.loginPending = true
 
-    case USER_LOGIN_RESPONSE: {
-      let nextState = state.set('loginPending', false)
+      case USER_LOGIN_RESPONSE: {
+        draft.loginPending = false
 
-      if (action.status === 'success') {
-        nextState = nextState.set('loginError', initialState.loginError)
-      } else {
-        nextState = nextState.set('loginError', action.error)
+        if (action.status === 'success')
+          draft.loginError = initialState.loginError
+        else
+          draft.loginError = action.error
       }
 
-      return nextState
+      case USER_LOGOUT: {
+        ipcRenderer.send('updateTitle', 'Login')
+        draft.authToken = null
+      }
+
+      case USER_SET_AUTH_TOKEN: {
+        ipcRenderer.send('updateTitle', 'Idle')
+        draft.authToken = action.token
+      }
+
+      case USER_SET_PROFILE:
+        draft.profile = action.profile
+
+      case USER_SET_JIRA_DOMAIN:
+        draft.jiraDomain = action.jiraDomain
     }
-
-    case USER_LOGOUT: {
-      ipcRenderer.send('updateTitle', 'Login')
-      return state.set('authToken', null)
-    }
-
-    case USER_SET_AUTH_TOKEN: {
-      ipcRenderer.send('updateTitle', 'Idle')
-      return state.set('authToken', action.token)
-    }
-
-    case USER_SET_PROFILE:
-      return state.set('profile', action.profile)
-
-    case USER_SET_JIRA_DOMAIN:
-      return state.set('jiraDomain', action.jiraDomain)
-
-    default: return state
-  }
-}
+  }, initialState
+)
 
 // Action Creators
 export const userLoginResponse = (status, error) => ({

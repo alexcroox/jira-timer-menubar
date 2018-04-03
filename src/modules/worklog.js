@@ -1,7 +1,8 @@
 import { ipcRenderer } from 'electron'
-import Immutable from 'seamless-immutable'
+import produce from 'immer'
 import find from 'lodash.find'
 import findIndex from 'lodash.findindex'
+import objectGet from 'object-get'
 import parse from 'date-fns/parse'
 import isToday from 'date-fns/is_today'
 import isThisWeek from 'date-fns/is_this_week'
@@ -17,7 +18,7 @@ const DELETE_WORKLOG = 'jt/worklog/DELETE_WORKLOG'
 const UPDATE_TIME = 'jt/worklog/UPDATE_TIME'
 const SET_UPDATING_WORKLOG = 'jt/worklog/SET_UPDATING_WORKLOG'
 
-const initialState = Immutable({
+const initialState = {
   list: [],
   totals: {
     day: 0,
@@ -27,135 +28,114 @@ const initialState = Immutable({
   updating: false,
   updatingWorklog: null,
   deleted: []
-})
+}
 
 // Reducer
-export default function reducer (state = initialState, action = {}) {
-  switch (action.type) {
+export default produce(
+  (draft, action) => {
+    switch (action.type) {
 
-    case ADD_WORKLOGS: {
+      case ADD_WORKLOGS: {
 
-      let dayTotal = 0
-      let yesterdayTotal = 0
-      let weekTotal = 0
+        let dayTotal = 0
+        let yesterdayTotal = 0
+        let weekTotal = 0
 
-      // We need to keep local track of what we have deleted
-      // since the async worklogs could come in just after
-      // we've deleted a worklog and re-add it!
-      let previouslyDeleted = state.deleted
+        // We need to keep local track of what we have deleted
+        // since the async worklogs could come in just after
+        // we've deleted a worklog and re-add it!
+        let previouslyDeleted = draft.deleted
 
-      if (typeof previouslyDeleted === "undefined")
-        previouslyDeleted = []
+        if (typeof previouslyDeleted === "undefined")
+          previouslyDeleted = []
 
-      let currentWorklogs = Immutable.asMutable(state.list, {deep: true})
-      let workLogs = action.worklogs
+        let currentWorklogs = draft.list
+        let workLogs = action.worklogs
 
-      // If we are sending less than the full week lets add to the array if new
-      // or update existing time if duplicate
-      if (!action.fullRefresh) {
-        action.worklogs.forEach(worklog => {
-          let existingWorklog = find(currentWorklogs, ['id', worklog.id])
+        // If we are sending less than the full week lets add to the array if new
+        // or update existing time if duplicate
+        if (!action.fullRefresh) {
+          action.worklogs.forEach(worklog => {
+            let existingWorklog = find(draft.list, ['id', worklog.id])
 
-          if (existingWorklog) {
-            existingWorklog.timeSpentSeconds = worklog.timeSpentSeconds
-          } else {
-            currentWorklogs.push(worklog)
-          }
-        })
+            if (existingWorklog) {
+              existingWorklog.timeSpentSeconds = worklog.timeSpentSeconds
+            } else {
+              draft.list.push(worklog)
+            }
+          })
 
-        // Now loop through all existing worklogs, delete any that aren't present in passed
-        // worklogs that are from the same day
-        currentWorklogs.forEach((worklog, index) => {
+          // Now loop through all existing worklogs, delete any that aren't present in passed
+          // worklogs that are from the same day
+          draft.list.forEach((worklog, index) => {
+            let created = parse(worklog.created)
+
+            if (isToday(created)) {
+              let matchingWorklog = find(action.worklogs, ['id', worklog.id])
+
+              if (!matchingWorklog)
+                draft.list.splice(index, 1)
+            }
+          })
+        }
+
+        draft.list.forEach(worklog => {
+
+          if (previouslyDeleted.indexOf(worklog.id) > -1)
+            return
+
           let created = parse(worklog.created)
 
-          if (isToday(created)) {
-            let matchingWorklog = find(action.worklogs, ['id', worklog.id])
+          if (isToday(created))
+            dayTotal += worklog.timeSpentSeconds
 
-            if (!matchingWorklog)
-              currentWorklogs.splice(index, 1)
-          }
+          if (isYesterday(created))
+            yesterdayTotal += worklog.timeSpentSeconds
+
+          // Week starts on Monday (1)
+          if (isThisWeek(created, 1))
+            weekTotal += worklog.timeSpentSeconds
         })
 
-        workLogs = currentWorklogs
+        draft.totals.day = dayTotal
+        draft.totals.yesterday = yesterdayTotal
+        draft.totals.week = weekTotal
       }
 
-      workLogs.forEach(worklog => {
+      case SET_UPDATING:
+        draft.updating = action.updating
 
-        if (previouslyDeleted.indexOf(worklog.id) > -1)
-          return
+      case SET_DELETING: {
+        let existingWorklog = find(draft.list, ['id', action.worklogId])
 
-        let created = parse(worklog.created)
+        if (existingWorklog)
+          existingWorklog.deleting = action.deleting
+      }
 
-        if (isToday(created))
-          dayTotal += worklog.timeSpentSeconds
+      case DELETE_WORKLOG: {
+        let existingWorklogIndex = findIndex(draft.list, ['id', action.worklogId])
 
-        if (isYesterday(created))
-          yesterdayTotal += worklog.timeSpentSeconds
+        if (typeof draft.deleted === "undefined")
+          draft.deleted = []
 
-        // Week starts on Monday (1)
-        if (isThisWeek(created, 1))
-          weekTotal += worklog.timeSpentSeconds
-      })
+        if (existingWorklogIndex > -1) {
+          draft.deleted = [action.worklogId].concat(draft.deleted)
+          draft.list.splice(existingWorklogIndex, 1)
+        }
+      }
 
-      let nextState = state.set('list', Immutable(workLogs))
-      nextState = nextState.setIn(['totals', 'day'], dayTotal)
-      nextState = nextState.setIn(['totals', 'yesterday'], yesterdayTotal)
-      nextState = nextState.setIn(['totals', 'week'], weekTotal)
+      case SET_UPDATING_WORKLOG:
+        draft.updatingWorklog = action.worklogId
 
-      return nextState
-    }
+      case UPDATE_TIME: {
+        let existingWorklog = find(draft.list, ['id', action.worklogId])
 
-    case SET_UPDATING:
-      return state.set('updating', action.updating)
-
-    case SET_DELETING: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let existingWorklog = find(list, ['id', action.worklogId])
-
-      if (existingWorklog) {
-        existingWorklog.deleting = action.deleting
-        return state.set('list', Immutable(list))
-      } else {
-        return state
+        if (existingWorklog)
+          existingWorklog.timeSpentSeconds = action.timeSpentSeconds
       }
     }
-
-    case DELETE_WORKLOG: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let existingWorklogIndex = findIndex(list, ['id', action.worklogId])
-
-      let previouslyDeleted = state.deleted
-
-      if (typeof previouslyDeleted === "undefined")
-        previouslyDeleted = []
-
-      if (existingWorklogIndex > -1) {
-        let nextState = state.set('deleted', [action.worklogId].concat(previouslyDeleted))
-        list.splice(existingWorklogIndex, 1)
-        return nextState.set('list', Immutable(list))
-      } else {
-        return state
-      }
-    }
-
-    case SET_UPDATING_WORKLOG:
-      return state.set('updatingWorklog', action.worklogId)
-
-    case UPDATE_TIME: {
-      let list = Immutable.asMutable(state.list, {deep: true})
-      let existingWorklog = find(list, ['id', action.worklogId])
-
-      if (existingWorklog) {
-        existingWorklog.timeSpentSeconds = action.timeSpentSeconds
-        return state.set('list', Immutable(list))
-      } else {
-        return state
-      }
-    }
-
-    default: return state
-  }
-}
+  }, initialState
+)
 
 // Action Creators
 export const setUpdating = updating => ({
@@ -191,7 +171,9 @@ export const fetchWorklogs = (fullWeek = true) => async (dispatch, getState) => 
     return
   }
 
-  if (typeof state.user.profile.key === "undefined") {
+  let userKey = objectGet(state, 'user.profile.key')
+
+  if (!userKey) {
     console.log('Cant fetch worklogs until we have a user')
     return
   }
@@ -202,7 +184,7 @@ export const fetchWorklogs = (fullWeek = true) => async (dispatch, getState) => 
 
   ipcRenderer.send('fetchWorklogs', {
     fullWeek,
-    userKey: state.user.profile.key
+    userKey
   })
 }
 

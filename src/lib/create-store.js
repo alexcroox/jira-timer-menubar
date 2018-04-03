@@ -1,8 +1,6 @@
-import { createStore, applyMiddleware, compose } from 'redux'
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux'
 import { routerMiddleware, routerReducer } from 'react-router-redux'
 import { memoryHistory } from 'react-router'
-import { combineReducers } from 'redux-seamless-immutable'
-import Immutable from 'seamless-immutable'
 import storage, { persistMiddleware } from './storage'
 import thunk from 'redux-thunk'
 import user from '../modules/user'
@@ -12,7 +10,7 @@ import worklog from '../modules/worklog'
 import updater from '../modules/updater'
 import settings from '../modules/settings'
 
-const initialState = Immutable(storage.get('redux'))
+const initialState = storage.get('redux')
 const enhancers = []
 
 const middleware = [

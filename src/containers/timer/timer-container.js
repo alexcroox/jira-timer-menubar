@@ -63,6 +63,9 @@ class TimerContainer extends Component {
 
       let timer = {...reduxTimer}
 
+      if (!timer.hasOwnProperty('previouslyElapsed'))
+        timer.previouslyElapsed = 0
+
       let timeInMs = timer.previouslyElapsed
 
       if (!timer.paused) {

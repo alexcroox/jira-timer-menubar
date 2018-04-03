@@ -1,26 +1,25 @@
 import { ipcRenderer } from 'electron'
-import Immutable from 'seamless-immutable'
+import produce from 'immer'
 import store from '../lib/create-store'
 
 // Actions
 const SET_SINGLE_SETTING = 'jt/settings/SET_SINGLE_SETTING'
 
-const initialState = Immutable({
+const initialState = {
   openAtLogin: false,
   firstLaunch: true,
-})
+}
 
 // Reducer
-export default function reducer (state = initialState, action = {}) {
-  switch (action.type) {
+export default produce(
+  (draft, action) => {
+    switch (action.type) {
 
-    case SET_SINGLE_SETTING:
-      return state.set(action.name, action.value)
-
-
-    default: return state
-  }
-}
+      case SET_SINGLE_SETTING:
+        draft.list[action.name] = action.value
+    }
+  }, initialState
+)
 
 // Action Creators
 export const setSingleSetting = (name, value) => ({

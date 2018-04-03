@@ -1,5 +1,5 @@
 import Store from 'electron-store'
-import Immutable from 'seamless-immutable'
+import produce from 'immer'
 import { initialState } from '../modules/updater'
 
 const storage = new Store()
@@ -13,18 +13,19 @@ export const persistMiddleware = ({ getState }) => next => action => {
 }
 
 export const storeState = (currentState) => {
-  let mutableState = Immutable.asMutable(currentState, {deep: true})
 
-  // We need to null the authToken as we store this in secure keychain
-  mutableState.user.authToken = null
+  const next = produce(currentState, function() {
+    // We need to null the authToken as we store this in secure keychain
+    this.user.authToken = null
 
-  // If we quit the app while updating worklogs
-  // we want to be able to fetch them next time we load
-  mutableState.worklog.updating = false
+    // If we quit the app while updating worklogs
+    // we want to be able to fetch them next time we load
+    this.worklog.updating = false
 
-  mutableState.updater = initialState
+    this.updater = initialState
+  })
 
-  storage.set('redux', mutableState)
+  storage.set('redux', next)
 }
 
 export default storage
