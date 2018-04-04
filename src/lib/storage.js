@@ -2,7 +2,12 @@ import Store from 'electron-store'
 import produce from 'immer'
 import { initialState } from '../modules/updater'
 
-const storage = new Store()
+let storeConfig = {}
+
+if (process.env.NODE_ENV === 'development')
+  storeConfig.name = 'config-dev'
+
+const storage = new Store(storeConfig)
 
 // Save redux state to local file
 export const persistMiddleware = ({ getState }) => next => action => {

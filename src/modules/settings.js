@@ -16,7 +16,7 @@ export default produce(
     switch (action.type) {
 
       case SET_SINGLE_SETTING:
-        draft.list[action.name] = action.value
+        draft[action.name] = action.value
     }
   }, initialState
 )
