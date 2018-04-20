@@ -136,7 +136,8 @@ class TimerContainer extends Component {
 
     menu.append(new MenuItem({
       label: `Post ${humanTime} to JIRA`,
-      click: () => { this.props.postTimer(timer) }
+      click: () => { this.props.postTimer(timer) },
+      enabled: !timer.posting
     }))
 
     menu.append(new MenuItem({
