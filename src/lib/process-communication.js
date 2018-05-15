@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron'
 import store from './create-store'
 import { addWorklogs, setUpdating, fetchWorklogs } from '../modules/worklog'
 import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from '../modules/updater'
+import { updateLastActiveTimestamp, idleSecondsThreshold } from '../modules/timer'
 
 const handleComms = () => {
 
@@ -25,6 +26,11 @@ const handleComms = () => {
     }
 
     store.dispatch(setUpdating(false))
+  })
+
+  ipcRenderer.on('idleSeconds', (event, seconds) => {
+    if (seconds < idleSecondsThreshold)
+      store.dispatch(updateLastActiveTimestamp())
   })
 
   ipcRenderer.on('updateStatus', (event, info) => {

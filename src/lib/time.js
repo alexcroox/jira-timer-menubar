@@ -18,3 +18,10 @@ export const secondsHuman = seconds => {
 
   return humanTime(seconds * 1000)
 }
+
+export const timestampToSeconds = timestamp => {
+  let timeInMs = Date.now() - timestamp
+  let timeInSeconds = Math.round(timeInMs / 1000)
+
+  return timeInSeconds
+}

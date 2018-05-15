@@ -12,7 +12,7 @@ export const ButtonIcon = styled(FontAwesomeIcon)`
   margin-right: 7px;
 `
 
-const ButtonStyled = styled.span`
+export const ButtonStyled = styled.span`
   display: inline-block;
   padding: 4px 10px;
   margin-bottom: 0;

@@ -143,7 +143,7 @@ class SearchContainer extends Component {
       fields: ['key', 'summary', 'project']
     })
       .then(results => {
-        console.log('Search results', results)
+        console.log('Search results', results.total)
 
         this.setState({
           searching: false,

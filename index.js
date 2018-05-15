@@ -6,6 +6,7 @@ const menubar = require('menubar')
 const keychain = require('keytar-prebuild')
 const path = require('path')
 const delay = require('delay')
+const desktopIdle = require('desktop-idle')
 const JiraWorklogs = require('./jira-worklogs')
 const Updater = require('./auto-updater')
 const keyChainService = (process.env.NODE_ENV !== 'development') ? 'jira-timer-mb' : 'jira-timer-mb-dev'
@@ -157,6 +158,22 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+function getIdleSeconds () {
+  console.log('Idle seconds', desktopIdle.getIdleTime())
+  return Math.round(desktopIdle.getIdleTime())
+}
+
+function sendIdleSeconds () {
+  let renderProcess = mb.window.webContents
+  renderProcess.send('idleSeconds', getIdleSeconds())
+}
+
+// Every 60 seconds we want to send the main window what the current system idle time is.
+// That way we can log against an active timer when the last recorded active time was against it.
+// The user can then be presented with an option to discard the idle time if they left a timer running accidently
+setInterval(sendIdleSeconds, 60000)
+ipcMain.on('getIdleSeconds', sendIdleSeconds)
 
 // ipc communication
 ipcMain.on('quit', () => {

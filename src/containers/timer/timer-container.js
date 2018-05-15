@@ -4,16 +4,29 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
 import parseDuration from 'parse-duration'
-import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
+import {
+  formatSecondsToStopWatch,
+  roundToNearestMinutes,
+  secondsHuman,
+  timestampToSeconds
+} from '../../lib/time'
+import {
+  deleteTimer,
+  pauseTimer,
+  postTimer,
+  updateTimer,
+  idleSecondsThreshold,
+  keepIdleTime,
+  removeIdleTime
+} from '../../modules/timer'
 import { openInJira } from '../../lib/jira'
-import { deleteTimer, pauseTimer, postTimer, updateTimer } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
 import { TaskTitle } from '../../components/task'
-import Button from '../../components/button'
+import Button, { ButtonStyled } from '../../components/button'
 import Control from '../../components/control'
 import OptionDots from '../../components/option-dots'
 import EditTime from '../../components/edit-time'
@@ -33,6 +46,8 @@ class TimerContainer extends Component {
     this.displayTimers = this.displayTimers.bind(this)
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
+    this.onKeepIdleTime = this.onKeepIdleTime.bind(this)
+    this.onRemoveIdleTime = this.onRemoveIdleTime.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
     this.onPlay = this.onPlay.bind(this)
   }
@@ -72,7 +87,7 @@ class TimerContainer extends Component {
           firstRunningTimer = timer
       }
 
-      let timeInSeconds = Math.round(timeInMs/1000)
+      let timeInSeconds = Math.round(timeInMs / 1000)
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
       timer.menubarDisplay = formatSecondsToStopWatch((roundToNearestMinutes(timeInSeconds,1) - 1) * 60, 'hh:mm')
       timer.realTimeSecondsElapsed = timeInSeconds
@@ -126,6 +141,14 @@ class TimerContainer extends Component {
     this.setState({ editingTimer: null })
   }
 
+  onKeepIdleTime (timerId) {
+
+  }
+
+  onRemoveIdleTime (timerId) {
+
+  }
+
   onOpenOptions (timer) {
     const { Menu, MenuItem } = remote
 
@@ -163,45 +186,59 @@ class TimerContainer extends Component {
       return (
         <div>
           {this.state.timers.map(timer => (
-            <TimerWrapper key={timer.id}>
-              {timer.posting ? (
-                <Control light>
-                  <FontAwesomeIcon icon={faSpinner} spin />
-                </Control>
-              ) : (
-                <Fragment>
-                  {timer.paused ? (
-                    <Control light onClick={() => this.onPlay(timer.id)}>
-                      <FontAwesomeIcon icon={faPlay} />
-                    </Control>
-                  ) : (
-                    <Control light onClick={() => this.props.pauseTimer(timer.id, true)}>
-                      <FontAwesomeIcon icon={faPause} />
-                    </Control>
-                  )}
-                </Fragment>
-              )}
-
-              <Time>
-                {this.state.editingTimer === timer.id ? (
-                  <EditTime
-                    timeId={timer.id}
-                    onTimeChanged={this.onTimeChanged}
-                    onResetEditTime={this.onResetEditTime}
-                    placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
-                  />
+            <Fragment key={timer.id}>
+              <TimerWrapper>
+                {timer.posting ? (
+                  <Control light>
+                    <FontAwesomeIcon icon={faSpinner} spin />
+                  </Control>
                 ) : (
-                  <span onClick={() => this.onEditTime(timer.id)}>
-                    {timer.stopWatchDisplay}
-                  </span>
+                  <Fragment>
+                    {timer.paused ? (
+                      <Control light onClick={() => this.onPlay(timer.id)}>
+                        <FontAwesomeIcon icon={faPlay} />
+                      </Control>
+                    ) : (
+                      <Control light onClick={() => this.props.pauseTimer(timer.id, true)}>
+                        <FontAwesomeIcon icon={faPause} />
+                      </Control>
+                    )}
+                  </Fragment>
                 )}
-              </Time>
-              <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
-              <OptionDots
-                onClick={() => this.onOpenOptions(timer)}
-                onContextMenu={() => this.onOpenOptions(timer)}
-              />
-            </TimerWrapper>
+
+                <Time>
+                  {this.state.editingTimer === timer.id ? (
+                    <EditTime
+                      timeId={timer.id}
+                      onTimeChanged={this.onTimeChanged}
+                      onResetEditTime={this.onResetEditTime}
+                      placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
+                    />
+                  ) : (
+                    <span onClick={() => this.onEditTime(timer.id)}>
+                      {timer.stopWatchDisplay}
+                    </span>
+                  )}
+                </Time>
+                <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
+                <OptionDots
+                  onClick={() => this.onOpenOptions(timer)}
+                  onContextMenu={() => this.onOpenOptions(timer)}
+                />
+              </TimerWrapper>
+
+              {(timestampToSeconds(timer.lastActive) >= idleSecondsThreshold && !timer.idleTimeResolved) && (
+                <IdleWrapper>
+                  {timer.key} -  Idle time of {formatSecondsToStopWatch(timestampToSeconds(timer.lastActive))} detected
+                  <Button primary onClick={() => this.props.removeIdleTime(timer.id)}>
+                    Ignore
+                  </Button>
+                  <Button default onClick={() => this.props.keepIdleTime(timer.id)}>
+                    Keep
+                  </Button>
+                </IdleWrapper>
+              )}
+            </Fragment>
           ))}
         </div>
       )
@@ -233,11 +270,24 @@ const Time = styled.span`
   margin-left: 5px;
 `
 
+const IdleWrapper = styled.div`
+  padding: 10px 15px 10px 12px;
+  background: #FFFBE6;
+  font-weight: bold;
+
+  & > ${ButtonStyled}:first-of-type {
+    margin-left: 10px;
+    margin-right: 5px;
+  }
+`
+
 const mapDispatchToProps = {
   deleteTimer,
   pauseTimer,
   postTimer,
-  updateTimer
+  updateTimer,
+  removeIdleTime,
+  keepIdleTime
 }
 
 const mapStateToProps = state => ({

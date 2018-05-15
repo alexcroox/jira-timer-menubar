@@ -4,7 +4,7 @@ import findIndex from 'lodash.findindex'
 import api from '../lib/api'
 import { addRecentTask } from './recent'
 import { fetchWorklogs } from './worklog'
-import { roundToNearestMinutes, secondsHuman } from '../lib/time'
+import { roundToNearestMinutes, secondsHuman, timestampToSeconds } from '../lib/time'
 import format from 'date-fns/format'
 
 // Actions
@@ -13,6 +13,12 @@ const DELETE_TIMER = 'jt/timer/DELETE_TIMER'
 const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 const POST_TIMER = 'jt/timer/POST_TIMER'
 const UPDATE_TIMER = 'jt/timer/UPDATE_TIMER'
+const UPDATE_LAST_ACTIVE = 'jt/timer/UPDATE_LAST_ACTIVE'
+const KEEP_IDLE_TIME = 'jt/timer/KEEP_IDLE_TIME'
+const REMOVE_IDLE_TIME = 'jt/timer/REMOVE_IDLE_TIME'
+
+// This value must be higher than the sendIdleSeconds timer in index.js
+export const idleSecondsThreshold = 1800
 
 const initialState = Immutable({
   list: []
@@ -94,6 +100,58 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case UPDATE_LAST_ACTIVE: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+
+      let updatedList = list.map(timer => {
+
+        let seconds = timestampToSeconds(timer.lastActive)
+
+        if (seconds >= idleSecondsThreshold)
+          timer.idleTimeResolved = false
+
+        if (timer.idleTimeResolved)
+          timer.lastActive = Date.now()
+
+        return timer
+      })
+
+      return state.set('list', Immutable(updatedList))
+    }
+
+    case KEEP_IDLE_TIME: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+        timer.lastActive = Date.now()
+        timer.idleTimeResolved = true
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
+    case REMOVE_IDLE_TIME: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+
+        let difference = timer.startTime - timer.lastActive
+        timer.startTime -= difference
+        timer.idleTimeResolved = true
+        timer.lastActive = Date.now()
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
@@ -122,6 +180,20 @@ export const updateTimer = (timerId, ms) => ({
   ms
 })
 
+export const keepIdleTime = (timerId) => ({
+  type: KEEP_IDLE_TIME,
+  timerId
+})
+
+export const removeIdleTime = (timerId) => ({
+  type: REMOVE_IDLE_TIME,
+  timerId
+})
+
+export const updateLastActiveTimestamp = () => ({
+  type: UPDATE_LAST_ACTIVE
+})
+
 // Side effects
 export const addTimer = (id, key, summary) => dispatch => {
   let timer = {
@@ -131,7 +203,9 @@ export const addTimer = (id, key, summary) => dispatch => {
     paused: false,
     startTime: Date.now(),
     endTime: null,
-    previouslyElapsed: 0
+    previouslyElapsed: 0,
+    lastActive: Date.now(),
+    idleTimeResolved: true
   }
 
   dispatch({ type: ADD_TIMER, timer })
