@@ -105,6 +105,11 @@ export default function reducer (state = initialState, action = {}) {
 
       let updatedList = list.map(timer => {
 
+        if (timer.paused && timer.idleTimeResolved) {
+          timer.lastActive = Date.now()
+          return timer
+        }
+
         let seconds = timestampToSeconds(timer.lastActive)
 
         if (seconds >= idleSecondsThreshold)
