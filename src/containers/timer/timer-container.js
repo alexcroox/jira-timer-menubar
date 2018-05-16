@@ -155,7 +155,7 @@ class TimerContainer extends Component {
       click: () => { this.props.deleteTimer(timer.id) }
     }))
 
-    menu.popup()
+    menu.popup({})
   }
 
   render () {

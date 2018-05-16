@@ -26,6 +26,8 @@ const config = merge(baseConfig, {
     ],
   },
 
+  mode: 'development',
+
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
