@@ -9,7 +9,6 @@ import ExternalLink from '../../components/external-link'
 import ErrorMessage from '../../components/error'
 import LoginForm from './login-form'
 import passwordValidationRule from '../../validation/password-validation'
-import emailValidationRule from '../../validation/email-validation'
 import { isNotEmpty } from '../../validation/helpers'
 import { userLogin } from '../../modules/user'
 
@@ -17,7 +16,9 @@ const validationRules = {
   authUrl: [
     [isNotEmpty, 'What is your JIRA Url?']
   ],
-  username: emailValidationRule,
+  username: [
+    [isNotEmpty, 'What is your JIRA Username?']
+  ],
   password: [
     [isNotEmpty, 'What is your JIRA account password?']
   ],
