@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
+import clonedeep from 'lodash.clonedeep'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
@@ -61,10 +62,7 @@ class TimerContainer extends Component {
 
     let timers = this.props.timers.map(reduxTimer => {
 
-      let timer = {...reduxTimer}
-
-      if (!timer.hasOwnProperty('previouslyElapsed'))
-        timer.previouslyElapsed = 0
+      let timer = clonedeep(reduxTimer)
 
       let timeInMs = timer.previouslyElapsed
 
@@ -75,7 +73,8 @@ class TimerContainer extends Component {
           firstRunningTimer = timer
       }
 
-      let timeInSeconds = Math.round(timeInMs/1000)
+      let timeInSeconds = Math.round(timeInMs / 1000)
+      if (!timeInSeconds) timeInSeconds = 0
       timer.stopWatchDisplay = formatSecondsToStopWatch(timeInSeconds)
       timer.menubarDisplay = formatSecondsToStopWatch((roundToNearestMinutes(timeInSeconds,1) - 1) * 60, 'hh:mm')
       timer.realTimeSecondsElapsed = timeInSeconds
@@ -139,7 +138,8 @@ class TimerContainer extends Component {
 
     menu.append(new MenuItem({
       label: `Post ${humanTime} to JIRA`,
-      click: () => { this.props.postTimer(timer) }
+      click: () => { this.props.postTimer(timer) },
+      enabled: !timer.posting
     }))
 
     menu.append(new MenuItem({
@@ -157,7 +157,7 @@ class TimerContainer extends Component {
       click: () => { this.props.deleteTimer(timer.id) }
     }))
 
-    menu.popup()
+    menu.popup({})
   }
 
   render () {

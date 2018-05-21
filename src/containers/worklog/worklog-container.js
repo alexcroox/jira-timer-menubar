@@ -59,7 +59,7 @@ class WorklogContainer extends Component {
       click () { fetchWorklogs(true) }
     }))
 
-    menu.popup()
+    menu.popup({})
   }
 
   onOpenOptions (worklog) {
@@ -80,7 +80,7 @@ class WorklogContainer extends Component {
       click: () => { this.props.deleteWorklog(worklog) }
     }))
 
-    menu.popup()
+    menu.popup({})
   }
 
   onEditTime (worklogId) {

@@ -24,7 +24,7 @@ class Task extends Component {
       click () { openInJira(taskKey) }
     }))
 
-    menu.popup()
+    menu.popup({})
   }
 
   render() {

@@ -28,7 +28,7 @@ export default produce(
         let existingTimer = find(draft.list, ['id', action.timer.id])
 
         if (draft.list.length < 5 && !existingTimer)
-          draft.list = [action.timer].concat(draft.list)
+          draft.list.push(action.timer)
       }
 
       case DELETE_TIMER: {
@@ -41,6 +41,9 @@ export default produce(
       case PAUSE_TIMER: {
         let timerIndex = findIndex(draft.list, ['id', action.timerId])
 
+        console.log('dd', draft)
+        console.log('timerIndex', timerIndex)
+
         if (timerIndex > -1) {
           let timer = draft.list[timerIndex]
 
@@ -48,14 +51,18 @@ export default produce(
             // We need to make sure the timer isn't already paused. Otherwise we will
             // be adding time since it was last paused!
             if (!timer.paused) {
-              timer.endTime = Date.now()
-              timer.previouslyElapsed = (Date.now() - timer.startTime) + timer.previouslyElapsed
+              draft.list[timerIndex].endTime = Date.now()
+              console.log('Draft', draft.list[timerIndex].previouslyElapsed)
+              console.log('Saving elapsed', ((Date.now() - draft.list[timerIndex].startTime) + draft.list[timerIndex].previouslyElapsed))
+              draft.list[timerIndex].previouslyElapsed = (Date.now() - draft.list[timerIndex].startTime) + draft.list[timerIndex].previouslyElapsed
             }
           } else {
             timer.startTime = Date.now()
           }
 
-          timer.paused = action.pause
+          draft.list[timerIndex].paused = action.pause
+
+          console.log('timer', draft.list[timerIndex].previouslyElapsed)
         }
       }
 

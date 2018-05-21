@@ -143,6 +143,7 @@ function launchMenuBar () {
       })
 
       mb.on('hide', () => {
+        mb.tray.setTitle(' Test')
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
       })
     }, 200)
@@ -164,7 +165,7 @@ ipcMain.on('quit', () => {
 })
 
 ipcMain.on('openDevTools', (event) => {
-  mb.window.webContents.openDevTools()
+  mb.window.webContents.openDevTools({ mode: 'detach' })
 })
 
 ipcMain.on('updateTitle', (event, title) => {
