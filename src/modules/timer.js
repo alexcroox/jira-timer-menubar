@@ -13,6 +13,7 @@ const DELETE_TIMER = 'jt/timer/DELETE_TIMER'
 const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 const POST_TIMER = 'jt/timer/POST_TIMER'
 const UPDATE_TIMER = 'jt/timer/UPDATE_TIMER'
+const UPDATE_COMMENT = 'jt/timer/UPDATE_COMMENT'
 
 const initialState = Immutable({
   list: []
@@ -94,6 +95,20 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case UPDATE_COMMENT: {
+      let list = Immutable.asMutable(state.list, {deep: true})
+      let timerIndex = findIndex(list, ['id', action.timerId])
+
+      if (timerIndex > -1) {
+        let timer = list[timerIndex]
+        timer.comment = action.comment
+
+        return state.set('list', Immutable(list))
+      } else {
+        return state
+      }
+    }
+
     default: return state
   }
 }
@@ -122,6 +137,12 @@ export const updateTimer = (timerId, ms) => ({
   ms
 })
 
+export const updateComment = (timerId, comment) => ({
+  type: UPDATE_COMMENT,
+  timerId,
+  comment
+})
+
 // Side effects
 export const addTimer = (id, key, summary) => dispatch => {
   let timer = {
@@ -131,7 +152,8 @@ export const addTimer = (id, key, summary) => dispatch => {
     paused: false,
     startTime: Date.now(),
     endTime: null,
-    previouslyElapsed: 0
+    previouslyElapsed: 0,
+    comment: ''
   }
 
   dispatch({ type: ADD_TIMER, timer })
@@ -162,7 +184,8 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
 
     api.post(`/issue/${timer.key}/worklog`, {
       timeSpent: `${nearestMinutes}m`,
-      started: format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ')
+      started: format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ'),
+      comment: timer.comment
     })
       .then(worklog => {
         console.log('Saved worklog', worklog)

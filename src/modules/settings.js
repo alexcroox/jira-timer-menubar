@@ -7,6 +7,7 @@ const SET_SINGLE_SETTING = 'jt/settings/SET_SINGLE_SETTING'
 
 const initialState = Immutable({
   openAtLogin: false,
+  commentBlock: true,
   firstLaunch: true,
 })
 
@@ -45,6 +46,15 @@ export const setOpenAtLogin = enabled => dispatch => {
   dispatch(setSingleSetting('openAtLogin', enabled))
 
   ipcRenderer.send('openAtLogin', {
+    enabled
+  })
+}
+
+export const setCommentBlock = enabled => dispatch => {
+
+  dispatch(setSingleSetting('commentBlock', enabled))
+
+  ipcRenderer.send('commentBlock', {
     enabled
   })
 }

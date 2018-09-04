@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import { setChecking } from '../../modules/updater'
-import { setOpenAtLogin } from '../../modules/settings'
+import { setOpenAtLogin, setCommentBlock } from '../../modules/settings'
 import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
@@ -25,6 +25,7 @@ class SettingsContainer extends Component {
     this.onOpenDevTools = this.onOpenDevTools.bind(this)
     this.onCheckForUpdates = this.onCheckForUpdates.bind(this)
     this.onSetOpenAtLogin = this.onSetOpenAtLogin.bind(this)
+    this.onSetCommentBlock = this.onSetCommentBlock.bind(this)
   }
 
   onOpenDevTools () {
@@ -39,6 +40,10 @@ class SettingsContainer extends Component {
 
   onSetOpenAtLogin (event) {
     this.props.setOpenAtLogin(event.target.checked)
+  }
+
+  onSetCommentBlock (event) {
+    this.props.setCommentBlock(event.target.checked)
   }
 
   render () {
@@ -81,6 +86,14 @@ class SettingsContainer extends Component {
               label="Launch at login"
               checked={this.props.settings.openAtLogin}
               onChange={this.onSetOpenAtLogin}
+            />
+          </Fieldset>
+
+          <Fieldset>
+            <Checkbox
+              label="Comment on timer post"
+              checked={this.props.settings.commentBlock}
+              onChange={this.onSetCommentBlock}
             />
           </Fieldset>
         </Section>
@@ -147,6 +160,7 @@ const mapDispatchToProps = {
   userLogout,
   setChecking,
   setOpenAtLogin,
+  setCommentBlock,
 }
 
 const mapStateToProps = state => ({
