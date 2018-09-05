@@ -4,7 +4,8 @@ import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import { setChecking } from '../../modules/updater'
-import { setOpenAtLogin, setCommentBlock } from '../../modules/settings'
+import { setOpenAtLogin, setCommentBlock, setRoundNearestMinute } from '../../modules/settings'
+import Select from 'react-select'
 import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
 import FooterContainer from '../footer/footer-container'
@@ -17,6 +18,16 @@ import Divider from '../../components/divider'
 import Section, { SectionTitle } from '../../components/section'
 import Fieldset from '../../components/fieldset'
 import Checkbox from '../../components/checkbox'
+import Label from '../../components/label'
+
+const roundNearestMinuteOptions = [
+  { value: 1, label: '1 minute' },
+  { value: 10, label: '10 minutes' },
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 45, label: '45 minutes' },
+  { value: 60, label: '1 hour' }
+]
 
 class SettingsContainer extends Component {
   constructor (props) {
@@ -26,6 +37,7 @@ class SettingsContainer extends Component {
     this.onCheckForUpdates = this.onCheckForUpdates.bind(this)
     this.onSetOpenAtLogin = this.onSetOpenAtLogin.bind(this)
     this.onSetCommentBlock = this.onSetCommentBlock.bind(this)
+    this.onSetRoundNearestMinute = this.onSetRoundNearestMinute.bind(this)
   }
 
   onOpenDevTools () {
@@ -46,7 +58,12 @@ class SettingsContainer extends Component {
     this.props.setCommentBlock(event.target.checked)
   }
 
+  onSetRoundNearestMinute (event) {
+    this.props.setRoundNearestMinute(event.value)
+  }
+
   render () {
+    console.log(this.props.settings.roundNearestMinute)
     return (
       <Fragment>
         {!this.props.authToken && (
@@ -94,6 +111,18 @@ class SettingsContainer extends Component {
               label="Comment on timer post"
               checked={this.props.settings.commentBlock}
               onChange={this.onSetCommentBlock}
+            />
+          </Fieldset>
+
+          <Fieldset style={{ width: '180px' }}>
+            <Label>Round time to nearest minute</Label>
+            <Select
+              label="Round time to nearest minute"
+              value={this.props.settings.roundNearestMinute}
+              onChange={this.onSetRoundNearestMinute}
+              options={roundNearestMinuteOptions}
+              searchable={false}
+              clearable={false}
             />
           </Fieldset>
         </Section>
@@ -161,6 +190,7 @@ const mapDispatchToProps = {
   setChecking,
   setOpenAtLogin,
   setCommentBlock,
+  setRoundNearestMinute
 }
 
 const mapStateToProps = state => ({

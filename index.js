@@ -87,7 +87,7 @@ function launchMenuBar () {
         width: 500,
         minWidth: 500,
         maxWidth: 500,
-        minHeight: 530,
+        minHeight: 560,
         hasShadow: false,
         preloadWindow: true,
         resizable: true,
