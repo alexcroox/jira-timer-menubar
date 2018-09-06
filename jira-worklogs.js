@@ -77,7 +77,7 @@ class JiraWorklogs {
               this.fetching = false
               console.log('Failed to fetch worklogs', error)
 
-              this.lastFetched = Date.now()
+              this.lastFetched = 0
               reject(error)
             })
         })
@@ -138,8 +138,10 @@ class JiraWorklogs {
 
             console.log('Finished fetching all worklogs')
 
-            if (err)
+            if (err) {
+              this.fetching = false
               return reject(err)
+            }
 
             let flatWorklogs = flatten(worklogs)
             let orderedWorklogs = orderBy(flatWorklogs, ['created'], ['desc'])
@@ -149,6 +151,7 @@ class JiraWorklogs {
         })
         .catch(error => {
           console.log('Error fetching latest tasks', error)
+          this.fetching = false
           reject(error)
         })
     })

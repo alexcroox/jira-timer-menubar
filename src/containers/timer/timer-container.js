@@ -201,7 +201,7 @@ class TimerContainer extends Component {
       return (
         <div>
           {this.state.timers.map(timer => (
-            <Fragment>
+            <Fragment key={timer.id}>
               {this.state.editingComment === timer.id ? (
                 <EditComment
                   key={timer.id}

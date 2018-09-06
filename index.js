@@ -136,7 +136,6 @@ function launchMenuBar () {
                 })
             })
             .catch(error => {
-              console.error('Error checking worklog lock')
               renderProcess.send('worklogs', JSON.stringify([]))
             })
         }
