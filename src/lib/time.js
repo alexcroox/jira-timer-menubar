@@ -6,11 +6,10 @@ export const formatSecondsToStopWatch = (seconds, displayFormat = 'hh:mm:ss') =>
   return timeFormat.fromS(seconds, displayFormat)
 }
 
-// Eventualy make this part of settings
-export const roundToNearestMinutes = (seconds) => {
+export const roundToNearestMinutes = (seconds, forceMinuteRounding = false) => {
   let state = store.getState()
 
-  let roundNearestMinute = state.settings.roundNearestMinute
+  let roundNearestMinute = (!forceMinuteRounding) ? state.settings.roundNearestMinute : forceMinuteRounding
 
   let minutes = Math.ceil(seconds / 60)
 
