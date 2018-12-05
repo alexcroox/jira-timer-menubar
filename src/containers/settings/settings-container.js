@@ -108,7 +108,7 @@ class SettingsContainer extends Component {
 
           <Fieldset>
             <Checkbox
-              label="Comment on timer post"
+              label="Add comment on timer post"
               checked={this.props.settings.commentBlock}
               onChange={this.onSetCommentBlock}
             />

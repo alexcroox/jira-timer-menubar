@@ -1,6 +1,6 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
-import styled, { injectGlobal } from 'styled-components'
+import styled, { createGlobalStyle } from 'styled-components'
 import DashboardContainer from '../dashboard/dashboard-container'
 import NewTaskContainer from '../new-task/new-task-container'
 import LoginContainer from '../login/login-container'
@@ -10,7 +10,7 @@ import 'react-select/dist/react-select.css'
 
 // The window needed to be a certain height for the non-js page
 // loader to render. Now we've loaded lets allow for smaller window sizes
-injectGlobal`
+const GlobalStyle = createGlobalStyle`
   #root {
     min-height: 50px;
   }
@@ -34,6 +34,7 @@ if (process.platform !== 'darwin') {
 const App = () =>  {
   return (
     <AppWindow>
+      <GlobalStyle />
       <Switch>
         <Route path="/dashboard" component={DashboardContainer} />
         <Route path="/settings" component={SettingsContainer} />

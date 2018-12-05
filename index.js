@@ -142,7 +142,6 @@ function launchMenuBar () {
       })
 
       mb.on('hide', () => {
-        mb.tray.setTitle(' Test')
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
       })
     }, 100)
