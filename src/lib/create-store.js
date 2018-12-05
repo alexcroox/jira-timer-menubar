@@ -3,6 +3,7 @@ import { routerMiddleware, routerReducer } from 'react-router-redux'
 import { memoryHistory } from 'react-router'
 import { combineReducers } from 'redux-seamless-immutable'
 import Immutable from 'seamless-immutable'
+import objectGet from 'object-get'
 import storage, { persistMiddleware } from './storage'
 import thunk from 'redux-thunk'
 import user from '../modules/user'
@@ -12,8 +13,15 @@ import worklog from '../modules/worklog'
 import updater from '../modules/updater'
 import settings from '../modules/settings'
 
-const initialState = Immutable(storage.get('redux'))
+let initialState = (storage.get('redux')) ? storage.get('redux') : { settings: {} }
 const enhancers = []
+
+// New roundNearestMinute setting
+let existingRoundNearestMinute = objectGet(initialState, 'settings.roundNearestMinute')
+if (existingRoundNearestMinute === undefined)
+  initialState.settings.roundNearestMinute = 15
+
+initialState = Immutable(initialState)
 
 const middleware = [
   thunk,

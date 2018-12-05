@@ -6,17 +6,19 @@ import find from 'lodash.find'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
-import { deleteTimer, pauseTimer, postTimer, updateTimer } from '../../modules/timer'
+import { deleteTimer, pauseTimer, postTimer, updateTimer, updateComment } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
 import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
-import { TaskTitle } from '../../components/task'
+import faUpload from '@fortawesome/fontawesome-free-solid/faUpload'
+import { TaskTitle, TaskAction, TaskSummary } from '../../components/task'
 import Button from '../../components/button'
 import Control from '../../components/control'
 import OptionDots from '../../components/option-dots'
 import EditTime from '../../components/edit-time'
+import EditComment from '../../components/edit-comment'
 
 class TimerContainer extends Component {
   constructor (props) {
@@ -26,7 +28,9 @@ class TimerContainer extends Component {
     this.lastTitleUpdate = null
     this.state = {
       timers: [],
-      editingTimer: null
+      postingHumanTime: 0,
+      editingTimer: null,
+      editingComment: null
     }
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
@@ -34,6 +38,9 @@ class TimerContainer extends Component {
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
+    this.onEditComment = this.onEditComment.bind(this)
+    this.onResetEditComment = this.onResetEditComment.bind(this)
+    this.onCommentSaved = this.onCommentSaved.bind(this)
     this.onPlay = this.onPlay.bind(this)
   }
 
@@ -126,6 +133,37 @@ class TimerContainer extends Component {
     this.setState({ editingTimer: null })
   }
 
+  onEditComment (timer) {
+
+    // Has the user disabled comments in the settings?
+    // If so then just post the timer
+    if (!this.props.settings.commentBlock)
+      return this.props.postTimer(timer)
+
+    if (this.state.editingComment !== null)
+      this.props.pauseTimer(this.state.editingComment, false)
+
+    this.props.pauseTimer(timer.id, true)
+
+    let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
+    let humanTime = secondsHuman(nearestMinutes * 60)
+    this.setState({ editingComment: timer.id, postingHumanTime: humanTime })
+  }
+
+  onCommentSaved (timer, comment) {
+    this.props.updateComment(timer.id, comment)
+    this.onResetEditComment(timer.id)
+    this.props.postTimer(timer)
+  }
+
+  onResetEditComment (timerId) {
+    if (this.state.editingComment === timerId) {
+      this.setState({ editingComment: null })
+    }
+
+    this.props.pauseTimer(timerId, false)
+  }
+
   onOpenOptions (timer) {
     const { Menu, MenuItem } = remote
 
@@ -136,7 +174,7 @@ class TimerContainer extends Component {
 
     menu.append(new MenuItem({
       label: `Post ${humanTime} to JIRA`,
-      click: () => { this.props.postTimer(timer) },
+      click: () => { this.onEditComment(timer) },
       enabled: !timer.posting
     }))
 
@@ -163,45 +201,72 @@ class TimerContainer extends Component {
       return (
         <div>
           {this.state.timers.map(timer => (
-            <TimerWrapper key={timer.id}>
-              {timer.posting ? (
-                <Control light>
-                  <FontAwesomeIcon icon={faSpinner} spin />
-                </Control>
+            <Fragment key={timer.id}>
+              {this.state.editingComment === timer.id ? (
+                <EditComment
+                  key={timer.id}
+                  timer={timer}
+                  postingHumanTime={this.state.postingHumanTime}
+                  onCommentSaved={this.onCommentSaved}
+                  onResetEditComment={this.onResetEditComment}
+                  placeholder={`What were you working on for ${this.state.postingHumanTime}?\nShift + ⏎ for new line\n⏎ to post, Esc to cancel`}
+                />
               ) : (
-                <Fragment>
-                  {timer.paused ? (
-                    <Control light onClick={() => this.onPlay(timer.id)}>
-                      <FontAwesomeIcon icon={faPlay} />
+                <TimerWrapper key={timer.id}>
+                  {timer.posting ? (
+                    <Control light>
+                      <FontAwesomeIcon icon={faSpinner} spin />
                     </Control>
                   ) : (
-                    <Control light onClick={() => this.props.pauseTimer(timer.id, true)}>
-                      <FontAwesomeIcon icon={faPause} />
-                    </Control>
+                    <Fragment>
+                      {timer.paused ? (
+                        <Control light onClick={() => this.onPlay(timer.id)}>
+                          <FontAwesomeIcon icon={faPlay} />
+                        </Control>
+                      ) : (
+                        <Control light onClick={() => this.props.pauseTimer(timer.id, true)}>
+                          <FontAwesomeIcon icon={faPause} />
+                        </Control>
+                      )}
+                    </Fragment>
                   )}
-                </Fragment>
-              )}
 
-              <Time>
-                {this.state.editingTimer === timer.id ? (
-                  <EditTime
-                    timeId={timer.id}
-                    onTimeChanged={this.onTimeChanged}
-                    onResetEditTime={this.onResetEditTime}
-                    placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
+
+
+                  <Time>
+                    {this.state.editingTimer === timer.id ? (
+                      <EditTime
+                        timeId={timer.id}
+                        onTimeChanged={this.onTimeChanged}
+                        onResetEditTime={this.onResetEditTime}
+                        placeholder={secondsHuman(Math.round(timer.previouslyElapsed / 1000))}
+                      />
+                    ) : (
+                      <span onClick={() => this.onEditTime(timer.id)}>
+                        {timer.stopWatchDisplay}
+                      </span>
+                    )}
+                  </Time>
+
+                  <TaskTitle>
+                    <span>{`${timer.key} `}</span>
+                    <TaskSummary>{timer.summary}</TaskSummary>
+                  </TaskTitle>
+
+                  <TaskAction>
+                    <FontAwesomeIcon
+                      onClick={() => this.onEditComment(timer)}
+                      icon={faUpload}
+                    />
+                  </TaskAction>
+
+                  <OptionDots
+                    onClick={() => this.onOpenOptions(timer)}
+                    onContextMenu={() => this.onOpenOptions(timer)}
                   />
-                ) : (
-                  <span onClick={() => this.onEditTime(timer.id)}>
-                    {timer.stopWatchDisplay}
-                  </span>
-                )}
-              </Time>
-              <TaskTitle>{timer.key} {timer.summary}</TaskTitle>
-              <OptionDots
-                onClick={() => this.onOpenOptions(timer)}
-                onContextMenu={() => this.onOpenOptions(timer)}
-              />
-            </TimerWrapper>
+                </TimerWrapper>
+              )}
+            </Fragment>
           ))}
         </div>
       )
@@ -217,6 +282,7 @@ const TimerWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid #4EADFA;
+  position: relative;
 
   &:first-child {
     border-top: none;
@@ -237,11 +303,13 @@ const mapDispatchToProps = {
   deleteTimer,
   pauseTimer,
   postTimer,
-  updateTimer
+  updateTimer,
+  updateComment
 }
 
 const mapStateToProps = state => ({
-  timers: state.timer.list
+  timers: state.timer.list,
+  settings: state.settings
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimerContainer)

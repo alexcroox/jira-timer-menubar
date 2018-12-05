@@ -105,6 +105,24 @@ export const TaskTitle = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  display: flex;
+  align-items: center;
+
+  ${props => (props.light) && css`
+    color: #FFF;
+  `}
+`
+
+export const TaskSummary = styled.span`
+  margin-left: 5px;
+`
+
+export const TaskAction = styled.span`
+  margin-left: 15px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `
 
 export default Task

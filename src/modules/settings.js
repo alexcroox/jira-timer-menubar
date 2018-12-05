@@ -7,7 +7,9 @@ const SET_SINGLE_SETTING = 'jt/settings/SET_SINGLE_SETTING'
 
 const initialState = Immutable({
   openAtLogin: false,
+  commentBlock: true,
   firstLaunch: true,
+  roundNearestMinute: 15
 })
 
 // Reducer
@@ -16,7 +18,6 @@ export default function reducer (state = initialState, action = {}) {
 
     case SET_SINGLE_SETTING:
       return state.set(action.name, action.value)
-
 
     default: return state
   }
@@ -47,4 +48,12 @@ export const setOpenAtLogin = enabled => dispatch => {
   ipcRenderer.send('openAtLogin', {
     enabled
   })
+}
+
+export const setCommentBlock = enabled => dispatch => {
+  dispatch(setSingleSetting('commentBlock', enabled))
+}
+
+export const setRoundNearestMinute = minute => dispatch => {
+  dispatch(setSingleSetting('roundNearestMinute', minute))
 }
