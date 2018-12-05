@@ -13,7 +13,7 @@ import worklog from '../modules/worklog'
 import updater from '../modules/updater'
 import settings from '../modules/settings'
 
-let initialState = storage.get('redux')
+let initialState = (storage.get('redux')) ? storage.get('redux') : { settings: {} }
 const enhancers = []
 
 // New roundNearestMinute setting
