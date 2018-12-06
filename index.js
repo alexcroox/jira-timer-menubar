@@ -35,7 +35,7 @@ const installExtensions = () => {
       const forceDownload = !!process.env.UPGRADE_EXTENSIONS
 
       Promise.all(
-        extensions.map(name => installer.default(installer[name], forceDownload)),
+        extensions.map(name => installer.default(installer[name], forceDownload))
       ).then(() => resolve()).catch(console.log)
     } else {
       return resolve()
@@ -46,6 +46,7 @@ const installExtensions = () => {
 let mb = null
 let credentials = null
 let jiraUserKey = null
+let windowVisible = true
 
 Worklogs.getCredentialsFromKeyChain()
   .then(keyChainCredentials => {
@@ -56,7 +57,8 @@ Worklogs.getCredentialsFromKeyChain()
 
 function launchMenuBar () {
   app.on('ready', () => {
-
+    // For copy and paste to work within the menubar we
+    // need to enable the OS standard Edit menus :(
     const menu = Menu.buildFromTemplate([
       {
         label: 'Edit',
@@ -87,7 +89,6 @@ function launchMenuBar () {
         width: 500,
         minWidth: 500,
         maxWidth: 500,
-        minHeight: 560,
         hasShadow: false,
         preloadWindow: true,
         resizable: true,
@@ -109,6 +110,7 @@ function launchMenuBar () {
       })
 
       mb.on('show', () => {
+        windowVisible = true
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
 
         if (jiraUserKey) {
@@ -142,6 +144,7 @@ function launchMenuBar () {
       })
 
       mb.on('hide', () => {
+        windowVisible = false
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
       })
     }, 100)
@@ -157,10 +160,15 @@ app.on('window-all-closed', () => {
   }
 })
 
-// ipc communication
+// IPC communication
 ipcMain.on('quit', () => {
   app.quit()
 })
+
+ipcMain.on('windowSizeChange', (event, newHeight) => {
+  const [currentWidth, currentHeight] = mb.window.getSize()
+  mb.window.setSize(currentWidth, newHeight)
+});
 
 ipcMain.on('openDevTools', (event) => {
   mb.window.webContents.openDevTools({ mode: 'detach' })
@@ -168,6 +176,8 @@ ipcMain.on('openDevTools', (event) => {
 
 ipcMain.on('updateTitle', (event, title) => {
   mb.tray.setTitle(` ${title}`)
+  if (windowVisible)
+    mb.showWindow()
 })
 
 ipcMain.on('setPassword', (event, args) => {

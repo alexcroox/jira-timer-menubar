@@ -1,6 +1,6 @@
 {
   "name": "jira-timer",
-  "version": "1.0.15",
+  "version": "1.0.18",
   "description": "Jira Timer",
   "productName": "Jira Timer",
   "main": "index.js",
@@ -94,7 +94,7 @@
     "lodash.orderby": "^4.6.0",
     "lodash.remove": "^4.7.0",
     "lodash.sortby": "^4.7.0",
-    "menubar": "^5.1.0",
+    "menubar": "github:mantou132/menubar#master",
     "node-loader": "^0.6.0",
     "object-get": "^2.1.0",
     "opn": "^5.4.0",
@@ -158,6 +158,7 @@
     "stylelint-config-standard": "^18.2.0",
     "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.8.3",
+    "webpack-cli": "^3.1.2",
     "webpack-dev-middleware": "^3.1.3",
     "webpack-hot-middleware": "^2.22.2",
     "webpack-merge": "^4.1.2"

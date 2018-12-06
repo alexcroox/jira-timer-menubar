@@ -6,6 +6,7 @@ import { MemoryRouter } from 'react-router-dom'
 import store from './lib/create-store'
 import api from './lib/api'
 import handleComms from './lib/process-communication'
+import watchHeightChanges from './lib/height-change'
 import { storeState } from './lib/storage'
 import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
 import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from './modules/updater'
@@ -53,6 +54,9 @@ store.dispatch(setVersion(remote.app.getVersion()))
 // Listen and respond to inter process communication
 store.dispatch(setFirstLaunchSettings())
 handleComms()
+
+// Watch for content height changes to auto resize outer window
+watchHeightChanges()
 
 // Save our local state to cache file every 60 seconds
 setInterval(() => {
