@@ -3,6 +3,9 @@ import humanTime from 'pretty-ms'
 import store from './create-store'
 
 export const formatSecondsToStopWatch = (seconds, displayFormat = 'hh:mm:ss') => {
+  if (seconds < 0)
+    seconds = 0
+
   return timeFormat.fromS(seconds, displayFormat)
 }
 

@@ -79,6 +79,7 @@ const EditCommentSummary = styled.div`
 
 const EditCommentCancel = styled.div`
   color: #FFF;
+  margin-left: 10px;
 
   &:hover {
     cursor: pointer;

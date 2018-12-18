@@ -11,8 +11,8 @@ const Updater = require('./auto-updater')
 const keyChainService = (process.env.NODE_ENV !== 'development') ? 'jira-timer-mb' : 'jira-timer-mb-dev'
 const Worklogs = new JiraWorklogs(keyChainService)
 
-log.transports.file.level = 'debug'
-log.transports.console.level = 'debug'
+log.transports.file.level = 'silly'
+log.transports.console.level = 'silly'
 
 log.info(app.getName())
 log.info(app.getVersion())
@@ -51,12 +51,15 @@ let windowVisible = true
 Worklogs.getCredentialsFromKeyChain()
   .then(keyChainCredentials => {
     credentials = keyChainCredentials
+    console.log('Credentials ready')
     launchMenuBar()
   })
   .catch(launchMenuBar)
 
 function launchMenuBar () {
   app.on('ready', () => {
+    console.log('App is ready')
+
     // For copy and paste to work within the menubar we
     // need to enable the OS standard Edit menus :(
     const menu = Menu.buildFromTemplate([
@@ -89,14 +92,17 @@ function launchMenuBar () {
         width: 500,
         minWidth: 500,
         maxWidth: 500,
+        minHeight: 20,
         hasShadow: false,
         preloadWindow: true,
-        resizable: true,
-        useContentSize: true,
+        resizable: false,
+        useContentSize: false,
         transparent: true,
         frame: false,
         toolbar: false
       })
+
+      console.log('MB Created')
 
       mb.window.credentials = credentials
 
@@ -111,11 +117,15 @@ function launchMenuBar () {
 
       mb.on('show', () => {
         windowVisible = true
+
         mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
 
         if (jiraUserKey) {
 
           let renderProcess = mb.window.webContents
+
+          // Tell the main process the window is visible
+          renderProcess.send('windowVisible')
 
           Worklogs.checkLock(true)
             .then(() => {
@@ -167,6 +177,9 @@ ipcMain.on('quit', () => {
 
 ipcMain.on('windowSizeChange', (event, newHeight) => {
   const [currentWidth, currentHeight] = mb.window.getSize()
+
+  console.log('newHeight', newHeight)
+
   mb.window.setSize(currentWidth, newHeight)
 });
 

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
+import { ipcRenderer } from 'electron'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
 import api from '../../lib/api'
@@ -23,6 +24,7 @@ class SearchContainer extends Component {
     }
 
     this.listRefs = {}
+    this.searchInput = React.createRef()
 
     this.onChange = this.onChange.bind(this)
     this.onKeyDown = this.onKeyDown.bind(this)
@@ -35,9 +37,22 @@ class SearchContainer extends Component {
     this.searchTimer = null
   }
 
+  componentDidMount () {
+    // When the user opens the window lets focus the search input
+    ipcRenderer.on('windowVisible', () => {
+      console.log('windowVisible')
+      this.focusSearch()
+    })
+  }
+
   onAddTimer (id, key, summary) {
     this.props.addTimer(id, key, summary)
     this.onClearSearch()
+  }
+
+  focusSearch () {
+    console.log('Focusing search')
+    this.searchInput.current.focus()
   }
 
   onClearSearch () {
@@ -77,8 +92,6 @@ class SearchContainer extends Component {
       case 38:
         e.preventDefault()
 
-        console.log(this.state.cursor)
-
         if (this.state.cursor > -1)
           this.setState(prevState => ({
             cursor: prevState.cursor - 1
@@ -103,6 +116,7 @@ class SearchContainer extends Component {
 
   scrollActiveTaskIntoView () {
     let itemComponent = this.refs.activeItem
+    console.log({itemComponent})
     if (itemComponent) {
       let domNode = ReactDOM.findDOMNode(itemComponent)
       domNode.scrollIntoView(true)
@@ -171,6 +185,7 @@ class SearchContainer extends Component {
             onKeyDown={this.onKeyDown}
             value={this.state.query}
             autoFocus
+            ref={this.searchInput}
           />
           {(this.state.searching && !this.state.noResults) && (
             <SearchLoading>Searching...</SearchLoading>

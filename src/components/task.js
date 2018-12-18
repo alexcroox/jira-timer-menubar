@@ -115,6 +115,9 @@ export const TaskTitle = styled.span`
 
 export const TaskSummary = styled.span`
   margin-left: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export const TaskAction = styled.span`
