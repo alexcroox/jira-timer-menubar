@@ -71,7 +71,7 @@ Header.propTypes = {
 }
 
 const HeaderStyled = styled.div`
-  background: #FFF;
+  background: ${props => props.theme.darkMode ? props.theme.darkBackground : '#FFF' };
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,6 +93,7 @@ const Title = styled.span`
   text-align: center;
   z-index: 0;
   font-weight: 500;
+  color: ${props => props.theme.darkMode ? props.theme.darkColor : '#000' };
 `
 
 export default Header

@@ -1,6 +1,6 @@
 // CommonJS for Node :(
 
-const { app, ipcMain, Menu } = require('electron')
+const { app, ipcMain, Menu, systemPreferences } = require('electron')
 const log = require('electron-log')
 const menubar = require('menubar')
 const keychain = require('keytar-prebuild')
