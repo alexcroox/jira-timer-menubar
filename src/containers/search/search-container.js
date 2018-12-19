@@ -31,28 +31,22 @@ class SearchContainer extends Component {
     this.triggerChange = this.triggerChange.bind(this)
     this.onAddTimer = this.onAddTimer.bind(this)
     this.onClearSearch = this.onClearSearch.bind(this)
+
+    // When the user opens the window lets focus the search input
+    ipcRenderer.on('windowVisible', () => {
+      console.log('windowVisible')
+      if (this.searchInput.current)
+        this.searchInput.current.focus()
+    })
   }
 
   componentWillMount () {
     this.searchTimer = null
   }
 
-  componentDidMount () {
-    // When the user opens the window lets focus the search input
-    ipcRenderer.on('windowVisible', () => {
-      console.log('windowVisible')
-      this.focusSearch()
-    })
-  }
-
   onAddTimer (id, key, summary) {
     this.props.addTimer(id, key, summary)
     this.onClearSearch()
-  }
-
-  focusSearch () {
-    console.log('Focusing search')
-    this.searchInput.current.focus()
   }
 
   onClearSearch () {
@@ -97,7 +91,7 @@ class SearchContainer extends Component {
             cursor: prevState.cursor - 1
           }))
 
-          this.scrollActiveTaskIntoView()
+        this.scrollActiveTaskIntoView()
         break
 
       // Down arrow
@@ -109,14 +103,14 @@ class SearchContainer extends Component {
             cursor: prevState.cursor + 1
           }))
 
-          this.scrollActiveTaskIntoView()
+        this.scrollActiveTaskIntoView()
         break
     }
   }
 
   scrollActiveTaskIntoView () {
     let itemComponent = this.refs.activeItem
-    console.log({itemComponent})
+    //console.log('itemComponent', itemComponent)
     if (itemComponent) {
       let domNode = ReactDOM.findDOMNode(itemComponent)
       domNode.scrollIntoView(true)

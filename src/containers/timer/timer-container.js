@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import find from 'lodash.find'
+import throttle from 'lodash.throttle'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
@@ -38,7 +39,7 @@ class TimerContainer extends Component {
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
-    this.onEditComment = this.onEditComment.bind(this)
+    this.onEditComment = throttle(this.onEditComment.bind(this), 1000)
     this.onResetEditComment = this.onResetEditComment.bind(this)
     this.onCommentSaved = this.onCommentSaved.bind(this)
     this.onPlay = this.onPlay.bind(this)

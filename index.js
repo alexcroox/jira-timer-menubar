@@ -18,7 +18,7 @@ log.info(app.getName())
 log.info(app.getVersion())
 console.log(app.getName(), app.getVersion())
 
-// resolve user $PATH env variable
+// Resolve user $PATH env variable
 require('fix-path')()
 
 if (process.env.NODE_ENV === 'development')
@@ -42,123 +42,122 @@ const installExtensions = () => {
     }
   })
 }
+// For copy and paste to work within the menubar we
+// need to enable the OS standard Edit menus :(
+const menu = Menu.buildFromTemplate([
+  {
+    label: 'Edit',
+    submenu: [
+      {role: 'undo'},
+      {role: 'redo'},
+      {type: 'separator'},
+      {role: 'cut'},
+      {role: 'copy'},
+      {role: 'paste'},
+      {role: 'pasteandmatchstyle'},
+      {role: 'delete'},
+      {role: 'selectall'}
+    ]
+  }
+])
+
+Menu.setApplicationMenu(menu)
 
 let mb = null
 let credentials = null
 let jiraUserKey = null
 let windowVisible = true
 
-Worklogs.getCredentialsFromKeyChain()
-  .then(keyChainCredentials => {
-    credentials = keyChainCredentials
-    console.log('Credentials ready')
-    launchMenuBar()
-  })
-  .catch(launchMenuBar)
+app.on('ready', () => {
+  installExtensions()
+
+  // Get our keychain credentials and launch menu bar on success or failure
+  Worklogs.getCredentialsFromKeyChain()
+    .then(keyChainCredentials => {
+      credentials = keyChainCredentials
+      console.log('Credentials ready')
+      launchMenuBar()
+    })
+    .catch(launchMenuBar)
+})
 
 function launchMenuBar () {
-  app.on('ready', () => {
-    console.log('App is ready')
 
-    // For copy and paste to work within the menubar we
-    // need to enable the OS standard Edit menus :(
-    const menu = Menu.buildFromTemplate([
-      {
-        label: 'Edit',
-        submenu: [
-          {role: 'undo'},
-          {role: 'redo'},
-          {type: 'separator'},
-          {role: 'cut'},
-          {role: 'copy'},
-          {role: 'paste'},
-          {role: 'pasteandmatchstyle'},
-          {role: 'delete'},
-          {role: 'selectall'}
-        ]
+  // transparency workaround https://github.com/electron/electron/issues/2170
+  setTimeout(() => {
+
+    mb = menubar({
+      alwaysOnTop: process.env.NODE_ENV === 'development',
+      icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
+      width: 500,
+      minWidth: 500,
+      maxWidth: 500,
+      minHeight: 20,
+      hasShadow: false,
+      preloadWindow: true,
+      resizable: false,
+      useContentSize: false,
+      transparent: true,
+      frame: false,
+      toolbar: false
+    })
+
+    console.log('MB Created')
+
+    mb.window.credentials = credentials
+
+    // Start event handling for the auto updater
+    const autoUpdater = new Updater(mb.window.webContents, log)
+    autoUpdater.handleEvents()
+
+    mb.on('ready', () => {
+      console.log('Menubar ready')
+      mb.tray.setTitle(' Login')
+    })
+
+    mb.on('show', () => {
+      windowVisible = true
+
+      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
+
+      if (jiraUserKey) {
+
+        let renderProcess = mb.window.webContents
+
+        // Tell the main process the window is visible
+        renderProcess.send('windowVisible')
+
+        Worklogs.checkLock(true)
+          .then(() => {
+            console.log('Telling render process we are fetching worklogs')
+            renderProcess.send('fetchingWorklogs')
+
+            let fullWeek = false
+
+            Worklogs.request(jiraUserKey, fullWeek, true)
+              .then(worklogs => {
+                console.log('All good', worklogs.length)
+                renderProcess.send('worklogs', JSON.stringify({
+                  fullWeek,
+                  worklogs
+                }))
+              })
+              .catch(error => {
+                console.error('Error fetching worklogs', error)
+                renderProcess.send('worklogs', JSON.stringify([]))
+              })
+          })
+          .catch(error => {
+            renderProcess.send('worklogs', JSON.stringify([]))
+          })
       }
-    ])
+    })
 
-    Menu.setApplicationMenu(menu)
-
-    installExtensions()
-
-    // transparency workaround https://github.com/electron/electron/issues/2170
-    setTimeout(() => {
-
-      mb = menubar({
-        alwaysOnTop: process.env.NODE_ENV === 'development',
-        icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
-        width: 500,
-        minWidth: 500,
-        maxWidth: 500,
-        minHeight: 20,
-        hasShadow: false,
-        preloadWindow: true,
-        resizable: false,
-        useContentSize: false,
-        transparent: true,
-        frame: false,
-        toolbar: false
-      })
-
-      console.log('MB Created')
-
-      mb.window.credentials = credentials
-
-      // Start event handling for the auto updater
-      const autoUpdater = new Updater(mb.window.webContents, log)
-      autoUpdater.handleEvents()
-
-      mb.on('ready', () => {
-        console.log('Menubar ready')
-        mb.tray.setTitle(' Login')
-      })
-
-      mb.on('show', () => {
-        windowVisible = true
-
-        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
-
-        if (jiraUserKey) {
-
-          let renderProcess = mb.window.webContents
-
-          // Tell the main process the window is visible
-          renderProcess.send('windowVisible')
-
-          Worklogs.checkLock(true)
-            .then(() => {
-              console.log('Telling render process we are fetching worklogs')
-              renderProcess.send('fetchingWorklogs')
-
-              let fullWeek = false
-
-              Worklogs.request(jiraUserKey, fullWeek, true)
-                .then(worklogs => {
-                  console.log('All good', worklogs.length)
-                  renderProcess.send('worklogs', JSON.stringify({
-                    fullWeek,
-                    worklogs
-                  }))
-                })
-                .catch(error => {
-                  console.error('Error fetching worklogs', error)
-                  renderProcess.send('worklogs', JSON.stringify([]))
-                })
-            })
-            .catch(error => {
-              renderProcess.send('worklogs', JSON.stringify([]))
-            })
-        }
-      })
-
-      mb.on('hide', () => {
-        windowVisible = false
-        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
-      })
-    }, 100)
-  })
+    mb.on('hide', () => {
+      windowVisible = false
+      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
+    })
+  }, 100)
 }
 
 // Quit when all windows are closed.
@@ -178,10 +177,8 @@ ipcMain.on('quit', () => {
 ipcMain.on('windowSizeChange', (event, newHeight) => {
   const [currentWidth, currentHeight] = mb.window.getSize()
 
-  console.log('newHeight', newHeight)
-
   mb.window.setSize(currentWidth, newHeight)
-});
+})
 
 ipcMain.on('openDevTools', (event) => {
   mb.window.webContents.openDevTools({ mode: 'detach' })
@@ -206,7 +203,6 @@ ipcMain.on('deletePassword', (event) => {
 })
 
 ipcMain.on('fetchWorklogs', (event, args) => {
-
   let { userKey, fullWeek } = args
 
   jiraUserKey = userKey
