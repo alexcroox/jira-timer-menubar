@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { Link } from 'react-router-dom'
 
 const IconLink = styled(Link)`
-  color: #6B6B6B;
+  color: ${props => props.theme.darkMode ? props.theme.darkSecondaryColor : '#6B6B6B' };
   position: relative;
   z-index: 1;
   font-size: 17px;

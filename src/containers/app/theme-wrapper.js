@@ -10,7 +10,10 @@ class ThemeWrapper extends Component {
       theme: {
         darkMode: false,
         darkBackground: '#333335',
-        darkColor: '#C9C9C9'
+        darkColor: '#C9C9C9',
+        darkSecondaryColor: '#FBFBFB',
+        darkButtonBackground: '#616261',
+        darkInputBackground: '#686869'
       }
     }
   }

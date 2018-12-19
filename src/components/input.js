@@ -6,7 +6,6 @@ const styles = `
   min-height: 25px;
   padding: 5px 10px;
   line-height: 1.6;
-  background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;
   outline: 0;
@@ -16,6 +15,9 @@ const styles = `
 
 const Input = styled.input`
   ${styles}
+
+  background-color: ${props => props.theme.darkMode ? props.theme.darkInputBackground : '#fff' };
+  color: ${props => props.theme.darkMode ? props.theme.darkSecondaryColor : '#fff' };
 
   ${props => (props.straight) && css`
     border-radius: 0px;
