@@ -9,11 +9,19 @@ class ThemeWrapper extends Component {
     this.state = {
       theme: {
         darkMode: false,
-        darkBackground: '#333335',
-        darkColor: '#C9C9C9',
-        darkSecondaryColor: '#FBFBFB',
-        darkButtonBackground: '#616261',
-        darkInputBackground: '#686869'
+        dark: {
+          backgroundColor: '#333335',
+          color: '#C9C9C9',
+          secondaryColor: '#FBFBFB',
+          inactiveColor: '#8D8D8D',
+          buttonBackground: '#616261',
+          inputBackground: '#676767',
+          wrapperBackground: '#313131',
+          border: '#161616',
+          borderLighter: '#484848',
+          tableRow: '#2D2D2D',
+          tableRowAlt: '#232323',
+        }
       }
     }
   }

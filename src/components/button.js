@@ -38,8 +38,8 @@ const ButtonStyled = styled.span`
   `}
 
   ${props => (props.default) && css`
-    background-color: ${props => props.theme.darkMode ? props.theme.darkButtonBackground : '#ebecf0' };
-    color: ${props => props.theme.darkMode ? props.theme.darkSecondaryColor : '#505f79' };
+    background-color: ${props => props.theme.darkMode ? props.theme.dark.buttonBackground : '#ebecf0' };
+    color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#505f79' };
 
     &:hover {
       background-color: #505f79;

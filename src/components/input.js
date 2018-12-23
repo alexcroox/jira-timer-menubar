@@ -16,8 +16,14 @@ const styles = `
 const Input = styled.input`
   ${styles}
 
-  background-color: ${props => props.theme.darkMode ? props.theme.darkInputBackground : '#fff' };
-  color: ${props => props.theme.darkMode ? props.theme.darkSecondaryColor : '#fff' };
+  background-color: ${props => props.theme.darkMode ? props.theme.dark.inputBackground : '#fff' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#fff' };
+
+  &::placeholder {
+    color: ${props => props.theme.darkMode ? props.theme.dark.inactiveColor : '#727272' };
+  }
+
+  border-width: ${props => props.theme.darkMode ? 0 : '1px'};
 
   ${props => (props.straight) && css`
     border-radius: 0px;

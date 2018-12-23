@@ -19,6 +19,7 @@ import Section, { SectionTitle } from '../../components/section'
 import Fieldset from '../../components/fieldset'
 import Checkbox from '../../components/checkbox'
 import Label from '../../components/label'
+import Page from '../../components/page'
 
 const roundNearestMinuteOptions = [
   { value: 1, label: '1 minute' },
@@ -65,7 +66,7 @@ class SettingsContainer extends Component {
   render () {
     console.log(this.props.settings.roundNearestMinute)
     return (
-      <Fragment>
+      <Page>
         {!this.props.authToken && (
           <Redirect to="/" />
         )}
@@ -149,7 +150,7 @@ class SettingsContainer extends Component {
             </div>
           </FlexContainer>
         </Section>
-      </Fragment>
+      </Page>
     );
   }
 }

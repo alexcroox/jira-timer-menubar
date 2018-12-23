@@ -223,7 +223,7 @@ class SearchContainer extends Component {
 
 const SearchWrapper = styled.div`
   padding: 10px;
-  background: #f5f5f4;
+  background: ${props => props.theme.darkMode ? props.theme.dark.wrapperBackground : '#f5f5f4' };
   position: relative;
 `
 

@@ -72,7 +72,7 @@ const WindowTriangle = styled.div`
     position: absolute;
     width: 20px;
     height: 20px;
-    background: ${props => props.theme.darkMode ? props.theme.darkBackground : '#FFF' };
+    background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF' };
     transform: rotate(45deg);
     top: 9px;
     left: 5px;

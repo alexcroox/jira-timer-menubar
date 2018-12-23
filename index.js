@@ -42,26 +42,6 @@ const installExtensions = () => {
     }
   })
 }
-// For copy and paste to work within the menubar we
-// need to enable the OS standard Edit menus :(
-const menu = Menu.buildFromTemplate([
-  {
-    label: 'Edit',
-    submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
-      {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
-    ]
-  }
-])
-
-Menu.setApplicationMenu(menu)
 
 let mb = null
 let credentials = null
@@ -85,6 +65,27 @@ function launchMenuBar () {
 
   // transparency workaround https://github.com/electron/electron/issues/2170
   setTimeout(() => {
+
+    // For copy and paste to work within the menubar we
+    // need to enable the OS standard Edit menus :(
+    const menu = Menu.buildFromTemplate([
+      {
+        label: 'Edit',
+        submenu: [
+          {role: 'undo'},
+          {role: 'redo'},
+          {type: 'separator'},
+          {role: 'cut'},
+          {role: 'copy'},
+          {role: 'paste'},
+          {role: 'pasteandmatchstyle'},
+          {role: 'delete'},
+          {role: 'selectall'}
+        ]
+      }
+    ])
+
+    Menu.setApplicationMenu(menu)
 
     mb = menubar({
       alwaysOnTop: process.env.NODE_ENV === 'development',

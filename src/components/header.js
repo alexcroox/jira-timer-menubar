@@ -71,14 +71,14 @@ Header.propTypes = {
 }
 
 const HeaderStyled = styled.div`
-  background: ${props => props.theme.darkMode ? props.theme.darkBackground : '#FFF' };
+  background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF' };
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 40px;
   padding-left: 10px;
   padding-right: 10px;
-  border-bottom: 1px solid #D7D7D7;
+  border-bottom: 1px solid ${props => props.theme.darkMode ? props.theme.dark.border : '#D7D7D7' };
   border-radius: 6px 6px 0 0;
 
   ${props => (props.rightAligned) && css`
@@ -93,7 +93,7 @@ const Title = styled.span`
   text-align: center;
   z-index: 0;
   font-weight: 500;
-  color: ${props => props.theme.darkMode ? props.theme.darkColor : '#000' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.color : '#000' };
 `
 
 export default Header
