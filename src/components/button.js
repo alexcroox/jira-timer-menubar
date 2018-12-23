@@ -42,7 +42,7 @@ const ButtonStyled = styled.span`
     color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#505f79' };
 
     &:hover {
-      background-color: #505f79;
+      background-color: ${props => props.theme.darkMode ? props.theme.dark.inputBackground : '#505f79' };
       color: #FFF;
     }
   `}
@@ -70,8 +70,8 @@ const ButtonStyled = styled.span`
   `}
 
   ${props => (props.loading) && css`
-    background-color: #ebecf0;
-    color: #999;
+    background-color: ${props => props.theme.darkMode ? props.theme.dark.inactiveColor : '#ebecf0' };
+    color: ${props => props.theme.darkMode ? props.theme.dark.color : '#999' };
 
     &:hover {
       cursor: not-allowed;

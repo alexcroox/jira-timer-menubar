@@ -9,6 +9,7 @@ import FormContainer from '../../components/form-container'
 import TimerContainer from '../timer/timer-container'
 import Header from '../../components/header'
 import ErrorMessage from '../../components/error'
+import Page from '../../components/page'
 import NewTaskForm from './new-task-form'
 
 const validationRules = {
@@ -173,7 +174,7 @@ class NewTaskContainer extends Component {
 
   render () {
     return (
-      <Fragment>
+      <Page>
         <Header withBackButton titleText="Create New Task" />
         <TimerContainer />
 
@@ -196,7 +197,7 @@ class NewTaskContainer extends Component {
             projectId={this.state.projectId}
           />
         </FormContainer>
-      </Fragment>
+      </Page>
     );
   }
 }

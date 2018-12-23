@@ -20,7 +20,7 @@ const Input = styled.input`
   color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#fff' };
 
   &::placeholder {
-    color: ${props => props.theme.darkMode ? props.theme.dark.inactiveColor : '#727272' };
+    color: ${props => props.theme.darkMode ? props.theme.dark.color : '#727272' };
   }
 
   border-width: ${props => props.theme.darkMode ? 0 : '1px'};
@@ -32,6 +32,15 @@ const Input = styled.input`
 
 export const TextArea = styled.textarea`
   ${styles}
+
+  background-color: ${props => props.theme.darkMode ? props.theme.dark.inputBackground : '#fff' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#fff' };
+  border-width: ${props => props.theme.darkMode ? 0 : '1px'};
+
+  &::placeholder {
+    color: ${props => props.theme.darkMode ? props.theme.dark.color : '#727272' };
+  }
+
   height: 70px;
 `
 

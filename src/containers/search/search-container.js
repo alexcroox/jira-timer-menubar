@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
 import api from '../../lib/api'

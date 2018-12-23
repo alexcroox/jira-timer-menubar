@@ -47,6 +47,7 @@ let mb = null
 let credentials = null
 let jiraUserKey = null
 let windowVisible = true
+let darkMode = false
 
 app.on('ready', () => {
   installExtensions()
@@ -89,7 +90,7 @@ function launchMenuBar () {
 
     mb = menubar({
       alwaysOnTop: process.env.NODE_ENV === 'development',
-      icon: path.join(app.getAppPath(), '/static/tray-dark.png'),
+      icon: !darkMode ? path.join(app.getAppPath(), '/static/tray-dark.png') : path.join(app.getAppPath(), '/static/tray-dark-active.png'),
       width: 500,
       minWidth: 500,
       maxWidth: 500,
@@ -156,9 +157,31 @@ function launchMenuBar () {
 
     mb.on('hide', () => {
       windowVisible = false
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
+
+      if (!darkMode)
+        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
+      else
+        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
     })
   }, 100)
+}
+
+// MacOS dark mode?
+if (process.platform === 'darwin') {
+
+  // If enabled before app starts
+  darkMode = systemPreferences.isDarkMode()
+
+  console.log('Dark mode main process', darkMode)
+
+  // Listen for dynamic dark mode changes from system preferences
+  systemPreferences.subscribeNotification(
+    'AppleInterfaceThemeChangedNotification',
+    () => {
+      darkMode = systemPreferences.isDarkMode()
+      console.log('Dark mode switched main process', darkMode)
+    }
+  )
 }
 
 // Quit when all windows are closed.

@@ -28,7 +28,7 @@ class ThemeWrapper extends Component {
 
   componentDidMount () {
     // MacOS dark mode?
-    if (process.platform == 'darwin') {
+    if (process.platform === 'darwin') {
       const { systemPreferences } = remote
 
       // If enabled before app starts
