@@ -1,6 +1,6 @@
 {
   "name": "jira-timer",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Jira Timer",
   "productName": "Jira Timer",
   "main": "index.js",
