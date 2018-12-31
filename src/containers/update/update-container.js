@@ -42,7 +42,7 @@ class UpdateContainer extends Component {
               <Fragment>
                 v{this.props.updateInfo.version} is ready to install
                 <Button primary onClick={this.onInstallUpdate}>
-                  Install and restart
+                  Install and reload
                 </Button>
               </Fragment>
             )}
