@@ -7,7 +7,7 @@ import throttle from 'lodash.throttle'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
-import { deleteTimer, pauseTimer, postTimer, updateTimer, updateComment } from '../../modules/timer'
+import { deleteTimer, pauseTimer, postTimer, updateTimer, updateComment, setCommenting } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
@@ -132,6 +132,7 @@ class TimerContainer extends Component {
 
   onResetEditTime () {
     this.setState({ editingTimer: null })
+    this.props.setCommenting(false)
   }
 
   onEditComment (timer) {
@@ -149,6 +150,7 @@ class TimerContainer extends Component {
     let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
     let humanTime = secondsHuman(nearestMinutes * 60)
     this.setState({ editingComment: timer.id, postingHumanTime: humanTime })
+    this.props.setCommenting(true)
   }
 
   onCommentSaved (timer, comment) {
@@ -160,6 +162,7 @@ class TimerContainer extends Component {
   onResetEditComment (timerId) {
     if (this.state.editingComment === timerId) {
       this.setState({ editingComment: null })
+      this.props.setCommenting(false)
     }
 
     this.props.pauseTimer(timerId, false)
@@ -232,8 +235,6 @@ class TimerContainer extends Component {
                     </Fragment>
                   )}
 
-
-
                   <Time>
                     {this.state.editingTimer === timer.id ? (
                       <EditTime
@@ -305,7 +306,8 @@ const mapDispatchToProps = {
   pauseTimer,
   postTimer,
   updateTimer,
-  updateComment
+  updateComment,
+  setCommenting
 }
 
 const mapStateToProps = state => ({

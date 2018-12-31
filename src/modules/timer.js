@@ -14,9 +14,11 @@ const PAUSE_TIMER = 'jt/timer/PAUSE_TIMER'
 const POST_TIMER = 'jt/timer/POST_TIMER'
 const UPDATE_TIMER = 'jt/timer/UPDATE_TIMER'
 const UPDATE_COMMENT = 'jt/timer/UPDATE_COMMENT'
+const SET_COMMENTING = 'jt/timer/SET_COMMENTING'
 
 const initialState = Immutable({
-  list: []
+  list: [],
+  commenting: false
 })
 
 // Reducer
@@ -109,6 +111,10 @@ export default function reducer (state = initialState, action = {}) {
       }
     }
 
+    case SET_COMMENTING: {
+      return state.set('commenting', action.commenting)
+    }
+
     default: return state
   }
 }
@@ -141,6 +147,11 @@ export const updateComment = (timerId, comment) => ({
   type: UPDATE_COMMENT,
   timerId,
   comment
+})
+
+export const setCommenting = commenting => ({
+  type: SET_COMMENTING,
+  commenting
 })
 
 // Side effects

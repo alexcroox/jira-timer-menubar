@@ -35,7 +35,7 @@ class SearchContainer extends Component {
     // When the user opens the window lets focus the search input
     ipcRenderer.on('windowVisible', () => {
       console.log('windowVisible')
-      if (this.searchInput.current)
+      if (this.searchInput.current && !this.props.commenting)
         this.searchInput.current.focus()
     })
   }
@@ -244,7 +244,8 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps = state => ({
-  timers: state.timer.list
+  timers: state.timer.list,
+  commenting: state.timer.commenting
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchContainer)
