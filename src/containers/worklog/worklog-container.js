@@ -23,6 +23,7 @@ import Header from '../../components/header'
 import Worklog from '../../components/worklog'
 import LargeIcon from '../../components/large-icon'
 import HeadingBar from '../../components/heading-bar'
+import Page from '../../components/page'
 import WorklogTotals from './worklog-totals'
 const { Menu, MenuItem } = remote
 
@@ -160,7 +161,7 @@ class WorklogContainer extends Component {
     }
 
     return (
-      <Fragment>
+      <Page>
         <Header
           titleText="Posted Times"
           settingsLink="/settings"
@@ -223,7 +224,7 @@ class WorklogContainer extends Component {
             )}
           </WorklogsUpdating>
         </FooterContainer>
-      </Fragment>
+      </Page>
     );
   }
 }

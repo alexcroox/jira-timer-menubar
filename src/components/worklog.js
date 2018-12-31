@@ -56,18 +56,19 @@ Worklog.propTypes = {
 }
 
 const WorklogWrapper = styled.div`
-  border-bottom: 1px solid rgba(234,234,234,0.8);
-  background-color: #FFF;
+  border-top: 1px solid ${props => props.theme.darkMode ? props.theme.dark.tableRow : 'rgba(234,234,234,0.8)' };
+  background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRow : '#FFF' };
   padding: 10px 12px;
   display: flex;
   align-items: center;
+  color: ${props => props.theme.darkMode ? props.theme.dark.color : 'inherit' };
 
   &:nth-child(even) {
-    background-color: rgba(234,234,234,0.4);
+    background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRowAlt : 'rgba(234,234,234,0.4)' };
   }
 
   &:hover {
-    background-color: rgba(35,129,250,0.1);
+    background-color: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : 'rgba(35,129,250,0.1)' };
   }
 `
 
