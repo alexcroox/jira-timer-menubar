@@ -10,6 +10,7 @@
     "dev": "concurrently -k 'node -r babel-register server.js' 'npm start'",
     "pack": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "build": "npm run pack && electron-builder",
+    "build:linux": "npm run pack && electron-builder --linux",
     "release": "npm --no-git-tag-version version patch && npm run pack && electron-builder --linux --mac -p always && opn https://github.com/alexcroox/jira-timer-menubar/releases && npm run postinstall"
   },
   "author": "Alex Crooks",
@@ -85,7 +86,6 @@
     "hh-mm-ss": "^1.2.0",
     "history": "^4.7.2",
     "keytar": "^4.3.0",
-    "keytar-prebuild": "^4.1.1",
     "lodash.filter": "^4.6.0",
     "lodash.find": "^4.6.0",
     "lodash.findindex": "^4.6.0",

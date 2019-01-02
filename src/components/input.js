@@ -17,7 +17,7 @@ const Input = styled.input`
   ${styles}
 
   background-color: ${props => props.theme.darkMode ? props.theme.dark.inputBackground : '#fff' };
-  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#fff' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : 'inherit' };
 
   &::placeholder {
     color: ${props => props.theme.darkMode ? props.theme.dark.color : '#727272' };
@@ -34,7 +34,7 @@ export const TextArea = styled.textarea`
   ${styles}
 
   background-color: ${props => props.theme.darkMode ? props.theme.dark.inputBackground : '#fff' };
-  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : '#fff' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.secondaryColor : 'inherit' };
   border-width: ${props => props.theme.darkMode ? 0 : '1px'};
 
   &::placeholder {

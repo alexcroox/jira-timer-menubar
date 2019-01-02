@@ -2,7 +2,7 @@
 
 const { ipcMain } = require('electron')
 const request = require('request-promise')
-const keychain = require('keytar-prebuild')
+const keychain = require('keytar')
 const λ = require('contra')
 const flatten = require('array-flatten')
 const parse = require('date-fns/parse')

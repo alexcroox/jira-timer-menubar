@@ -3,7 +3,7 @@
 const { app, ipcMain, Menu, systemPreferences } = require('electron')
 const log = require('electron-log')
 const menubar = require('menubar')
-const keychain = require('keytar-prebuild')
+const keychain = require('keytar')
 const path = require('path')
 const delay = require('delay')
 const JiraWorklogs = require('./jira-worklogs')
