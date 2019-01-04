@@ -33,11 +33,12 @@ class SearchContainer extends Component {
     this.onClearSearch = this.onClearSearch.bind(this)
 
     // When the user opens the window lets focus the search input
-    ipcRenderer.on('windowVisible', () => {
-      console.log('windowVisible')
-      if (this.searchInput.current && !this.props.commenting)
-        this.searchInput.current.focus()
-    })
+    // DISABLED 2019-01-03 DUE TO BUGGY BEHAVIOUR / TOO MANY EDGE CASES
+    // ipcRenderer.on('windowVisible', () => {
+    //   console.log('windowVisible')
+    //   if (this.searchInput.current && !this.props.commenting)
+    //     this.searchInput.current.focus()
+    // })
   }
 
   componentWillMount () {

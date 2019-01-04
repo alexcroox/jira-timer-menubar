@@ -15,22 +15,19 @@ const GlobalStyle = createGlobalStyle`
   #root {
     min-height: 50px;
   }
+
   .Select-menu-outer {
     z-index: 999 !important;
   }
+
   .Select-arrow-zone {
     padding-top: 4px;
   }
-`
 
-// The top arrow only makes sense on macOS
-if (process.platform !== 'darwin') {
-  injectGlobal`
-    .tray-triangle {
-      display: none;
-    }
-  `
-}
+ .tray-triangle {
+    display: none;
+  }
+`
 
 const App = () =>  {
   return (
@@ -56,28 +53,36 @@ const AppWindow = styled.div`
   border-radius: 6px;
 `
 
-const WindowTriangle = styled.div`
-  width: 29px;
-  height: 15px;
-  position: absolute;
-  overflow: hidden;
-  box-shadow: 0 16px 10px -17px rgba(0, 0, 0, 0.5);
-  left: 50%;
-  transform: translateX(-50%);
-  top: -15px;
-  z-index: 11;
-
-  &:after {
-    content: "";
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF' };
-    transform: rotate(45deg);
-    top: 9px;
-    left: 5px;
-    box-shadow: -1px -1px 10px -2px rgba(0, 0, 0, 0.5);
-  }
+// The top arrow only makes sense on macOS
+let WindowTriangle = styled.div`
+  display: none;
 `
+
+// If MacOS we need to overwrite the boot time static triangle defined
+// in public/index.html with a dynamic themed one
+if (process.platform === 'darwin')
+  WindowTriangle = styled.div`
+    width: 29px;
+    height: 15px;
+    position: absolute;
+    overflow: hidden;
+    box-shadow: 0 16px 10px -17px rgba(0, 0, 0, 0.5);
+    left: 50%;
+    transform: translateX(-50%);
+    top: -15px;
+    z-index: 11;
+
+    &:after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF' };
+      transform: rotate(45deg);
+      top: 9px;
+      left: 5px;
+      box-shadow: -1px -1px 10px -2px rgba(0, 0, 0, 0.5);
+    }
+  `
 
 export default App
