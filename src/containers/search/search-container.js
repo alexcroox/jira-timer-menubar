@@ -160,7 +160,7 @@ class SearchContainer extends Component {
         })
       })
       .catch(error => {
-        console.log('Error fetching search results', error)
+        console.log('Error fetching search results')
 
         this.setState({
           searching: false,
