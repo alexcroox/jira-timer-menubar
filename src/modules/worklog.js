@@ -39,50 +39,10 @@ export default function reducer (state = initialState, action = {}) {
       let yesterdayTotal = 0
       let weekTotal = 0
 
-      // We need to keep local track of what we have deleted
-      // since the async worklogs could come in just after
-      // we've deleted a worklog and re-add it!
-      let previouslyDeleted = state.deleted
-
-      if (typeof previouslyDeleted === "undefined")
-        previouslyDeleted = []
-
       let currentWorklogs = Immutable.asMutable(state.list, {deep: true})
       let workLogs = action.worklogs
 
-      // If we are sending less than the full week lets add to the array if new
-      // or update existing time if duplicate
-      if (!action.fullRefresh) {
-        action.worklogs.forEach(worklog => {
-          let existingWorklog = find(currentWorklogs, ['id', worklog.id])
-
-          if (existingWorklog) {
-            existingWorklog.timeSpentSeconds = worklog.timeSpentSeconds
-          } else {
-            currentWorklogs.push(worklog)
-          }
-        })
-
-        // Now loop through all existing worklogs, delete any that aren't present in passed
-        // worklogs that are from the same day
-        currentWorklogs.forEach((worklog, index) => {
-          let created = parse(worklog.created)
-
-          if (isToday(created)) {
-            let matchingWorklog = find(action.worklogs, ['id', worklog.id])
-
-            if (!matchingWorklog)
-              currentWorklogs.splice(index, 1)
-          }
-        })
-
-        workLogs = currentWorklogs
-      }
-
       workLogs.forEach(worklog => {
-
-        if (previouslyDeleted.indexOf(worklog.id) > -1)
-          return
 
         let created = parse(worklog.created)
 
@@ -164,10 +124,9 @@ export const setUpdating = updating => ({
 })
 
 // Pass array of worklogs
-export const addWorklogs = (worklogs, fullRefresh) => ({
+export const addWorklogs = (worklogs) => ({
   type: ADD_WORKLOGS,
-  worklogs,
-  fullRefresh
+  worklogs
 })
 
 export const setNewTime = (worklogId, timeSpentSeconds) => ({
@@ -181,7 +140,7 @@ export const setUpdatingWorklog = worklogId => ({
   worklogId
 })
 
-export const fetchWorklogs = (fullWeek = true) => async (dispatch, getState) => {
+export const fetchWorklogs = () => async (dispatch, getState) => {
 
   let state = getState()
   let updating = state.worklog.updating
@@ -196,12 +155,11 @@ export const fetchWorklogs = (fullWeek = true) => async (dispatch, getState) => 
     return
   }
 
-  console.log('Requesting worklogs')
+  console.log('Requesting worklogs for', state.user.profile.key)
 
   dispatch(setUpdating(true))
 
   ipcRenderer.send('fetchWorklogs', {
-    fullWeek,
     userKey: state.user.profile.key
   })
 }
@@ -265,7 +223,7 @@ export const updateWorkLogTime = (worklog, timeSpentSeconds) => async dispatch =
 
       dispatch(setUpdatingWorklog(null))
       dispatch(setNewTime(worklog.id, timeSpentSeconds))
-      dispatch(fetchWorklogs(false))
+      dispatch(fetchWorklogs())
 
       new Notification(`Worklog time updated`, {
         body: `The workog for ${worklog.task.key} has changed time to ${secondsHuman(timeSpentSeconds)}`,

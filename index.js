@@ -138,7 +138,6 @@ function launchMenuBar () {
 
             Worklogs.request(jiraUserKey, fullWeek, true)
               .then(worklogs => {
-                console.log('All good', worklogs.length)
                 renderProcess.send('worklogs', JSON.stringify({
                   fullWeek,
                   worklogs
@@ -227,14 +226,13 @@ ipcMain.on('deletePassword', (event) => {
 })
 
 ipcMain.on('fetchWorklogs', (event, args) => {
-  let { userKey, fullWeek } = args
+  let { userKey } = args
 
   jiraUserKey = userKey
 
-  Worklogs.request(userKey, fullWeek)
+  Worklogs.request(userKey)
     .then(worklogs => {
       event.sender.send('worklogs', JSON.stringify({
-        fullWeek,
         worklogs
       }))
     })

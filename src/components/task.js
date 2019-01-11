@@ -51,7 +51,7 @@ export const TaskContainer = styled.div`
   overflow: auto;
 
   ${props => (props.maxHeight) && css`
-    max-height: 147px;
+    max-height: 331px;
   `}
 `
 

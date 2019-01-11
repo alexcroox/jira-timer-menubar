@@ -45,7 +45,7 @@ if (credentials) {
   api.init(credentials.password, credentials.account)
 
   // Lets fetch full worklogs on app launch
-  store.dispatch(fetchWorklogs(true))
+  store.dispatch(fetchWorklogs())
 }
 
 console.log('App version', remote.app.getVersion())

@@ -36,31 +36,13 @@ class WorklogContainer extends Component {
     }
 
     this.onOpenOptions = this.onOpenOptions.bind(this)
-    this.onFetchOptions = this.onFetchOptions.bind(this)
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
   }
 
   componentWillMount () {
-    this.props.fetchWorklogs(false)
-  }
-
-  onFetchOptions () {
-    const menu = new Menu()
-    const fetchWorklogs = this.props.fetchWorklogs
-
-    menu.append(new MenuItem({
-      label: `(fast) Just today`,
-      click () { fetchWorklogs(false) }
-    }))
-
-    menu.append(new MenuItem({
-      label: `(slow) From week start`,
-      click () { fetchWorklogs(true) }
-    }))
-
-    menu.popup({})
+    this.props.fetchWorklogs()
   }
 
   onOpenOptions (worklog) {
@@ -216,8 +198,7 @@ class WorklogContainer extends Component {
             ) : (
               <LargeIcon
                 clickable
-                onClick={() => { this.props.fetchWorklogs(false) }}
-                onContextMenu={this.onFetchOptions}
+                onClick={() => { this.props.fetchWorklogs() }}
               >
                 <FontAwesomeIcon icon={faSyncAlt} />
               </LargeIcon>
@@ -231,7 +212,7 @@ class WorklogContainer extends Component {
 
 const Worklogs = styled.div`
   overflow: auto;
-  height: 331px;
+  max-height: 331px;
 `
 
 const WorklogsUpdating = styled.span`

@@ -17,11 +17,10 @@ const handleComms = () => {
   ipcRenderer.on('worklogs', (event, worklogPayload) => {
     let payload = JSON.parse(worklogPayload)
     let worklogs = payload.worklogs
-    let fullWeek = payload.fullWeek
 
     if (typeof payload.worklogs !== "undefined") {
-      console.log('Got worklogs from main process', fullWeek, payload.worklogs.length)
-      store.dispatch(addWorklogs(worklogs, fullWeek))
+      console.log('Got worklogs from main process', payload.worklogs.length)
+      store.dispatch(addWorklogs(worklogs))
     }
 
     store.dispatch(setUpdating(false))

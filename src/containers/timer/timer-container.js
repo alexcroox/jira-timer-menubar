@@ -109,7 +109,7 @@ class TimerContainer extends Component {
     }
 
     if (this.renderTime)
-      setTimeout(() => this.displayTimers(), 500)
+      setTimeout(this.displayTimers, 500)
   }
 
   onEditTime (timerId) {

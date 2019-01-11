@@ -209,7 +209,7 @@ export const postTimer = stateTimer => async (dispatch, getState) => {
 
         // Save to recents
         dispatch(addRecentTask(timer))
-        dispatch(fetchWorklogs(false))
+        dispatch(fetchWorklogs())
       })
       .catch(error => {
         console.log('Error posting timer', error)

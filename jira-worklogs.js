@@ -21,6 +21,7 @@ class JiraWorklogs {
     this.keychainService = keychainService
     this.authKey = null
     this.baseUrl = null
+    this.userKey = null
     this.fetching = false
     this.lastFetched = Date.now()
 
@@ -42,7 +43,7 @@ class JiraWorklogs {
       if (throttle) {
         let secondsSinceLastFetch = Math.round((executionStart - this.lastFetched) / 1000)
 
-        if (secondsSinceLastFetch < 60) {
+        if (secondsSinceLastFetch < 5) {
           console.log('Fetched too recently, request denied')
           return reject()
         }
@@ -52,7 +53,7 @@ class JiraWorklogs {
     })
   }
 
-  request (userKey, fullWeek, throttle) {
+  request (userKey, throttle) {
     throttle = throttle || false
 
     let executionStart = Date.now()
@@ -63,8 +64,9 @@ class JiraWorklogs {
         .then(() => {
 
           this.fetching = true
+          this.userKey = userKey
 
-          this.fetchMine(userKey, fullWeek)
+          this.fetchMine()
             .then(worklogs => {
               this.fetching = false
               let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
@@ -85,12 +87,12 @@ class JiraWorklogs {
     })
   }
 
-  fetchMine (userKey, fullWeek) {
+  fetchMine () {
     return new Promise((resolve, reject) => {
       if (!this.authKey) {
         this.getCredentialsFromKeyChain()
           .then(() => {
-            this.fetch(userKey, fullWeek)
+            this.fetch(this.userKey)
               .then(worklogs => resolve(worklogs))
               .catch(error => reject(error))
           })
@@ -99,21 +101,16 @@ class JiraWorklogs {
             reject(error)
           })
       } else {
-        this.fetch(userKey, fullWeek)
+        this.fetch(this.userKey)
           .then(worklogs => resolve(worklogs))
           .catch(error => reject(error))
       }
     })
   }
 
-  fetch (userKey, fullWeek) {
-
-    this.userKey = userKey
-
-    console.log('Full week?', fullWeek, userKey)
-
+  fetch () {
     return new Promise((resolve, reject) => {
-      this.fetchRecentlyUpdatedTasks(fullWeek)
+      this.fetchRecentlyUpdatedTasks()
         .then(tasks => {
 
           console.log('Latest tasks', tasks.length)
@@ -157,16 +154,16 @@ class JiraWorklogs {
     })
   }
 
-  fetchRecentlyUpdatedTasks (fullWeek, startAt = 0) {
+  fetchRecentlyUpdatedTasks (startAt = 0) {
     return new Promise((resolve, reject) => {
       let tasks = []
 
-      this.fetchUpdatedTasks(fullWeek, startAt)
+      this.fetchUpdatedTasks(startAt)
         .then(response => {
           tasks = response.issues
 
           if (response.total > 100 && startAt === 0) {
-            this.fetchUpdatedTasks(fullWeek, 100)
+            this.fetchUpdatedTasks(100)
               .then(response => {
                 tasks = tasks.concat(response.issues)
                 resolve(tasks)
@@ -180,16 +177,11 @@ class JiraWorklogs {
     })
   }
 
-  fetchUpdatedTasks(fullWeek, startAt) {
+  fetchUpdatedTasks(startAt) {
     return new Promise((resolve, reject) => {
-      let start = fullWeek ? 'startOfWeek()' : 'startOfDay()'
-
-      console.log('Fetching tasks, start at: ', startAt)
-
       this.sendRequest('/search', 'POST', {
-        jql: `updated >= ${start} AND timeSpent > 0m ORDER BY updated DESC`,
+        jql: `worklogAuthor = ${this.userKey} && worklogDate >= startOfWeek()`,
         maxResults: 100,
-        startAt,
         fields: ['key', 'summary', 'project']
       })
         .then(response => resolve(response))
