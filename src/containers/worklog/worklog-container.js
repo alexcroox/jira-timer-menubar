@@ -155,38 +155,44 @@ class WorklogContainer extends Component {
         <TimerContainer />
 
         <Worklogs>
-          {DayList.length !== 0 && (
+          {this.props.worklogs.length === 0 ? (
+            <HeadingBar>No worklogs yet</HeadingBar>
+          ) : (
             <Fragment>
-              <HeadingBar borderBottom>
-                Today
-              </HeadingBar>
-              <div>
-                {DayList}
-              </div>
+              {DayList.length !== 0 && (
+                <Fragment>
+                  <HeadingBar borderBottom>
+                    Today
+                  </HeadingBar>
+                  <div>
+                    {DayList}
+                  </div>
+                </Fragment>
+              )}
+
+              {YesterdayList.length !== 0 && (
+                <Fragment>
+                  <HeadingBar borderBottom borderTop>
+                    Yesterday
+                  </HeadingBar>
+                  <div>
+                    {YesterdayList}
+                  </div>
+                </Fragment>
+              )}
+
+              {WeekList.map(weekDay => (
+                <div key={weekDay.weekIndex}>
+                  <HeadingBar borderBottom borderTop>
+                    {weekDay.label}
+                  </HeadingBar>
+                  <div>
+                    {weekDay.tasks}
+                  </div>
+                </div>
+              ))}
             </Fragment>
           )}
-
-          {YesterdayList.length !== 0 && (
-            <Fragment>
-              <HeadingBar borderBottom borderTop>
-                Yesterday
-              </HeadingBar>
-              <div>
-                {YesterdayList}
-              </div>
-            </Fragment>
-          )}
-
-          {WeekList.map(weekDay => (
-            <div key={weekDay.weekIndex}>
-              <HeadingBar borderBottom borderTop>
-                {weekDay.label}
-              </HeadingBar>
-              <div>
-                {weekDay.tasks}
-              </div>
-            </div>
-          ))}
         </Worklogs>
 
         <FooterContainer>

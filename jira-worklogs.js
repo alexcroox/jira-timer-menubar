@@ -180,7 +180,7 @@ class JiraWorklogs {
   fetchUpdatedTasks(startAt) {
     return new Promise((resolve, reject) => {
       this.sendRequest('/search', 'POST', {
-        jql: `worklogAuthor = ${this.userKey} && worklogDate >= startOfWeek()`,
+        jql: `worklogAuthor = ${this.userKey} && worklogDate >= -1w`,
         maxResults: 100,
         fields: ['key', 'summary', 'project']
       })
