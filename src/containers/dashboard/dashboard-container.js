@@ -9,7 +9,6 @@ import FooterContainer from '../footer/footer-container'
 import RecentContainer from '../recent/recent-container'
 import TimerContainer from '../timer/timer-container'
 import UpdateContainer from '../update/update-container'
-import WorklogTotals from '../worklog/worklog-totals'
 import Header from '../../components/header'
 
 class DashboardContainer extends Component {
@@ -28,7 +27,6 @@ class DashboardContainer extends Component {
           titleText="Jira Timer"
           settingsLink="/settings"
           withCreateTaskButton
-          withSettingsButton
         />
 
         <UpdateContainer />
@@ -36,13 +34,7 @@ class DashboardContainer extends Component {
         <SearchContainer />
         <RecentContainer />
 
-        <FooterContainer>
-          <WorklogTotals />
-
-          <IconLink to="/worklogs">
-            <FontAwesomeIcon icon={faHistory} />
-          </IconLink>
-        </FooterContainer>
+        <FooterContainer />
       </Fragment>
     );
   }

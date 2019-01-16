@@ -2,7 +2,7 @@ import React from 'react'
 import styled, { css } from 'styled-components'
 
 const IconWrap = styled.div`
-  & > :last-child {
+  & > :not(first-child) {
     margin-left: 1em;
   }
 `

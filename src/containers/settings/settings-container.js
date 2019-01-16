@@ -73,10 +73,8 @@ class SettingsContainer extends Component {
 
         <Header
           titleText="Settings"
-          settingsLink="/dashboard"
           withBackButton
-          withSettingsButton
-          withQuitButton
+          withExitButton
         />
 
         <UpdateContainer />
@@ -150,6 +148,8 @@ class SettingsContainer extends Component {
             </div>
           </FlexContainer>
         </Section>
+
+        <FooterContainer />
       </Page>
     );
   }

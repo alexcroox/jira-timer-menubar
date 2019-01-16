@@ -1,6 +1,14 @@
+
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import faCog from '@fortawesome/fontawesome-free-solid/faCog'
+import faHistory from '@fortawesome/fontawesome-free-solid/faHistory'
+import WorklogTotals from '../worklog/worklog-totals'
+import IconWrap from '../../components/icon-wrap'
+import IconLink from '../../components/icon-link'
 
 class FooterContainer extends Component {
   constructor(props) {
@@ -8,9 +16,22 @@ class FooterContainer extends Component {
   }
 
   render() {
+    const settingsPath = this.props.location.pathname === '/settings' ? '/dashboard' : '/settings'
+    const worklogsPath = this.props.location.pathname === '/worklogs' ? '/dashboard' : '/worklogs'
+
     return (
       <FooterStyled>
-        {this.props.children}
+        <WorklogTotals />
+
+        <IconWrap>
+          <IconLink to={worklogsPath} title="View worklog history">
+            <FontAwesomeIcon icon={faHistory} />
+          </IconLink>
+
+          <IconLink to={settingsPath} title="Settings">
+            <FontAwesomeIcon icon={faCog} />
+          </IconLink>
+        </IconWrap>
       </FooterStyled>
     )
   }
@@ -33,4 +54,4 @@ const mapStateToProps = state => ({
   authToken: state.user.authToken,
 })
 
-export default connect(mapStateToProps)(FooterContainer)
+export default withRouter(connect(mapStateToProps)(FooterContainer))

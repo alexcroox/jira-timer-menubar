@@ -4,10 +4,9 @@ import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faCog from '@fortawesome/fontawesome-free-solid/faCog'
 import faAngleLeft from '@fortawesome/fontawesome-free-solid/faAngleLeft'
-import faPlus from '@fortawesome/fontawesome-free-solid/faPlus'
 import faPowerOff from '@fortawesome/fontawesome-free-solid/faPowerOff'
+import faPlus from '@fortawesome/fontawesome-free-solid/faPlus'
 import Button, { ButtonIcon } from './button'
 import IconLink from './icon-link'
 import IconWrap from './icon-wrap'
@@ -22,11 +21,9 @@ class Header extends Component {
   }
 
   render() {
-    let rightAligned = !this.props.withCreateTaskButton && !this.props.withBackButton
-
     return (
       <Fragment>
-        <HeaderStyled rightAligned={rightAligned}>
+        <HeaderStyled>
 
           {this.props.withCreateTaskButton && (
             <Link to="/create-task">
@@ -45,20 +42,13 @@ class Header extends Component {
 
           <Title>{this.props.titleText}</Title>
 
-
-          <IconWrap>
-            {this.props.withQuitButton && (
-              <IconLink to="/dashboard" onClick={this.onQuitApp}>
+          {this.props.withExitButton && (
+            <IconWrap>
+              <IconLink to='/dashboard' onClick={this.onQuitApp}>
                 <FontAwesomeIcon icon={faPowerOff} />
               </IconLink>
-            )}
-
-            {this.props.withSettingsButton && (
-              <IconLink to={this.props.settingsLink}>
-                <FontAwesomeIcon icon={faCog} />
-              </IconLink>
-            )}
-          </IconWrap>
+            </IconWrap>
+          )}
 
         </HeaderStyled>
       </Fragment>
@@ -80,10 +70,6 @@ const HeaderStyled = styled.div`
   padding-right: 10px;
   border-bottom: 1px solid ${props => props.theme.darkMode ? props.theme.dark.border : '#D7D7D7' };
   border-radius: 6px 6px 0 0;
-
-  ${props => (props.rightAligned) && css`
-    flex-direction: row-reverse;
-  `}
 `
 
 const Title = styled.span`

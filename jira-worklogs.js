@@ -180,7 +180,7 @@ class JiraWorklogs {
   fetchUpdatedTasks(startAt) {
     return new Promise((resolve, reject) => {
       this.sendRequest('/search', 'POST', {
-        jql: `worklogAuthor = ${this.userKey} && worklogDate >= -1w`,
+        jql: `worklogAuthor = currentUser() && worklogDate >= -1w`,
         maxResults: 100,
         fields: ['key', 'summary', 'project']
       })
@@ -204,7 +204,7 @@ class JiraWorklogs {
             let created = parse(worklog.created)
             let ageInDays = differenceInDays(new Date(), created)
 
-            if (worklog.author.key == this.userKey && ageInDays < 5)
+            if (worklog.author.key === this.userKey && ageInDays < 7)
               currentUserWorklogs.push({
                 id: worklog.id,
                 created: worklog.created,

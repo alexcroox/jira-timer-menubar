@@ -146,8 +146,6 @@ class WorklogContainer extends Component {
       <Page>
         <Header
           titleText="Posted Times"
-          settingsLink="/settings"
-          withSettingsButton
           withBackButton
         />
 
@@ -218,7 +216,7 @@ class WorklogContainer extends Component {
 
 const Worklogs = styled.div`
   overflow: auto;
-  max-height: 331px;
+  max-height: 399px;
 `
 
 const WorklogsUpdating = styled.span`

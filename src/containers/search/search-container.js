@@ -139,12 +139,18 @@ class SearchContainer extends Component {
       error: false
     })
 
-    // JIRA api throws an error if you attempt a key search with a string
-    // that doesn't have a dash in it
-    let keySearch = query.indexOf("-") > -1
-    let jql = `summary ~ "${query}"`
-    if (keySearch) jql += `OR key = "${query}"`
-    jql += 'order by lastViewed DESC'
+    const keySearch = query.indexOf("-") > -1
+    const jqlSearch = query.indexOf('=') > -1 || query.indexOf('~') > 1
+
+    // Is the user searching with custom JQL syntax?
+    // If not build the JQL for them
+    if (jqlSearch) {
+      jql = query
+    } else {
+      let jql = `summary ~ "${query}"`
+      if (keySearch) jql += `OR key = "${query}"`
+      jql += 'order by updated DESC'
+    }
 
     api.post('/search', {
       jql,
