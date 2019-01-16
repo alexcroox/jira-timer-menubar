@@ -15,7 +15,7 @@ class ExternalLink extends Component {
   }
 }
 
-const Link = styled.span`
+const Link = styled.a`
   text-decoration: underline;
   display: inline-block;
 

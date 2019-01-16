@@ -20,7 +20,7 @@ class FooterContainer extends Component {
     const worklogsPath = this.props.location.pathname === '/worklogs' ? '/dashboard' : '/worklogs'
 
     return (
-      <FooterStyled>
+      <FooterWrapper>
         <WorklogTotals />
 
         <IconWrap>
@@ -32,12 +32,12 @@ class FooterContainer extends Component {
             <FontAwesomeIcon icon={faCog} />
           </IconLink>
         </IconWrap>
-      </FooterStyled>
+      </FooterWrapper>
     )
   }
 }
 
-const FooterStyled = styled.div`
+export const FooterWrapper = styled.div`
   background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#EAEAEA' };
   display: flex;
   align-items: center;

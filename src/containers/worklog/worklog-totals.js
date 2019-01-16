@@ -39,7 +39,7 @@ class WorklogTotals extends Component {
 
 const TimeSummaryContainer = styled.span`
   margin-right: 20px;
-  color: ${props => props.theme.darkMode ? props.theme.dark.inactiveColor : '#666' };
+  color: ${props => props.theme.darkMode ? props.theme.dark.color : '#666' };
   font-size: 12px;
 `
 const TimeSummary = styled.span`

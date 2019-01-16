@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react'
+import { shell } from 'electron'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 import styled from 'styled-components'
-import FooterContainer from '../footer/footer-container'
+import { FooterWrapper } from '../footer/footer-container'
 import FormContainer from '../../components/form-container'
 import Header from '../../components/header'
-import ExternalLink from '../../components/external-link'
 import ErrorMessage from '../../components/error'
 import LoginForm from './login-form'
 import passwordValidationRule from '../../validation/password-validation'
 import { isNotEmpty } from '../../validation/helpers'
 import { userLogin } from '../../modules/user'
+import Page from '../../components/page'
 
 const validationRules = {
   authUrl: [
@@ -51,7 +52,7 @@ class LoginContainer extends Component {
 
   render () {
     return (
-      <Fragment>
+      <Page>
         {this.props.authToken && (
           <Redirect to="/dashboard" />
         )}
@@ -72,10 +73,10 @@ class LoginContainer extends Component {
           />
         </FormContainer>
 
-        <FooterContainer>
-          <Credits>created by <ExternalLink>Si digital</ExternalLink></Credits>
-        </FooterContainer>
-      </Fragment>
+        <FooterWrapper>
+          <Credits>created by Si digital</Credits>
+        </FooterWrapper>
+      </Page>
     );
   }
 }

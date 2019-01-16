@@ -23,6 +23,7 @@ class Worklog extends Component {
             <FontAwesomeIcon icon={faSpinner} spin />
           </Control>
         )}
+
         <WorklogTaskKey>{this.props.task.key}</WorklogTaskKey>
         <TaskTitle>{this.props.task.summary}</TaskTitle>
 
@@ -57,14 +58,14 @@ Worklog.propTypes = {
 
 const WorklogWrapper = styled.div`
   border-top: 1px solid ${props => props.theme.darkMode ? props.theme.dark.tableRow : 'rgba(234,234,234,0.8)' };
-  background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRow : '#FFF' };
+  background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRowAlt : '#FFF' };
   padding: 10px 12px;
   display: flex;
   align-items: center;
   color: ${props => props.theme.darkMode ? props.theme.dark.color : 'inherit' };
 
   &:nth-child(even) {
-    background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRowAlt : 'rgba(234,234,234,0.4)' };
+    background-color: ${props => props.theme.darkMode ? props.theme.dark.tableRow : 'rgba(234,234,234,0.4)' };
   }
 
   &:hover {

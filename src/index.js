@@ -16,15 +16,8 @@ import AppContainer from 'containers/app/app-container'
 
 const log = remote.require('electron-log')
 
-const originalConsoleLog = console.log.bind(console)
-console.log = (...args) => {
-  log.info(args)
-  originalConsoleLog(...args)
-}
-
 window.onerror = (err) => {
   log.error(err)
-  originalConsoleLog(...err)
 }
 
 render(

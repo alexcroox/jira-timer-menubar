@@ -141,13 +141,14 @@ class SearchContainer extends Component {
 
     const keySearch = query.indexOf("-") > -1
     const jqlSearch = query.indexOf('=') > -1 || query.indexOf('~') > 1
+    let jql
 
     // Is the user searching with custom JQL syntax?
     // If not build the JQL for them
     if (jqlSearch) {
       jql = query
     } else {
-      let jql = `summary ~ "${query}"`
+      jql = `summary ~ "${query}"`
       if (keySearch) jql += `OR key = "${query}"`
       jql += 'order by updated DESC'
     }
