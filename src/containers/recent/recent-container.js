@@ -3,10 +3,11 @@ import { connect } from 'react-redux'
 import sortBy from 'lodash.sortby'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
+import { Scrollbars } from 'react-custom-scrollbars'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import HeadingBar from '../../components/heading-bar'
-import Task, { TaskContainer } from '../../components/task'
+import Task from '../../components/task'
 
 class RecentContainer extends Component {
   constructor (props) {
@@ -32,7 +33,10 @@ class RecentContainer extends Component {
             Recent tasks
           </HeadingBar>
 
-          <TaskContainer maxHeight>
+          <Scrollbars
+            autoHeight={true}
+            autoHeightMax={331}
+          >
             {orderedByMostRecent.map(task => (
               <Task
                 key={task.id}
@@ -41,7 +45,7 @@ class RecentContainer extends Component {
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary)}
               />
             ))}
-          </TaskContainer>
+          </Scrollbars>
         </Fragment>
       )
     } else {

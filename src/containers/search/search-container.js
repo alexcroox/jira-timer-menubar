@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import { ipcRenderer, remote } from 'electron'
 import { addTimer } from '../../modules/timer'
 import styled from 'styled-components'
+import { Scrollbars } from 'react-custom-scrollbars'
 import api from '../../lib/api'
 import Input from '../../components/input'
-import Task, { TaskContainer } from '../../components/task'
+import Task from '../../components/task'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes'
 
@@ -211,7 +212,10 @@ class SearchContainer extends Component {
         </SearchWrapper>
 
         {this.state.results.length ? (
-          <TaskContainer maxHeight>
+          <Scrollbars
+            autoHeight={true}
+            autoHeightMax={331}
+          >
             {this.state.results.map((task, i) => (
               <Task
                 key={task.id}
@@ -222,7 +226,7 @@ class SearchContainer extends Component {
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.fields.summary)}
               />
             ))}
-          </TaskContainer>
+          </Scrollbars>
         ) : (null)}
       </Fragment>
     );

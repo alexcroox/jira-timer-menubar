@@ -7,6 +7,7 @@ import { openInJira } from '../../lib/jira'
 import { secondsHuman } from '../../lib/time'
 import sortBy from 'lodash.sortby'
 import find from 'lodash.find'
+import { Scrollbars } from 'react-custom-scrollbars'
 import parseDuration from 'parse-duration'
 import parse from 'date-fns/parse'
 import format from 'date-fns/format'
@@ -152,7 +153,10 @@ class WorklogContainer extends Component {
         <UpdateContainer />
         <TimerContainer />
 
-        <Worklogs>
+        <Scrollbars
+          autoHeight={true}
+          autoHeightMax={399}
+        >
           {this.props.worklogs.length === 0 ? (
             <HeadingBar>No worklogs yet</HeadingBar>
           ) : (
@@ -191,7 +195,7 @@ class WorklogContainer extends Component {
               ))}
             </Fragment>
           )}
-        </Worklogs>
+        </Scrollbars>
 
         <FooterContainer>
           <WorklogTotals showAll />
@@ -213,11 +217,6 @@ class WorklogContainer extends Component {
     );
   }
 }
-
-const Worklogs = styled.div`
-  overflow: auto;
-  max-height: 399px;
-`
 
 const WorklogsUpdating = styled.span`
   opacity: 0.5

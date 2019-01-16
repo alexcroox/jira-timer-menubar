@@ -108,6 +108,7 @@ export const TaskTitle = styled.span`
   flex: 1;
   display: flex;
   align-items: center;
+  margin-right: 10px;
 
   ${props => (props.light) && css`
     color: #FFF;
