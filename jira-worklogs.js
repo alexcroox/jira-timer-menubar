@@ -207,7 +207,7 @@ class JiraWorklogs {
             if (worklog.author.key === this.userKey && ageInDays < 7)
               currentUserWorklogs.push({
                 id: worklog.id,
-                created: worklog.created,
+                created: worklog.started,
                 timeSpentSeconds: worklog.timeSpentSeconds,
                 task: {
                   id: task.id,
