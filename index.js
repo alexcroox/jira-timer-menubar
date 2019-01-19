@@ -48,6 +48,9 @@ let credentials = null
 let jiraUserKey = null
 let windowVisible = true
 let darkMode = false
+let timerRunning = false
+let currentIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
+let title = null
 
 app.on('ready', () => {
   installExtensions()
@@ -61,6 +64,26 @@ app.on('ready', () => {
     })
     .catch(launchMenuBar)
 })
+
+// MacOS dark mode?
+if (process.platform === 'darwin') {
+
+  // If enabled before app starts
+  darkMode = systemPreferences.isDarkMode()
+
+  currentIcon = !darkMode ? path.join(app.getAppPath(), '/static/tray-dark.png') : path.join(app.getAppPath(), '/static/tray-white.png')
+
+  console.log('Dark mode main process', darkMode)
+
+  // Listen for dynamic dark mode changes from system preferences
+  systemPreferences.subscribeNotification(
+    'AppleInterfaceThemeChangedNotification',
+    () => {
+      darkMode = systemPreferences.isDarkMode()
+      console.log('Dark mode switched main process', darkMode)
+    }
+  )
+}
 
 function launchMenuBar () {
 
@@ -90,7 +113,7 @@ function launchMenuBar () {
 
     mb = menubar({
       alwaysOnTop: process.env.NODE_ENV === 'development',
-      icon: !darkMode ? path.join(app.getAppPath(), '/static/tray-dark.png') : path.join(app.getAppPath(), '/static/tray-dark-active.png'),
+      icon: currentIcon,
       width: 500,
       minWidth: 500,
       maxWidth: 500,
@@ -120,7 +143,7 @@ function launchMenuBar () {
     mb.on('show', () => {
       windowVisible = true
 
-      mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
+      updateTrayIcon()
 
       if (jiraUserKey) {
 
@@ -157,30 +180,35 @@ function launchMenuBar () {
     mb.on('hide', () => {
       windowVisible = false
 
-      if (!darkMode)
-        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark.png'))
-      else
-        mb.tray.setImage(path.join(app.getAppPath(), '/static/tray-dark-active.png'))
+      updateTrayIcon()
     })
   }, 100)
 }
 
-// MacOS dark mode?
-if (process.platform === 'darwin') {
+const updateTrayIcon = () => {
 
-  // If enabled before app starts
-  darkMode = systemPreferences.isDarkMode()
+  let newIcon = null
 
-  console.log('Dark mode main process', darkMode)
-
-  // Listen for dynamic dark mode changes from system preferences
-  systemPreferences.subscribeNotification(
-    'AppleInterfaceThemeChangedNotification',
-    () => {
-      darkMode = systemPreferences.isDarkMode()
-      console.log('Dark mode switched main process', darkMode)
+  // Blue for both dark and light if timer running
+  if (!windowVisible) {
+    if (timerRunning) {
+      newIcon = path.join(app.getAppPath(), '/static/tray-timing.png')
+    } else {
+      // White for dark, Grey for light if no timer running
+      if (!darkMode)
+        newIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
+      else
+        newIcon = path.join(app.getAppPath(), '/static/tray-white.png')
     }
-  )
+  } else {
+    // Window visible
+    newIcon = path.join(app.getAppPath(), '/static/tray-white.png')
+  }
+
+  if (currentIcon !== newIcon)
+    mb.tray.setImage(newIcon)
+
+  currentIcon = newIcon
 }
 
 // Quit when all windows are closed.
@@ -208,15 +236,24 @@ ipcMain.on('openDevTools', (event) => {
 })
 
 ipcMain.on('updateTitle', (event, args) => {
-  let { title, timerRunning } = args
+  let newTitle = ''
 
-  if (title === '')
-    mb.tray.setTitle(``)
+  timerRunning = args.timerRunning
+
+  if (args.title === '')
+    newTitle = ''
   else
-    mb.tray.setTitle(` ${title}`)
+    newTitle =  ` ${args.title}`
 
-  if (windowVisible)
-    mb.showWindow()
+  if (title !== newTitle)
+  mb.tray.setTitle(newTitle)
+
+  title = newTitle
+
+  // if (windowVisible)
+  //   mb.showWindow()
+
+  updateTrayIcon()
 })
 
 ipcMain.on('setPassword', (event, args) => {

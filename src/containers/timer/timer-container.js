@@ -26,7 +26,6 @@ class TimerContainer extends Component {
     super(props)
 
     this.renderTime = true
-    this.lastTitleUpdate = null
     this.state = {
       timers: [],
       postingHumanTime: 0,
@@ -111,16 +110,10 @@ class TimerContainer extends Component {
       })
     }
 
-    // No point hammering the ipcRenderer if we don't
-    // have anything different to display
-    if (this.lastTitleUpdate !== titleUpdate) {
-      ipcRenderer.send('updateTitle', {
-        title: titleUpdate,
-        timerRunning: firstRunningTimer
-      })
-
-      this.lastTitleUpdate = titleUpdate
-    }
+    ipcRenderer.send('updateTitle', {
+      title: titleUpdate,
+      timerRunning: firstRunningTimer !== null
+    })
 
     if (this.renderTime)
       setTimeout(this.displayTimers, 500)
