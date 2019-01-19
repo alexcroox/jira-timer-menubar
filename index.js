@@ -207,8 +207,14 @@ ipcMain.on('openDevTools', (event) => {
   mb.window.webContents.openDevTools({ mode: 'detach' })
 })
 
-ipcMain.on('updateTitle', (event, title) => {
-  mb.tray.setTitle(` ${title}`)
+ipcMain.on('updateTitle', (event, args) => {
+  let { title, timerRunning } = args
+
+  if (title === '')
+    mb.tray.setTitle(``)
+  else
+    mb.tray.setTitle(` ${title}`)
+
   if (windowVisible)
     mb.showWindow()
 })

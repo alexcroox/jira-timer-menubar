@@ -88,13 +88,23 @@ class TimerContainer extends Component {
       return timer
     })
 
-    let titleUpdate = 'Idle'
+    let titleUpdate = ''
+
+    if (!this.props.settings.menubarHideTiming)
+      titleUpdate = 'Idle'
 
     if (timers.length) {
 
       // Update our menu bar title with the time of the first unpaused timer
-      if (firstRunningTimer)
-        titleUpdate = `${firstRunningTimer.key} ${firstRunningTimer.menubarDisplay}`
+      if (firstRunningTimer) {
+        titleUpdate = ``
+
+        if (!this.props.settings.menubarHideKey)
+          titleUpdate += firstRunningTimer.key
+
+        if (!this.props.settings.menubarHideTiming)
+          titleUpdate += ` ${firstRunningTimer.menubarDisplay}`
+      }
 
       this.setState({
         timers
@@ -104,7 +114,11 @@ class TimerContainer extends Component {
     // No point hammering the ipcRenderer if we don't
     // have anything different to display
     if (this.lastTitleUpdate !== titleUpdate) {
-      ipcRenderer.send('updateTitle', titleUpdate)
+      ipcRenderer.send('updateTitle', {
+        title: titleUpdate,
+        timerRunning: firstRunningTimer
+      })
+
       this.lastTitleUpdate = titleUpdate
     }
 

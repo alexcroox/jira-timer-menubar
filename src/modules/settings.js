@@ -9,7 +9,9 @@ const initialState = Immutable({
   openAtLogin: false,
   commentBlock: true,
   firstLaunch: true,
-  roundNearestMinute: 15
+  roundNearestMinute: 15,
+  menubarHideTiming: false,
+  menubarHideKey: false
 })
 
 // Reducer
@@ -56,4 +58,12 @@ export const setCommentBlock = enabled => dispatch => {
 
 export const setRoundNearestMinute = minute => dispatch => {
   dispatch(setSingleSetting('roundNearestMinute', minute))
+}
+
+export const setHideMenubarTiming = enabled => dispatch => {
+  dispatch(setSingleSetting('menubarHideTiming', enabled))
+}
+
+export const setHideMenubarKey = enabled => dispatch => {
+  dispatch(setSingleSetting('menubarHideKey', enabled))
 }

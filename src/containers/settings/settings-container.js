@@ -4,7 +4,13 @@ import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { userLogout } from '../../modules/user'
 import { setChecking } from '../../modules/updater'
-import { setOpenAtLogin, setCommentBlock, setRoundNearestMinute } from '../../modules/settings'
+import {
+  setOpenAtLogin,
+  setCommentBlock,
+  setRoundNearestMinute,
+  setHideMenubarTiming,
+  setHideMenubarKey
+} from '../../modules/settings'
 import Select from 'react-select'
 import { Margin } from 'styled-components-spacing'
 import styled from 'styled-components'
@@ -33,38 +39,40 @@ const roundNearestMinuteOptions = [
 class SettingsContainer extends Component {
   constructor (props) {
     super(props)
-
-    this.onOpenDevTools = this.onOpenDevTools.bind(this)
-    this.onCheckForUpdates = this.onCheckForUpdates.bind(this)
-    this.onSetOpenAtLogin = this.onSetOpenAtLogin.bind(this)
-    this.onSetCommentBlock = this.onSetCommentBlock.bind(this)
-    this.onSetRoundNearestMinute = this.onSetRoundNearestMinute.bind(this)
   }
 
-  onOpenDevTools () {
+  onOpenDevTools = () => {
+    console.log('Opening dev tools')
     ipcRenderer.send('openDevTools')
   }
 
-  onCheckForUpdates () {
+  onCheckForUpdates = () => {
     console.log('Checking for updates')
     this.props.setChecking(true)
     ipcRenderer.send('updateStatus')
   }
 
-  onSetOpenAtLogin (event) {
+  onSetOpenAtLogin = (event) => {
     this.props.setOpenAtLogin(event.target.checked)
   }
 
-  onSetCommentBlock (event) {
+  onSetCommentBlock = (event) => {
     this.props.setCommentBlock(event.target.checked)
   }
 
-  onSetRoundNearestMinute (event) {
+  onSetRoundNearestMinute = (event) => {
     this.props.setRoundNearestMinute(event.value)
   }
 
+  onSetHideMenubarTiming = (event) => {
+    this.props.setHideMenubarTiming(event.target.checked)
+  }
+
+  onSetHideMenubarKey = (event) => {
+    this.props.setHideMenubarKey(event.target.checked)
+  }
+
   render () {
-    console.log(this.props.settings.roundNearestMinute)
     return (
       <Page>
         {!this.props.authToken && (
@@ -110,6 +118,22 @@ class SettingsContainer extends Component {
               label="Add comment on timer post"
               checked={this.props.settings.commentBlock}
               onChange={this.onSetCommentBlock}
+            />
+          </Fieldset>
+
+          <Fieldset>
+            <Checkbox
+              label="Hide menubar timing label (Idle / 01:45)"
+              checked={this.props.settings.menubarHideTiming}
+              onChange={this.onSetHideMenubarTiming}
+            />
+          </Fieldset>
+
+          <Fieldset>
+            <Checkbox
+              label="Hide menubar active timer key label (JT-123)"
+              checked={this.props.settings.menubarHideKey}
+              onChange={this.onSetHideMenubarKey}
             />
           </Fieldset>
 
@@ -191,7 +215,9 @@ const mapDispatchToProps = {
   setChecking,
   setOpenAtLogin,
   setCommentBlock,
-  setRoundNearestMinute
+  setRoundNearestMinute,
+  setHideMenubarTiming,
+  setHideMenubarKey
 }
 
 const mapStateToProps = state => ({
