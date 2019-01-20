@@ -46,7 +46,7 @@ const installExtensions = () => {
 let mb = null
 let credentials = null
 let jiraUserKey = null
-let windowVisible = true
+let windowVisible = false
 let darkMode = false
 let timerRunning = false
 let currentIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
@@ -194,11 +194,11 @@ const updateTrayIcon = () => {
     if (timerRunning) {
       newIcon = path.join(app.getAppPath(), '/static/tray-timing.png')
     } else {
-      // White for dark, Grey for light if no timer running
-      if (!darkMode)
-        newIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
-      else
+      // White for dark mode, Grey for light mode if no timer running
+      if (darkMode)
         newIcon = path.join(app.getAppPath(), '/static/tray-white.png')
+      else
+        newIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
     }
   } else {
     // Window visible
@@ -240,7 +240,7 @@ ipcMain.on('updateTitle', (event, args) => {
 
   timerRunning = args.timerRunning
 
-  if (args.title === '')
+  if (args.title === '' || !args.title)
     newTitle = ''
   else
     newTitle =  ` ${args.title}`
