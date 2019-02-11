@@ -3,18 +3,13 @@ import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import { openInJira } from '../lib/jira'
-import Button from './button'
-import IconLink from './icon-link'
-import Control from '../components/control'
 
 class Task extends Component {
   constructor(props) {
     super(props)
-
-    this.onContextMenu = this.onContextMenu.bind(this)
   }
 
-  onContextMenu (taskKey) {
+  onContextMenu = (taskKey, projectTransitions) => {
     const { Menu, MenuItem } = remote
 
     const menu = new Menu()
@@ -23,6 +18,22 @@ class Task extends Component {
       label: `Open ${taskKey} in JIRA`,
       click () { openInJira(taskKey) }
     }))
+
+    // Legacy tasks will not have project transitions
+    if (projectTransitions) {
+      let transitions = []
+
+      projectTransitions.forEach(transition => {
+        transitions.push({
+          label: transition.title
+        })
+      })
+
+      menu.append(new MenuItem({
+        label: `Transition status`,
+        submenu: transitions
+      }))
+    }
 
     menu.popup({})
   }
@@ -33,7 +44,7 @@ class Task extends Component {
         highlighted={this.props.highlighted}
         hasTimer={this.props.hasTimer}
         onClick={this.props.onAddTimer}
-        onContextMenu={() => { this.onContextMenu(this.props.taskKey) }}
+        onContextMenu={() => { this.onContextMenu(this.props.taskKey, this.props.projectTransitions) }}
       >
         <TaskTitle>{this.props.title}</TaskTitle>
         <TaskKey>{this.props.taskKey}</TaskKey>

@@ -1,4 +1,4 @@
-import { remote, ipcRenderer } from 'electron'
+import { remote } from 'electron'
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
@@ -8,10 +8,11 @@ import api from './lib/api'
 import handleComms from './lib/process-communication'
 import watchHeightChanges from './lib/height-change'
 import { storeState } from './lib/storage'
-import { addWorklogs, setUpdating, fetchWorklogs } from './modules/worklog'
-import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from './modules/updater'
+import { fetchWorklogs } from './modules/worklog'
+import { setVersion } from './modules/updater'
 import { setAuthToken, setJiraDomain } from './modules/user'
 import { setFirstLaunchSettings } from './modules/settings'
+import { fetchProjects } from './modules/projects'
 import AppContainer from 'containers/app/app-container'
 
 const log = remote.require('electron-log')
@@ -39,6 +40,7 @@ if (credentials) {
 
   // Lets fetch full worklogs on app launch
   store.dispatch(fetchWorklogs())
+  store.dispatch(fetchProjects())
 }
 
 console.log('App version', remote.app.getVersion())

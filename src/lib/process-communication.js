@@ -1,8 +1,8 @@
 // Here we handle communication between the "main" process (/index.js) and the "renderer" process (/src/index.js)
 import { ipcRenderer } from 'electron'
 import store from './create-store'
-import { addWorklogs, setUpdating, fetchWorklogs } from '../modules/worklog'
-import { setVersion, setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from '../modules/updater'
+import { addWorklogs, setUpdating } from '../modules/worklog'
+import { setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from '../modules/updater'
 
 const handleComms = () => {
 

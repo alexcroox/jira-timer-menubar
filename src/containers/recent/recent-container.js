@@ -2,10 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import sortBy from 'lodash.sortby'
 import { addTimer } from '../../modules/timer'
-import styled from 'styled-components'
 import { Scrollbars } from 'react-custom-scrollbars'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import HeadingBar from '../../components/heading-bar'
 import Task from '../../components/task'
 
@@ -41,6 +38,8 @@ class RecentContainer extends Component {
               <Task
                 key={task.id}
                 taskKey={task.key}
+                projectTransitions={task.projectTransitions}
+                projectKey={'123'}
                 title={task.summary}
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary)}
               />

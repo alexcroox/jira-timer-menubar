@@ -12,6 +12,7 @@ import recent from '../modules/recent'
 import worklog from '../modules/worklog'
 import updater from '../modules/updater'
 import settings from '../modules/settings'
+import projects from '../modules/projects'
 
 let initialState = (storage.get('redux')) ? storage.get('redux') : { settings: {} }
 const enhancers = []
@@ -36,6 +37,7 @@ const reducer = combineReducers({
   recent,
   worklog,
   settings,
+  projects,
   router: routerReducer,
 })
 

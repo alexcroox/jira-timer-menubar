@@ -2,7 +2,6 @@ import { remote, ipcRenderer } from 'electron'
 import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
-import find from 'lodash.find'
 import throttle from 'lodash.throttle'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
@@ -12,10 +11,8 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faPause from '@fortawesome/fontawesome-free-solid/faPause'
 import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-import faEllipsisH from '@fortawesome/fontawesome-free-solid/faEllipsisH'
 import faUpload from '@fortawesome/fontawesome-free-solid/faUpload'
 import { TaskTitle, TaskAction, TaskSummary } from '../../components/task'
-import Button from '../../components/button'
 import Control from '../../components/control'
 import OptionDots from '../../components/option-dots'
 import EditTime from '../../components/edit-time'
@@ -190,8 +187,13 @@ class TimerContainer extends Component {
     }))
 
     menu.append(new MenuItem({
-      label: 'Open in JIRA',
-      click () { openInJira(timer.key) }
+      label: 'JIRA',
+      submenu: [
+        {
+          label: 'Open in JIRA',
+          click() { openInJira(timer.key) }
+        }
+      ]
     }))
 
     menu.append(new MenuItem({

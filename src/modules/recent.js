@@ -17,13 +17,13 @@ export default function reducer (state = initialState, action = {}) {
       let list = Immutable.asMutable(state.list, {deep: true})
       let existing = find(list, ['id', action.task.id])
 
-      if (!existing) {
-        let newTask = {...action.task}
-        newTask.lastPosted = Date.now()
+      let newTask = { ...action.task }
+      newTask.lastPosted = Date.now()
+
+      if (!existing)
         list.push(newTask)
-      } else {
-        existing.lastPosted = Date.now()
-      }
+      else
+        existing = newTask
 
       return state.set('list', Immutable(list))
     }
