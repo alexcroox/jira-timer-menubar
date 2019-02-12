@@ -16,7 +16,7 @@ export const OptionDotsStyled = styled(FontAwesomeIcon)`
   color: #FFF;
 
   &:hover {
-    cursor: pointer;
+    cursor: ${props => props.loading ? 'progress' : 'default' };
     opacity: 0.8;
   }
 `

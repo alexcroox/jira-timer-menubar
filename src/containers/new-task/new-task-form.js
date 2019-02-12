@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react'
-import styled from 'styled-components'
 import compose from 'ramda/src/compose'
 import head from 'ramda/src/head'
 import revalidation, { isValid } from 'revalidation'

@@ -155,11 +155,10 @@ export const setCommenting = commenting => ({
 })
 
 // Side effects
-export const addTimer = (id, key, summary, projectTransitions) => dispatch => {
+export const addTimer = (id, key, summary) => async dispatch => {
   let timer = {
     id,
     key,
-    projectTransitions,
     summary,
     paused: false,
     startTime: Date.now(),

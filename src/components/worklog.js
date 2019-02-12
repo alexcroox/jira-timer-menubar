@@ -17,6 +17,7 @@ class Worklog extends Component {
   render() {
     return (
       <WorklogWrapper
+        loading={this.props.loading}
         onContextMenu={this.props.onOpenOptions}>
         {this.props.deleting && (
           <Control marginRight noPadding>
@@ -70,6 +71,7 @@ const WorklogWrapper = styled.div`
 
   &:hover {
     background-color: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : 'rgba(35,129,250,0.1)' };
+    cursor: ${props => props.loading ? 'progress' : 'default' };
   }
 `
 

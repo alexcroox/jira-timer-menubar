@@ -12,7 +12,6 @@ import { fetchWorklogs } from './modules/worklog'
 import { setVersion } from './modules/updater'
 import { setAuthToken, setJiraDomain } from './modules/user'
 import { setFirstLaunchSettings } from './modules/settings'
-import { fetchProjects } from './modules/projects'
 import AppContainer from 'containers/app/app-container'
 
 const log = remote.require('electron-log')
@@ -40,7 +39,6 @@ if (credentials) {
 
   // Lets fetch full worklogs on app launch
   store.dispatch(fetchWorklogs())
-  store.dispatch(fetchProjects())
 }
 
 console.log('App version', remote.app.getVersion())

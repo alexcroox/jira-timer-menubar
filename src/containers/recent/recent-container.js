@@ -9,12 +9,10 @@ import Task from '../../components/task'
 class RecentContainer extends Component {
   constructor (props) {
     super(props)
-
-    this.onAddTimer = this.onAddTimer.bind(this)
   }
 
-  onAddTimer (id, key, summary) {
-    this.props.addTimer(id, key, summary)
+  onAddTimer = (id, key, summary, projectTransitions) => {
+    this.props.addTimer(id, key, summary, projectTransitions)
   }
 
   render () {
@@ -41,7 +39,7 @@ class RecentContainer extends Component {
                 projectTransitions={task.projectTransitions}
                 projectKey={'123'}
                 title={task.summary}
-                onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary)}
+                onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary, task.projectTransitions)}
               />
             ))}
           </Scrollbars>

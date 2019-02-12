@@ -3,44 +3,54 @@ import React, { Component } from 'react'
 import styled, { css } from 'styled-components'
 import PropTypes from 'prop-types'
 import { openInJira } from '../lib/jira'
+import getTaskTransitions from '../lib/get-task-transitions'
 
 class Task extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      loadingTransitions: false
+    }
   }
 
-  onContextMenu = (taskKey, projectTransitions) => {
+  onContextMenu = async (taskKey) => {
     const { Menu, MenuItem } = remote
+
+    this.setState({ loadingTransitions: true })
 
     const menu = new Menu()
 
     menu.append(new MenuItem({
       label: `Open ${taskKey} in JIRA`,
-      click () { openInJira(taskKey) }
+      click() { openInJira(taskKey) }
     }))
 
-    // Legacy tasks will not have project transitions
-    if (projectTransitions) {
-      let transitions = []
+    try {
+      let transitions = await getTaskTransitions(taskKey)
 
-      projectTransitions.forEach(transition => {
-        transitions.push({
-          label: transition.title
-        })
-      })
+      this.setState({ loadingTransitions: false })
 
       menu.append(new MenuItem({
         label: `Transition status`,
         submenu: transitions
       }))
-    }
 
+      this.openMenu(menu)
+    } catch (error) {
+      this.setState({ loadingTransitions: false })
+      this.openMenu(menu)
+    }
+  }
+
+  openMenu = menu => {
     menu.popup({})
   }
 
   render() {
     return (
       <TaskWrapper
+        loading={this.state.loadingTransitions}
         highlighted={this.props.highlighted}
         hasTimer={this.props.hasTimer}
         onClick={this.props.onAddTimer}
@@ -83,7 +93,7 @@ const TaskWrapper = styled.div`
   }
 
   &:hover {
-    cursor: pointer;
+    cursor: ${props => props.loading ? 'progress' : 'pointer' };
     background-color: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : 'rgba(35,129,250,0.1)' };
   }
 

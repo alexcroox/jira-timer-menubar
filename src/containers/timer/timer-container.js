@@ -6,6 +6,7 @@ import throttle from 'lodash.throttle'
 import parseDuration from 'parse-duration'
 import { formatSecondsToStopWatch, roundToNearestMinutes, secondsHuman } from '../../lib/time'
 import { openInJira } from '../../lib/jira'
+import getTaskTransitions from '../../lib/get-task-transitions'
 import { deleteTimer, pauseTimer, postTimer, updateTimer, updateComment, setCommenting } from '../../modules/timer'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
@@ -27,10 +28,10 @@ class TimerContainer extends Component {
       timers: [],
       postingHumanTime: 0,
       editingTimer: null,
-      editingComment: null
+      editingComment: null,
+      loadingTransitions: false
     }
 
-    this.onOpenOptions = this.onOpenOptions.bind(this)
     this.displayTimers = this.displayTimers.bind(this)
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
@@ -172,7 +173,7 @@ class TimerContainer extends Component {
     this.props.pauseTimer(timerId, false)
   }
 
-  onOpenOptions (timer) {
+  onOpenOptions = async timer => {
     const { Menu, MenuItem } = remote
 
     let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
@@ -186,14 +187,29 @@ class TimerContainer extends Component {
       enabled: !timer.posting
     }))
 
+    let jiraSubMenu = [{
+      label: 'Open in JIRA',
+      click() { openInJira(timer.key) }
+    }]
+
+    this.setState({ loadingTransitions: true })
+
+    try {
+      let transitions = await getTaskTransitions(timer.key)
+
+      jiraSubMenu.push({
+        label: `Transition status`,
+        submenu: transitions
+      })
+
+      this.setState({ loadingTransitions: false })
+    } catch (error) {
+      this.setState({ loadingTransitions: false })
+    }
+
     menu.append(new MenuItem({
       label: 'JIRA',
-      submenu: [
-        {
-          label: 'Open in JIRA',
-          click() { openInJira(timer.key) }
-        }
-      ]
+      submenu: jiraSubMenu
     }))
 
     menu.append(new MenuItem({
@@ -272,6 +288,7 @@ class TimerContainer extends Component {
                   </TaskAction>
 
                   <OptionDots
+                    loading={this.state.loadingTransitions}
                     onClick={() => this.onOpenOptions(timer)}
                     onContextMenu={() => this.onOpenOptions(timer)}
                   />

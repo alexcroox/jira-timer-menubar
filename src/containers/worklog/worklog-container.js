@@ -5,6 +5,7 @@ import { deleteWorklog } from '../../modules/worklog'
 import styled from 'styled-components'
 import { openInJira } from '../../lib/jira'
 import { secondsHuman } from '../../lib/time'
+import getTaskTransitions from '../../lib/get-task-transitions'
 import sortBy from 'lodash.sortby'
 import find from 'lodash.find'
 import { Scrollbars } from 'react-custom-scrollbars'
@@ -12,7 +13,6 @@ import parseDuration from 'parse-duration'
 import parse from 'date-fns/parse'
 import format from 'date-fns/format'
 import isToday from 'date-fns/is_today'
-import isThisWeek from 'date-fns/is_this_week'
 import isYesterday from 'date-fns/is_yesterday'
 import { fetchWorklogs, updateWorkLogTime } from '../../modules/worklog'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -33,10 +33,10 @@ class WorklogContainer extends Component {
     super(props)
 
     this.state = {
-      editingWorklogTime: null
+      editingWorklogTime: null,
+      loadingTransitions: false
     }
 
-    this.onOpenOptions = this.onOpenOptions.bind(this)
     this.onTimeChanged = this.onTimeChanged.bind(this)
     this.onEditTime = this.onEditTime.bind(this)
     this.onResetEditTime = this.onResetEditTime.bind(this)
@@ -46,7 +46,7 @@ class WorklogContainer extends Component {
     this.props.fetchWorklogs()
   }
 
-  onOpenOptions (worklog) {
+  onOpenOptions = async worklog => {
     const menu = new Menu()
 
     menu.append(new MenuItem({
@@ -54,9 +54,30 @@ class WorklogContainer extends Component {
       click: () => { this.setState({ editingWorklogTime: worklog.id }) }
     }))
 
+    let jiraSubMenu = [{
+      label: 'Open in JIRA',
+      click() { openInJira(worklog.task.key) }
+    }]
+
+    this.setState({ loadingTransitions: true })
+
+    try {
+      let transitions = await getTaskTransitions(worklog.task.key)
+
+      jiraSubMenu.push({
+        label: `Transition status`,
+        submenu: transitions
+      })
+
+      this.setState({ loadingTransitions: false })
+    } catch (error) {
+      console.log('Error with transitions', error)
+      this.setState({ loadingTransitions: false })
+    }
+
     menu.append(new MenuItem({
-      label: `Open ${worklog.task.key} in JIRA`,
-      click () { openInJira(worklog.task.key) }
+      label: 'JIRA',
+      submenu: jiraSubMenu
     }))
 
     menu.append(new MenuItem({
@@ -102,6 +123,7 @@ class WorklogContainer extends Component {
 
         let WorkLogTemplate = <Worklog
           key={worklog.id}
+          loading={this.state.loadingTransitions}
           updating={this.props.updatingWorklog === worklog.id}
           editingWorklogTime={this.state.editingWorklogTime}
           onTimeChanged={(timeId, editedTime) => { this.onTimeChanged(worklog, editedTime) }}

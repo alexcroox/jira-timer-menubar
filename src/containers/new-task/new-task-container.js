@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import api from '../../lib/api'
 import find from 'lodash.find'
 import { addTimer } from '../../modules/timer'
-import { fetchProjects } from '../../modules/projects'
 import { isNotEmpty, isNotEmptyString } from '../../validation/helpers'
+import FooterContainer from '../footer/footer-container'
 import FormContainer from '../../components/form-container'
 import TimerContainer from '../timer/timer-container'
 import Header from '../../components/header'
@@ -31,7 +31,9 @@ class NewTaskContainer extends Component {
     this.state = {
       creating: false,
       createError: false,
+      fetchingProjects: true,
       projectOptions: [],
+      projects: [],
       projectId: null,
       issueTypes: [],
       form: {
@@ -42,37 +44,57 @@ class NewTaskContainer extends Component {
     }
 
     this.onFormSubmit = this.onFormSubmit.bind(this)
+    this.onGetProjects = this.onGetProjects.bind(this)
     this.onGetIssueTypes = this.onGetIssueTypes.bind(this)
     this.onProjectChange = this.onProjectChange.bind(this)
   }
 
-  onGetProjects = async (input, callback) => {
+  onGetProjects (input, callback) {
 
     // React select wants to call this function every time the user
     // types. We don't need to re-fetch the projects so lets send
     // back the cached list
-    if (this.state.projectOptions.length)
+    if (this.state.projects.length)
       return callback(null, {
         options: this.state.projectOptions,
         complete: true
       })
 
-    await this.props.fetchProjects()
+    this.setState({ fetchingProjects: true })
 
-    let options = []
-    this.props.projects.map(project => {
-      options.push({
-        value: project.id,
-        label: project.name
+    api.get('/project?expand=issueTypes')
+      .then(projects => {
+
+        this.setState({
+          fetchingProjects: false,
+          projects
+        })
+
+        let options = []
+        projects.map(project => {
+          options.push({
+            value: project.id,
+            label: project.name
+          })
+        })
+
+        this.setState({ projectOptions: options })
+
+        callback(null, {
+          options,
+          complete: true
+        })
       })
-    })
+      .catch(error => {
+        console.log('Error fetching projects', error)
 
-    this.setState({ projectOptions: options })
+        this.setState({ fetchingProjects: false })
 
-    callback(null, {
-      options,
-      complete: true
-    })
+        callback(null, {
+          options,
+          complete: true
+        })
+      })
   }
 
   onGetIssueTypes (input, callback) {
@@ -136,7 +158,7 @@ class NewTaskContainer extends Component {
         })
 
         // Now create a new timer for convienience
-        this.props.addTimer(newIssue.id, newIssue.key, form.title, form.project)
+        this.props.addTimer(newIssue.id, newIssue.key, form.title)
 
         this.props.history.push('/dashboard')
       })
@@ -168,7 +190,7 @@ class NewTaskContainer extends Component {
             validateOnChange={true}
             validateSingle={true}
             submitting={this.state.creating}
-            fetchingProjects={this.props.fetchingProjects}
+            fetchingProjects={this.state.fetchingProjects}
             getProjects={this.onGetProjects}
             onProjectChange={this.onProjectChange}
             getIssueTypes={this.onGetIssueTypes}
@@ -180,15 +202,9 @@ class NewTaskContainer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  fetchingProjects: state.projects.fetching,
-  projects: state.projects.list
-})
-
 const mapDispatchToProps = {
-  addTimer,
-  fetchProjects
+  addTimer
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewTaskContainer)
+export default connect(null, mapDispatchToProps)(NewTaskContainer)
 
