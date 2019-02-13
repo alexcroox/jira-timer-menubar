@@ -45,6 +45,7 @@ const installExtensions = () => {
 }
 
 let mb = null
+let renderProcess = null
 let credentials = null
 let jiraUserKey = null
 let windowVisible = false
@@ -148,7 +149,7 @@ function launchMenuBar () {
 
       if (jiraUserKey) {
 
-        let renderProcess = mb.window.webContents
+        renderProcess = mb.window.webContents
 
         // Tell the main process the window is visible
         renderProcess.send('windowVisible')

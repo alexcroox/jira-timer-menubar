@@ -38,7 +38,7 @@ const handleComms = () => {
       let task = await api.get(`/issue/${taskKey}?fields=summary`)
       console.log('Found deep link task', task)
 
-      store.dispatch(addTimer(task.id, taskKey, task.fields.summary))
+      store.dispatch(addTimer(task.id, task.key, task.fields.summary))
     } catch (error) {
       console.error('Error deep link adding timer', error)
     }

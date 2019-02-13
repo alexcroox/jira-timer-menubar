@@ -8,6 +8,10 @@ macOS and Linux menubar app for JIRA time logging. Built with React and Electron
 
 Head over to the [releases to download](https://github.com/alexcroox/jira-timer-menubar/releases/latest) for macOS or Linux.
 
+## Chrome Extension
+
+Install the [Chrome extension](https://github.com/alexcroox/jira-timer-menubar-chrome-extension) to quickly start a timer from the JIRA web ui.
+
 #### Linux users
 
 If you are running newer versions of GNOME you will need the 
