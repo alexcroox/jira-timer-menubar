@@ -11,8 +11,8 @@ class RecentContainer extends Component {
     super(props)
   }
 
-  onAddTimer = (id, key, summary, projectTransitions) => {
-    this.props.addTimer(id, key, summary, projectTransitions)
+  onAddTimer = (id, key, summary) => {
+    this.props.addTimer(id, key, summary)
   }
 
   render () {
@@ -36,8 +36,6 @@ class RecentContainer extends Component {
               <Task
                 key={task.id}
                 taskKey={task.key}
-                projectTransitions={task.projectTransitions}
-                projectKey={'123'}
                 title={task.summary}
                 onAddTimer={() => this.onAddTimer(task.id, task.key, task.summary, task.projectTransitions)}
               />

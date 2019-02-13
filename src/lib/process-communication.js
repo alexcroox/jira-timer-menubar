@@ -3,6 +3,8 @@ import { ipcRenderer } from 'electron'
 import store from './create-store'
 import { addWorklogs, setUpdating } from '../modules/worklog'
 import { setUpdateInfo, setDownloaded, setChecking, setUpdateAvailable } from '../modules/updater'
+import { addTimer } from '../modules/timer'
+import api from './api'
 
 const handleComms = () => {
 
@@ -25,6 +27,23 @@ const handleComms = () => {
 
     store.dispatch(setUpdating(false))
   })
+
+  ipcRenderer.on('create-timer', async (event, dataPayload) => {
+    let data = JSON.parse(dataPayload)
+    let taskKey = data.taskKey
+
+    console.log('Create timer called', data)
+
+    try {
+      let task = await api.get(`/issue/${taskKey}?fields=summary`)
+      console.log('Found deep link task', task)
+
+      store.dispatch(addTimer(task.id, taskKey, task.fields.summary))
+    } catch (error) {
+      console.error('Error deep link adding timer', error)
+    }
+  })
+
 
   ipcRenderer.on('updateStatus', (event, info) => {
     var updateInfo = JSON.parse(info)

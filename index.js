@@ -10,13 +10,14 @@ const JiraWorklogs = require('./jira-worklogs')
 const Updater = require('./auto-updater')
 const keyChainService = (process.env.NODE_ENV !== 'development') ? 'jira-timer-mb' : 'jira-timer-mb-dev'
 const Worklogs = new JiraWorklogs(keyChainService)
+const url = require('url')
 
 log.transports.file.level = 'silly'
 log.transports.console.level = 'silly'
 
 log.info(app.getName())
 log.info(app.getVersion())
-console.log(app.getName(), app.getVersion())
+log.info(app.getName(), app.getVersion())
 
 // Resolve user $PATH env variable
 require('fix-path')()
@@ -27,7 +28,7 @@ if (process.env.NODE_ENV === 'development')
 const installExtensions = () => {
   return new Promise((resolve, reject) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('Installing dev extensions')
+      log.info('Installing dev extensions')
 
       const installer = require('electron-devtools-installer')
 
@@ -36,7 +37,7 @@ const installExtensions = () => {
 
       Promise.all(
         extensions.map(name => installer.default(installer[name], forceDownload))
-      ).then(() => resolve()).catch(console.log)
+      ).then(() => resolve()).catch(log.info)
     } else {
       return resolve()
     }
@@ -59,7 +60,7 @@ app.on('ready', () => {
   Worklogs.getCredentialsFromKeyChain()
     .then(keyChainCredentials => {
       credentials = keyChainCredentials
-      console.log('Credentials ready')
+      log.info('Credentials ready')
       launchMenuBar()
     })
     .catch(launchMenuBar)
@@ -73,14 +74,14 @@ if (process.platform === 'darwin') {
 
   currentIcon = !darkMode ? path.join(app.getAppPath(), '/static/tray-dark.png') : path.join(app.getAppPath(), '/static/tray-white.png')
 
-  console.log('Dark mode main process', darkMode)
+  log.info('Dark mode main process', darkMode)
 
   // Listen for dynamic dark mode changes from system preferences
   systemPreferences.subscribeNotification(
     'AppleInterfaceThemeChangedNotification',
     () => {
       darkMode = systemPreferences.isDarkMode()
-      console.log('Dark mode switched main process', darkMode)
+      log.info('Dark mode switched main process', darkMode)
     }
   )
 }
@@ -127,7 +128,7 @@ function launchMenuBar () {
       toolbar: false
     })
 
-    console.log('MB Created')
+    log.info('MB Created')
 
     mb.window.credentials = credentials
 
@@ -136,7 +137,7 @@ function launchMenuBar () {
     autoUpdater.handleEvents()
 
     mb.on('ready', () => {
-      console.log('Menubar ready')
+      log.info('Menubar ready')
       mb.tray.setTitle(' Login')
     })
 
@@ -154,7 +155,7 @@ function launchMenuBar () {
 
         Worklogs.checkLock(true)
           .then(() => {
-            console.log('Telling render process we are fetching worklogs')
+            log.info('Telling render process we are fetching worklogs')
             renderProcess.send('fetchingWorklogs')
 
             let fullWeek = false
@@ -184,6 +185,23 @@ function launchMenuBar () {
     })
   }, 100)
 }
+
+// Register deep link protocol
+app.setAsDefaultProtocolClient('jiratimer')
+
+// Protocol handler for osx
+app.on('open-url', (e, deepLinkRawUrl) => {
+  e.preventDefault()
+
+  let deepLinkUrl = url.parse(deepLinkRawUrl)
+  log.info('Deep link', JSON.stringify({ deepLinkUrl }))
+
+  renderProcess.send('create-timer', JSON.stringify({
+    taskKey: deepLinkUrl.path
+  }))
+
+  mb.showWindow()
+})
 
 const updateTrayIcon = () => {
 
@@ -265,7 +283,7 @@ ipcMain.on('deletePassword', (event) => {
     .then(keyChainCredentials => {
       keychain.deletePassword(keyChainService, keyChainCredentials.account)
     })
-    .catch(() => console.log('Failed to delete keychain as it doesnt exist'))
+    .catch(() => log.info('Failed to delete keychain as it doesnt exist'))
 })
 
 ipcMain.on('fetchWorklogs', (event, args) => {
