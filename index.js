@@ -211,13 +211,13 @@ app.on('open-url', (e, deepLinkRawUrl) => {
 })
 
 const sendCreateTimerMessage = taskKey => {
+  awaitingDeepLinkTaskKey = null
+
   renderProcess.send('create-timer', JSON.stringify({
     taskKey
   }))
 
   mb.showWindow()
-
-  awaitingDeepLinkTaskKey = null
 }
 
 const updateTrayIcon = () => {
