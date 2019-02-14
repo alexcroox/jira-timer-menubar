@@ -46,6 +46,7 @@ const installExtensions = () => {
 
 let mb = null
 let renderProcess = null
+let awaitingDeepLinkTaskKey = null
 let credentials = null
 let jiraUserKey = null
 let windowVisible = false
@@ -154,6 +155,9 @@ function launchMenuBar () {
         // Tell the main process the window is visible
         renderProcess.send('windowVisible')
 
+        if (awaitingDeepLinkTaskKey)
+          sendCreateTimerMessage(awaitingDeepLinkTaskKey)
+
         Worklogs.checkLock(true)
           .then(() => {
             log.info('Telling render process we are fetching worklogs')
@@ -197,12 +201,24 @@ app.on('open-url', (e, deepLinkRawUrl) => {
   let deepLinkUrl = url.parse(deepLinkRawUrl)
   log.info('Deep link', JSON.stringify({ deepLinkUrl }))
 
+  // This event is called immediately when deep linking
+  // The app may not yet be ready so we need to fire the
+  // renderProcess message later
+  if (renderProcess)
+    sendCreateTimerMessage(deepLinkUrl.path)
+  else
+    awaitingDeepLinkTaskKey = deepLinkUrl.path
+})
+
+const sendCreateTimerMessage = taskKey => {
   renderProcess.send('create-timer', JSON.stringify({
-    taskKey: deepLinkUrl.path
+    taskKey
   }))
 
   mb.showWindow()
-})
+
+  awaitingDeepLinkTaskKey = null
+}
 
 const updateTrayIcon = () => {
 
