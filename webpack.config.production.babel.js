@@ -4,7 +4,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const baseConfig = require('./webpack.config.base');
 
 const config = merge(baseConfig, {
-  entry: ['babel-polyfill', './src/index'],
+  entry: ['babel-polyfill', './renderer/index'],
 
   output: {
     publicPath: './dist/',

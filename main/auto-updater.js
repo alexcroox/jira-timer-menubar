@@ -1,11 +1,9 @@
 // CommonJS for Node :(
-const { app, ipcMain } = require('electron')
-const { autoUpdater } = require('electron-updater')
+import { ipcMain } from 'electron'
+import { autoUpdater } from 'electron-updater'
 
 class Updater {
-
   constructor (renderProcess, log) {
-
     this.renderProcess = renderProcess
     autoUpdater.logger = log
     autoUpdater.logger.transports.file.level = 'info'
@@ -18,8 +16,7 @@ class Updater {
       autoUpdater.quitAndInstall()
     })
 
-    ipcMain.on('updateStatus', (event) => {
-
+    ipcMain.on('updateStatus', event => {
       if (process.env.NODE_ENV !== 'development')
         autoUpdater.checkForUpdates()
       else
@@ -32,14 +29,12 @@ class Updater {
     })
 
     autoUpdater.on('update-not-available', (ev, info) => {
-
       console.log('Update not available')
 
       this.renderProcess.send('updateNotAvailable')
     })
 
     autoUpdater.on('update-available', (updateInfo) => {
-
       console.log('Update available', updateInfo)
       this.renderProcess.send('updateStatus', JSON.stringify(updateInfo))
     })
@@ -61,4 +56,4 @@ class Updater {
   }
 }
 
-module.exports = Updater
+export default Updater

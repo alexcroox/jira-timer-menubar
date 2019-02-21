@@ -1,4 +1,4 @@
-// Here we handle communication between the "main" process (/index.js) and the "renderer" process (/src/index.js)
+// Here we handle communication between the "main" process (/main/index.js) and the "renderer" process (/renderer/index.js)
 import { ipcRenderer } from 'electron'
 import store from './create-store'
 import { addWorklogs, setUpdating } from '../modules/worklog'

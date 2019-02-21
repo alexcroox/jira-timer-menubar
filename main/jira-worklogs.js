@@ -1,13 +1,11 @@
-// CommonJS for Node :(
-
-const { ipcMain } = require('electron')
-const request = require('request-promise')
-const keychain = require('keytar')
-const λ = require('contra')
-const flatten = require('array-flatten')
-const parse = require('date-fns/parse')
-const orderBy = require('lodash.orderby')
-const differenceInDays = require('date-fns/difference_in_days')
+import request from 'request-promise'
+import keychain from 'keytar'
+import λ from 'contra'
+import flatten from 'array-flatten'
+import parse from 'date-fns/parse'
+import orderBy from 'lodash.orderby'
+import differenceInDays from 'date-fns/difference_in_days'
+import keychainService from './keychain-service'
 
 // JIRA doesn't provide a nice way to return all the users worklogs
 // We therefore need to do some pretty heavy lifting and it's best
@@ -16,9 +14,7 @@ const differenceInDays = require('date-fns/difference_in_days')
 
 class JiraWorklogs {
 
-  constructor (keychainService) {
-
-    this.keychainService = keychainService
+  constructor () {
     this.authKey = null
     this.baseUrl = null
     this.userKey = null
@@ -243,7 +239,7 @@ class JiraWorklogs {
 
   getCredentialsFromKeyChain () {
     return new Promise((resolve, reject) => {
-      keychain.findCredentials(this.keychainService)
+      keychain.findCredentials(keychainService)
         .then(credentials => {
           if (!credentials || !credentials.length)
             return reject('No credentials yet')
@@ -260,4 +256,4 @@ class JiraWorklogs {
   }
 }
 
-module.exports = JiraWorklogs
+export default new JiraWorklogs()

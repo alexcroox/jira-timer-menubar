@@ -12,7 +12,7 @@ import { fetchWorklogs } from './modules/worklog'
 import { setVersion } from './modules/updater'
 import { setAuthToken, setJiraDomain } from './modules/user'
 import { setFirstLaunchSettings } from './modules/settings'
-import AppContainer from 'containers/app/app-container'
+import AppContainer from './containers/app/app-container'
 
 const log = remote.require('electron-log')
 
@@ -26,7 +26,7 @@ render(
       <AppContainer />
     </MemoryRouter>
   </Provider>,
-  document.getElementById('root'),
+  document.getElementById('root')
 )
 
 let credentials = remote.getCurrentWindow().credentials
