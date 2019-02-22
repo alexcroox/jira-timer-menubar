@@ -22,7 +22,7 @@ otherwise no icon will appear in your tray, and no window can be opened.
 
 #### Install dependencies
 
-The `main` process lives inside `/main` and the renderer process inside `/renderer`. [https://electronjs.org/docs/tutorial/application-architecture](Read more about Electron Application Architecture.)
+The main process lives inside `/main` and the renderer process inside `/renderer`. [https://electronjs.org/docs/tutorial/application-architecture](Read more about Electron Application Architecture.)
 
 ```bash
 $ npm install

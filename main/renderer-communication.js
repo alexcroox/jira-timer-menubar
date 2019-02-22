@@ -1,18 +1,16 @@
 import { app, ipcMain } from 'electron'
-import keychain from 'keytar'
-import updateTrayIcon from './update-tray-icon'
 import menubar from './menubar'
-import keychainService from './keychain-service'
 import worklogs from './jira-worklogs'
+import keychain from './keychain'
 
 // IPC communication
 class RendererCommunication {
-  constructor () {
-    this.title = null
-    this.jiraUserKey = null
-  }
 
   handleEvents() {
+    // User clicked our custom quit app button
+    ipcMain.on('quit', () => {
+      app.quit()
+    })
 
     ipcMain.on('windowSizeChange', (event, newHeight) => {
       const [currentWidth, currentHeight] = menubar.handler.window.getSize()
@@ -23,7 +21,7 @@ class RendererCommunication {
     ipcMain.on('fetchWorklogs', (event, args) => {
       let { userKey } = args
 
-      this.jiraUserKey = userKey
+      keychain.jiraUserKey = userKey
 
       worklogs.request(userKey)
       .then(worklogs => {
@@ -34,23 +32,11 @@ class RendererCommunication {
       .catch(error => event.sender.send('worklogs', JSON.stringify([])))
     })
 
-    ipcMain.on('deletePassword', (event) => {
-      worklogs.getCredentialsFromKeyChain()
-        .then(keyChainCredentials => {
-          keychain.deletePassword(keyChainService, keyChainCredentials.account)
-        })
-        .catch(() => log.info('Failed to delete keychain as it doesnt exist'))
-    })
-
     ipcMain.on('openDevTools', event => {
       menubar.handler.window.webContents.openDevTools({ mode: 'detach' })
     })
 
-    ipcMain.on('setPassword', (event, args) => {
-      keychain.setPassword(keyChainService, args.jiraDomain, args.authToken)
-    })
-
-    ipcMain.on('updateTitle', menubar.updatetitle)
+    ipcMain.on('updateTitle', menubar.updateTitle)
 
     ipcMain.on('openAtLogin', (event, args) => {
       if (process.env.NODE_ENV !== 'development') {
@@ -62,4 +48,4 @@ class RendererCommunication {
   }
 }
 
-export default RendererCommunication
+export default new RendererCommunication()

@@ -1,11 +1,11 @@
 import request from 'request-promise'
-import keychain from 'keytar'
+import log from 'electron-log'
 import λ from 'contra'
 import flatten from 'array-flatten'
 import parse from 'date-fns/parse'
 import orderBy from 'lodash.orderby'
 import differenceInDays from 'date-fns/difference_in_days'
-import keychainService from './keychain-service'
+import keychain from './keychain'
 
 // JIRA doesn't provide a nice way to return all the users worklogs
 // We therefore need to do some pretty heavy lifting and it's best
@@ -13,23 +13,19 @@ import keychainService from './keychain-service'
 // process here and then pass back results to the renderer
 
 class JiraWorklogs {
-
   constructor () {
-    this.authKey = null
-    this.baseUrl = null
-    this.userKey = null
     this.fetching = false
     this.lastFetched = Date.now()
 
-    this.getCredentialsFromKeyChain()
-      .then(credentials => console.log('Keychain credentials found'))
-      .catch(error => console.log('Unable to fetch credentials', error))
+    keychain.getCredentials()
+      .then(credentials => log.info('Keychain credentials found'))
+      .catch(error => log.info('Unable to fetch credentials', error))
   }
 
   checkLock (throttle) {
     return new Promise((resolve, reject) => {
       if (this.fetching) {
-        console.log('Already fetching worklogs, request denied')
+        log.info('Already fetching worklogs, request denied')
         return reject()
       }
 
@@ -40,7 +36,7 @@ class JiraWorklogs {
         let secondsSinceLastFetch = Math.round((executionStart - this.lastFetched) / 1000)
 
         if (secondsSinceLastFetch < 5) {
-          console.log('Fetched too recently, request denied')
+          log.info('Fetched too recently, request denied')
           return reject()
         }
       }
@@ -60,20 +56,20 @@ class JiraWorklogs {
         .then(() => {
 
           this.fetching = true
-          this.userKey = userKey
+          keychain.jiraUserKey = userKey
 
           this.fetchMine()
             .then(worklogs => {
               this.fetching = false
               let executionSeconds = Math.round((Date.now() - executionStart) / 1000)
-              console.log('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
+              log.info('Fetched worklogs', worklogs.length, `Took: ${executionSeconds} seconds`)
 
               this.lastFetched = Date.now()
               resolve(worklogs)
             })
             .catch(error => {
               this.fetching = false
-              console.log('Failed to fetch worklogs', error)
+              log.info('Failed to fetch worklogs', error)
 
               this.lastFetched = 0
               reject(error)
@@ -85,19 +81,19 @@ class JiraWorklogs {
 
   fetchMine () {
     return new Promise((resolve, reject) => {
-      if (!this.authKey) {
-        this.getCredentialsFromKeyChain()
+      if (!keychain.authKey) {
+        keychain.getCredentials()
           .then(() => {
-            this.fetch(this.userKey)
+            this.fetch(keychain.jiraUserKey)
               .then(worklogs => resolve(worklogs))
               .catch(error => reject(error))
           })
           .catch(error => {
-            console.log('Unable to fetch credentials', error)
+            log.info('Unable to fetch credentials', error)
             reject(error)
           })
       } else {
-        this.fetch(this.userKey)
+        this.fetch(keychain.jiraUserKey)
           .then(worklogs => resolve(worklogs))
           .catch(error => reject(error))
       }
@@ -109,7 +105,7 @@ class JiraWorklogs {
       this.fetchRecentlyUpdatedTasks()
         .then(tasks => {
 
-          console.log('Latest tasks', tasks.length)
+          log.info('Latest tasks', tasks.length)
 
           let worklogs = []
 
@@ -129,7 +125,7 @@ class JiraWorklogs {
 
           }, err => {
 
-            console.log('Finished fetching all worklogs')
+            log.info('Finished fetching all worklogs')
 
             if (err) {
               this.fetching = false
@@ -143,7 +139,7 @@ class JiraWorklogs {
           })
         })
         .catch(error => {
-          console.log('Error fetching latest tasks', error)
+          log.info('Error fetching latest tasks', error)
           this.fetching = false
           reject(error)
         })
@@ -193,14 +189,14 @@ class JiraWorklogs {
 
           let currentUserWorklogs = []
 
-          //console.log('Worklogs in issue', task.key, response.worklogs.length)
+          //log.info('Worklogs in issue', task.key, response.worklogs.length)
 
           response.worklogs.forEach(worklog => {
 
             let created = parse(worklog.created)
             let ageInDays = differenceInDays(new Date(), created)
 
-            if (worklog.author.key === this.userKey && ageInDays < 7)
+            if (worklog.author.key === keychain.jiraUserKey && ageInDays < 7)
               currentUserWorklogs.push({
                 id: worklog.id,
                 created: worklog.started,
@@ -222,9 +218,9 @@ class JiraWorklogs {
   sendRequest (urlPath, method, data = {}) {
     return new Promise((resolve, reject) => {
       request({
-        uri: `https://${this.baseUrl}/rest/api/2${urlPath}`,
+        uri: `https://${keychain.baseUrl}/rest/api/2${urlPath}`,
         headers: {
-          'Authorization': `Basic ${this.authKey}`,
+          'Authorization': `Basic ${keychain.authKey}`,
         },
         method: method,
         body: data,
@@ -237,23 +233,7 @@ class JiraWorklogs {
     })
   }
 
-  getCredentialsFromKeyChain () {
-    return new Promise((resolve, reject) => {
-      keychain.findCredentials(keychainService)
-        .then(credentials => {
-          if (!credentials || !credentials.length)
-            return reject('No credentials yet')
 
-          console.log('Set credentials')
-
-          this.authKey = credentials[0].password
-          this.baseUrl = credentials[0].account
-
-          resolve(credentials[0])
-        })
-        .catch(error => reject(error))
-    })
-  }
 }
 
 export default new JiraWorklogs()

@@ -2,9 +2,11 @@ import { app, systemPreferences, Menu } from 'electron'
 import path from 'path'
 import menubar from 'menubar'
 import log from 'electron-log'
-import Updater from './auto-updater'
-import RendererCommunication from './renderer-communication'
+import autoUpdater from './auto-updater'
+import rendererCommunication from './renderer-communication'
 import updateTrayIcon from './update-tray-icon'
+import deepLink from './deep-link'
+import keychain from './keychain'
 
 // For copy and paste to work within the menubar we
 // need to enable the OS standard Edit menus :(
@@ -28,9 +30,10 @@ const menuItems = Menu.buildFromTemplate([
 class Menubar {
   constructor() {
     this.currentIcon = path.join(app.getAppPath(), '/static/tray-dark.png')
-    this.darkMode = false
     this.handler = null
+    this.renderProcess = null
     this.windowVisible = false
+    this.darkMode = false
     this.title = ' Login'
     this.timerRunning = false
 
@@ -39,7 +42,7 @@ class Menubar {
 
   // Transparency workaround https://github.com/electron/electron/issues/2170
   delayedLaunch() {
-    setTimeout(this.launch, 100)
+    setTimeout(this.launch.bind(this), 100)
   }
 
   launch() {
@@ -48,7 +51,7 @@ class Menubar {
 
     this.handler = menubar({
       alwaysOnTop: process.env.NODE_ENV === 'development',
-      icon: currentIcon,
+      icon: this.currentIcon,
       width: 500,
       minWidth: 500,
       maxWidth: 500,
@@ -64,15 +67,11 @@ class Menubar {
 
     log.info('MB Created')
 
-    this.handler.window.credentials = credentials
+    this.handler.window.credentials = keychain.credentials
 
     // Start event handling for the auto updater
-    const autoUpdater = new Updater(this.handler.window.webContents, log)
     autoUpdater.handleEvents()
-
-    const rendererCommunication = new RendererCommunication(mb, Worklogs, keyChainService)
     rendererCommunication.handleEvents()
-
     this.handleEvents()
   }
 
@@ -88,28 +87,28 @@ class Menubar {
 
       updateTrayIcon()
 
-      if (jiraUserKey) {
-        renderProcess = this.handler.window.webContents
+      if (keychain.jiraUserKey) {
+        this.renderProcess = this.handler.window.webContents
 
         // Tell the main process the window is visible
-        renderProcess.send('windowVisible')
+        this.renderProcess.send('windowVisible')
 
-        if (awaitingDeepLinkTaskKey)
-          sendCreateTimerMessage(awaitingDeepLinkTaskKey)
+        if (deepLink.taskKey)
+          deepLink.sendCreateTimerMessage()
 
-        renderProcess.send('fetchingWorklogs')
+        this.renderProcess.send('fetchingWorklogs')
 
         try {
-          let worklogs = await Worklogs.request(jiraUserKey)
-          renderProcess.send('worklogs', JSON.stringify({ worklogs }))
+          let worklogs = await Worklogs.request(keychain.jiraUserKey)
+          this.renderProcess.send('worklogs', JSON.stringify({ worklogs }))
         } catch (error) {
           log.error('Error fetching worklogs', error)
-          renderProcess.send('worklogs', JSON.stringify([]))
+          this.renderProcess.send('worklogs', JSON.stringify([]))
         }
       }
     })
 
-    menubar.handler.on('hide', async () => {
+    this.handler.on('hide', async () => {
       this.windowVisible = false
       updateTrayIcon()
     })
@@ -158,4 +157,4 @@ class Menubar {
   }
 }
 
-export default Menubar
+export default new Menubar()

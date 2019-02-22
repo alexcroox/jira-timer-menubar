@@ -17,15 +17,6 @@ const config = merge(baseConfig, {
     publicPath: `http://localhost:${port}/dist/`,
   },
 
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
-      },
-    ],
-  },
-
   mode: 'development',
 
   plugins: [

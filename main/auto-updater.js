@@ -1,18 +1,12 @@
-// CommonJS for Node :(
 import { ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
+import log from 'electron-log'
 
 class Updater {
-  constructor (renderProcess, log) {
-    this.renderProcess = renderProcess
-    autoUpdater.logger = log
-    autoUpdater.logger.transports.file.level = 'info'
-  }
-
   handleEvents () {
 
     ipcMain.on('installUpdate', (event, message) => {
-      console.log('Installing update')
+      log.info('Installing update')
       autoUpdater.quitAndInstall()
     })
 
@@ -20,40 +14,40 @@ class Updater {
       if (process.env.NODE_ENV !== 'development')
         autoUpdater.checkForUpdates()
       else
-        setTimeout(() => this.renderProcess.send('updateNotAvailable'), 3000)
+        setTimeout(() => menubar.renderProcess.send('updateNotAvailable'), 3000)
     })
 
     autoUpdater.on('checking-for-update', () => {
-      console.log('Checking for updates...')
-      this.renderProcess.send('updateChecking')
+      log.info('Checking for updates...')
+      menubar.renderProcess.send('updateChecking')
     })
 
     autoUpdater.on('update-not-available', (ev, info) => {
-      console.log('Update not available')
+      log.info('Update not available')
 
-      this.renderProcess.send('updateNotAvailable')
+      menubar.renderProcess.send('updateNotAvailable')
     })
 
     autoUpdater.on('update-available', (updateInfo) => {
-      console.log('Update available', updateInfo)
-      this.renderProcess.send('updateStatus', JSON.stringify(updateInfo))
+      log.info('Update available', updateInfo)
+      menubar.renderProcess.send('updateStatus', JSON.stringify(updateInfo))
     })
 
     autoUpdater.on('download-progress', (progress) => {
-      console.log('Download progress', progress);
-      this.renderProcess.send('updateDownloadProgress', JSON.stringify(progress))
+      log.info('Download progress', progress);
+      menubar.renderProcess.send('updateDownloadProgress', JSON.stringify(progress))
     })
 
     autoUpdater.on('update-downloaded', (ev, info) => {
-      console.log('Update downloaded')
-      this.renderProcess.send('updateReady')
+      log.info('Update downloaded')
+      menubar.renderProcess.send('updateReady')
     })
 
     autoUpdater.on('error', (ev, err) => {
-      console.log('Update error', err)
-      this.renderProcess.send('updateError')
+      log.info('Update error', err)
+      menubar.renderProcess.send('updateError')
     })
   }
 }
 
-export default Updater
+export default new Updater()
