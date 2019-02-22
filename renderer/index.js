@@ -31,6 +31,8 @@ render(
 
 let credentials = remote.getCurrentWindow().credentials
 
+console.log('creds', credentials)
+
 if (credentials) {
   store.dispatch(setAuthToken(credentials.password))
   store.dispatch(setJiraDomain(credentials.account))

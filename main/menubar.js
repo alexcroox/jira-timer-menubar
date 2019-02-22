@@ -7,6 +7,7 @@ import rendererCommunication from './renderer-communication'
 import updateTrayIcon from './update-tray-icon'
 import deepLink from './deep-link'
 import keychain from './keychain'
+import jiraWorklogs from './jira-worklogs'
 
 // For copy and paste to work within the menubar we
 // need to enable the OS standard Edit menus :(
@@ -69,9 +70,6 @@ class Menubar {
 
     this.handler.window.credentials = keychain.credentials
 
-    // Start event handling for the auto updater
-    autoUpdater.handleEvents()
-    rendererCommunication.handleEvents()
     this.handleEvents()
   }
 
@@ -80,6 +78,12 @@ class Menubar {
     this.handler.on('ready', () => {
       log.info('Menubar ready')
       this.handler.tray.setTitle(' Login')
+
+      this.renderProcess = this.handler.window.webContents
+
+      // Start event handling for the auto updater
+      autoUpdater.handleEvents()
+      rendererCommunication.handleEvents()
     })
 
     this.handler.on('show', async () => {
@@ -88,7 +92,6 @@ class Menubar {
       updateTrayIcon()
 
       if (keychain.jiraUserKey) {
-        this.renderProcess = this.handler.window.webContents
 
         // Tell the main process the window is visible
         this.renderProcess.send('windowVisible')
@@ -99,7 +102,7 @@ class Menubar {
         this.renderProcess.send('fetchingWorklogs')
 
         try {
-          let worklogs = await Worklogs.request(keychain.jiraUserKey)
+          let worklogs = await jiraWorklogs.request(keychain.jiraUserKey)
           this.renderProcess.send('worklogs', JSON.stringify({ worklogs }))
         } catch (error) {
           log.error('Error fetching worklogs', error)
@@ -124,7 +127,7 @@ class Menubar {
     else
       newTitle =  ` ${args.title}`
 
-    if (this.title !== newTitle)
+    if (this.title !== newTitle && this.handler)
       this.handler.tray.setTitle(newTitle)
 
     this.title = newTitle

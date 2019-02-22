@@ -1,7 +1,8 @@
 import { app } from 'electron'
 import log from 'electron-log'
-import installDevTools from './dev-tools'
+import installDevTools from './development/tools'
 import menubar from './menubar'
+import keychain from './keychain'
 
 log.transports.file.level = 'silly'
 log.transports.console.level = 'silly'

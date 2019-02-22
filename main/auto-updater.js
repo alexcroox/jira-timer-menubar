@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import menubar from './menubar'
 
 class Updater {
   handleEvents () {

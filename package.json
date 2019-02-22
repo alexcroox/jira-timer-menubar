@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "NODE_ENV=development electron .",
-    "dev": "concurrently -k 'node -r esm ./main/server.js' 'npm start'",
+    "dev": "concurrently -k 'node -r esm ./main/development/server.js' 'npm start'",
     "pack": "NODE_ENV=production webpack --config webpack.config.production.babel.js",
     "build": "npm run pack && electron-builder",
     "build:linux": "npm run pack && electron-builder --linux",
@@ -209,6 +209,7 @@
     "eslint-plugin-react": "^7.11.1",
     "express": "^4.16.4",
     "file-loader": "^2.0.0",
+    "https": "^1.0.0",
     "json": "^9.0.6",
     "npm-version": "^1.1.0",
     "opn-cli": "^4.0.0",
