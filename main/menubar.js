@@ -4,7 +4,7 @@ import menubar from 'menubar'
 import log from 'electron-log'
 import autoUpdater from './auto-updater'
 import rendererCommunication from './renderer-communication'
-import updateTrayIcon from './update-tray-icon'
+import updateTrayIcon from './lib/update-tray-icon'
 import deepLink from './deep-link'
 import keychain from './keychain'
 import jiraWorklogs from './jira-worklogs'
@@ -66,11 +66,11 @@ class Menubar {
       toolbar: false
     })
 
-    log.info('MB Created')
+    this.handleEvents()
+
+    log.info('Menubar Created')
 
     this.handler.window.credentials = keychain.credentials
-
-    this.handleEvents()
   }
 
   handleEvents () {

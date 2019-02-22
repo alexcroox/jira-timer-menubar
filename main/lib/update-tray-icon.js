@@ -1,6 +1,6 @@
 import path from 'path'
 import { app } from 'electron'
-import menubar from './menubar'
+import menubar from '../menubar'
 
 const updateTrayIcon = () => {
   let newIcon = null

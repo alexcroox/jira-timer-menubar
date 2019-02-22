@@ -29,9 +29,7 @@ render(
   document.getElementById('root')
 )
 
-let credentials = remote.getCurrentWindow().credentials
-
-console.log('creds', credentials)
+const credentials = remote.getCurrentWindow().credentials
 
 if (credentials) {
   store.dispatch(setAuthToken(credentials.password))

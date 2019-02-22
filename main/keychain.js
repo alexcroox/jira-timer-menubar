@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron'
 import log from 'electron-log'
 import keychain from 'keytar'
-import keychainService from './keychain-service'
+import keychainService from './lib/keychain-service'
 
 class Keychain {
   constructor() {
@@ -30,17 +30,19 @@ class Keychain {
 
   async getCredentials () {
     try {
-      this.credentials = await keychain.findCredentials(keychainService)
+      const credentials = await keychain.findCredentials(keychainService)
 
-      if (!this.credentials || !this.credentials.length)
+      if (!credentials || !credentials.length)
         throw 'No credentials yet'
 
       log.info('Set credentials')
 
-      this.authKey = this.credentials[0].password
-      this.baseUrl = this.credentials[0].account
+      this.authKey = credentials[0].password
+      this.baseUrl = credentials[0].account
 
-      return this.credentials[0]
+      this.credentials = credentials[0]
+
+      return credentials[0]
     } catch (error) {
       return error
     }
