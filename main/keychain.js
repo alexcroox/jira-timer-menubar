@@ -14,7 +14,7 @@ class Keychain {
   }
 
   handleEvents() {
-    ipcMain.on('deletePassword', async (event) => {
+    ipcMain.on('deletePassword', async () => {
       try {
         let keyChainCredentials = this.getCredentials()
         keychain.deletePassword(keychainService, keyChainCredentials.account)

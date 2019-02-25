@@ -73,10 +73,11 @@ class Menubar {
     this.handler.window.credentials = keychain.credentials
   }
 
-  handleEvents () {
+  handleEvents() {
 
     this.handler.on('ready', () => {
       log.info('Menubar ready')
+
       this.handler.tray.setTitle(' Login')
 
       this.renderProcess = this.handler.window.webContents

@@ -173,7 +173,7 @@ class TimerContainer extends Component {
     this.props.pauseTimer(timerId, false)
   }
 
-  onOpenOptions = async timer => {
+  onOpenOptions = async (timer) => {
     const { Menu, MenuItem } = remote
 
     let nearestMinutes = roundToNearestMinutes(timer.realTimeSecondsElapsed)
