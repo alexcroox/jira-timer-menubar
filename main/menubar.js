@@ -1,4 +1,8 @@
-import { app, systemPreferences, Menu } from 'electron'
+import {
+  app,
+  systemPreferences,
+  Menu
+} from 'electron'
 import path from 'path'
 import menubar from 'menubar'
 import log from 'electron-log'
@@ -11,22 +15,37 @@ import jiraWorklogs from './jira-worklogs'
 
 // For copy and paste to work within the menubar we
 // need to enable the OS standard Edit menus :(
-const menuItems = Menu.buildFromTemplate([
-  {
-    label: 'Edit',
-    submenu: [
-      {role: 'undo'},
-      {role: 'redo'},
-      {type: 'separator'},
-      {role: 'cut'},
-      {role: 'copy'},
-      {role: 'paste'},
-      {role: 'pasteandmatchstyle'},
-      {role: 'delete'},
-      {role: 'selectall'}
-    ]
-  }
-])
+const menuItems = Menu.buildFromTemplate([{
+  label: 'Edit',
+  submenu: [{
+      role: 'undo'
+    },
+    {
+      role: 'redo'
+    },
+    {
+      type: 'separator'
+    },
+    {
+      role: 'cut'
+    },
+    {
+      role: 'copy'
+    },
+    {
+      role: 'paste'
+    },
+    {
+      role: 'pasteandmatchstyle'
+    },
+    {
+      role: 'delete'
+    },
+    {
+      role: 'selectall'
+    }
+  ]
+}])
 
 class Menubar {
   constructor() {
@@ -104,7 +123,9 @@ class Menubar {
 
         try {
           let worklogs = await jiraWorklogs.request(keychain.jiraUserKey)
-          this.renderProcess.send('worklogs', JSON.stringify({ worklogs }))
+          this.renderProcess.send('worklogs', JSON.stringify({
+            worklogs
+          }))
         } catch (error) {
           log.error('Error fetching worklogs', error)
           this.renderProcess.send('worklogs', JSON.stringify([]))
@@ -126,7 +147,7 @@ class Menubar {
     if (args.title === '' || !args.title)
       newTitle = ''
     else
-      newTitle =  ` ${args.title}`
+      newTitle = ` ${args.title}`
 
     if (this.title !== newTitle && this.handler)
       this.handler.tray.setTitle(newTitle)

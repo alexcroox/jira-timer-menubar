@@ -29,7 +29,7 @@ const GlobalStyle = createGlobalStyle`
   }
 `
 
-const App = () =>  {
+const App = () => {
   return (
     <AppWindow>
       <GlobalStyle />
@@ -60,7 +60,7 @@ let WindowTriangle = styled.div`
 
 // If MacOS we need to overwrite the boot time static triangle defined
 // in public/index.html with a dynamic themed one
-if (process.platform === 'darwin')
+if (process.platform === 'darwin') {
   WindowTriangle = styled.div`
     width: 29px;
     height: 15px;
@@ -73,16 +73,18 @@ if (process.platform === 'darwin')
     z-index: 11;
 
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       width: 20px;
       height: 20px;
-      background: ${props => props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF' };
+      background: ${props =>
+        props.theme.darkMode ? props.theme.dark.backgroundColor : '#FFF'};
       transform: rotate(45deg);
       top: 9px;
       left: 5px;
       box-shadow: -1px -1px 10px -2px rgba(0, 0, 0, 0.5);
     }
   `
+}
 
 export default App
