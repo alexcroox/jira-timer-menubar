@@ -8,6 +8,8 @@ macOS and Linux menubar app for JIRA time logging. Built with React and Electron
 
 Head over to the [releases to download](https://github.com/alexcroox/jira-timer-menubar/releases/latest) for macOS or Linux.
 
+You will need to use an [API Token](https://id.atlassian.com/manage-profile/security/api-tokens) as the password for your Atlassian to login. [This guide will help you generate one.](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)
+
 #### Linux users
 
 If you are running newer versions of GNOME you will need the 
